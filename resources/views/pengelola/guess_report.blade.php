@@ -6,7 +6,7 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                     <div class="header-title">
-                        <h4 class="card-title mb-0 fw-bold">Booking Dapur</h4>
+                        <h4 class="card-title mb-0">Announcement</h4>
                     </div>
 
                     <div class="d-flex gap-3">
@@ -14,7 +14,6 @@
                         @include('search.searchByDate')
                     </div>
                 </div>
-                
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-bordered">
@@ -40,6 +39,10 @@
                                         <div style="float:right;">
                                         </div>
                                     </th>
+                                    <th class="text-center">Status
+                                        <div style="float:right;">
+                                        </div>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -47,16 +50,20 @@
                                     <td class="text-center"> 1
                                     </td>
                                     <td class="text-center">
-                                        17-01-2025
+                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur adipisicing elit. Officia, maxime.', 50) }}
                                     </td>
                                     <td class="text-center">
-                                        17.30-18.30
+                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur, adipisicing elit. Obcaecati, dolore.', 50) }}
                                     </td>
                                     <td class="text-center">
-                                        Imanuel Yusuf Setio Budi
+                                        {{ Str::limit('Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repellat, sit!', 50) }}
                                     </td>
                                     <td class="text-center">
-                                        Kompor
+                                        {{ Str::limit('Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis, debitis?', 50) }}
+                                    </td>
+                                    <td class="text-center">
+                                        <button class="btn btn-success">Accept</button>
+                                        <button class="btn btn-danger">Decline</button>
                                     </td>
                                 </tr>
                             </tbody>
@@ -77,38 +84,7 @@
             </div>
         </div>
     </div>
-    </div>
-
-    <!-- Library Bundle Script -->
-    <script src="../assets/js/core/libs.min.js"></script>
-
-    <!-- External Library Bundle Script -->
-    <script src="../assets/js/core/external.min.js"></script>
-
-    <!-- Widgetchart Script -->
-    <script src="../assets/js/charts/widgetcharts.js"></script>
-
-    <!-- mapchart Script -->
-    <script src="../assets/js/charts/vectore-chart.js"></script>
-    <script src="../assets/js/charts/dashboard.js"></script>
-
-    <!-- fslightbox Script -->
-    <script src="../assets/js/plugins/fslightbox.js"></script>
-
-    <!-- Settings Script -->
-    <script src="../assets/js/plugins/setting.js"></script>
-
-    <!-- Slider-tab Script -->
-    <script src="../assets/js/plugins/slider-tabs.js"></script>
-
-    <!-- Form Wizard Script -->
-    <script src="../assets/js/plugins/form-wizard.js"></script>
-
-    <!-- AOS Animation Plugin-->
-    <script src="../assets/vendor/aos/dist/aos.js"></script>
-
-    <!-- App Script -->
-    <script src="../assets/js/hope-ui.js" defer></script>
+    </div
 
 
     </body>

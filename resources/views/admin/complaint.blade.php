@@ -1,4 +1,4 @@
-@extends('penghuni.layouts')
+@extends('admin.layouts')
 
 @section('content')
     <div class="row">
@@ -36,51 +36,36 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
+                    <div class="custom-datatable-entries">
+                        <table id="datatable" class="table table-striped" data-toggle="data-table">
                             <thead>
                                 <tr>
-                                    <th class="text-center">No.
-                                        <div style="float:right;">
-                                        </div>
-                                    </th>
-                                    <th class="text-center">Date
-                                        <div style="float:right;">
-                                        </div>
-                                    </th>
-                                    <th class="text-center">Facilities
-                                        <div style="float:right;">
-                                        </div>
-                                    </th>
-                                    <th class="text-center">Description
-                                        <div style="float:right;">
-                                        </div>
-                                    </th>
-                                    <th class="text-center">Status
-                                        <div style="float:right;">
-                                        </div>
-                                    </th>
+                                    <th>No</th>
+                                    <th>Date</th>
+                                    <th>Facilities</th>
+                                    <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr class="">
-                                    <td class="text-center"> 1
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur adipisicing elit. Officia, maxime.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur, adipisicing elit. Obcaecati, dolore.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repellat, sit!', 50) }}
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-primary">Done</span>
-                                        <span class="badge bg-success">Accepted</span>
-                                        <span class="badge bg-danger">Not Accepted</span>
-                                        <span class="badge bg-warning text-dark">Pending</span>
-                                    </td>
+                                <tr>
+                                    <td>1</td>
+                                    <td>19-01-2025</td>
+                                    <td>AC Panas</td>
+                                    <td>Imanuel Yusuf Setio Budi</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>31-01-2025</td>
+                                    <td>13.00 - 14.00</td>
+                                    <td>Ade Reynaldi</td>
+                                    <td>Theatre</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>12-01-2025</td>
+                                    <td>10.00 - 18.00</td>
+                                    <td>Hendry Wijaya</td>
+                                    <td>Serba Guna</td>
                                 </tr>
                             </tbody>
                         </table>

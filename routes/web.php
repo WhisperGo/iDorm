@@ -4,40 +4,36 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 
-Route::get('/main', function(){
-    return view('pengelola.layouts');
+Route::get('/admin', function(){
+    return view('admin.dashboard');
+});
+
+Route::get('/complaint', function(){
+    return view('admin.complaint');
+});
+
+Route::get('/guess-report', function(){
+    return view('admin.guess_report');
 });
 
 Route::get('/announcement', function(){
-    return view('pengelola.announcement');
+    return view('admin.announcement');
 });
 
 Route::get('/resident', function(){
-    return view('pengelola.resident');
-});
-
-Route::get('/view/dapur', function(){
-    return view('pengelola.dapur');
-});
-
-Route::get('/view/mesin-cuci', function(){
-    return view('pengelola.mesin-cuci');
-});
-
-Route::get('/view/theatre', function(){
-    return view('pengelola.teater');
-});
-
-Route::get('/view/sergun', function(){
-    return view('pengelola.sergun');
-});
-
-Route::get('/view/cws', function(){
-    return view('pengelola.cws');
+    return view('admin.resident');
 });
 
 Route::get('/loan-report', function(){
-    return view('pengelola.loan_report');
+    return view('admin.loan_report');
+});
+
+Route::get('/view/dapur', function(){
+    return view('admin.guess_report');
+});
+
+Route::get('/guess-report', function(){
+    return view('admin.guess_report');
 });
 
 Route::get('/dashboard', function () {
