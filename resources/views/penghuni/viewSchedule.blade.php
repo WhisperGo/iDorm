@@ -87,7 +87,7 @@
                                         <td colspan="6" class="text-center py-5">
                                             <div class="d-flex flex-column align-items-center">
                                                 <i class="bi bi-calendar-x text-muted mb-3" style="font-size: 3rem;"></i>
-                                                <h5 class="text-muted fw-bold">Belum Ada Jadwal untuk {{ $title }} {{ Auth::user()-> }}
+                                                <h5 class="text-muted fw-bold">Belum Ada Jadwal untuk {{ $title }}>
                                                 </h5>
                                                 <p class="text-muted small mb-3">
                                                     @if (Str::contains(strtolower($title), 'dapur'))
