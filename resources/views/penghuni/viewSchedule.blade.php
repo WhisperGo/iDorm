@@ -82,7 +82,37 @@
                                         </td>
                                     </tr>
                                 @empty
-                                    {{-- Pesan jika kosong --}}
+                                    {{-- PESAN INFORMATIF SAAT DATA KOSONG --}}
+                                    <tr>
+                                        <td colspan="6" class="text-center py-5">
+                                            <div class="d-flex flex-column align-items-center">
+                                                <i class="bi bi-calendar-x text-muted mb-3" style="font-size: 3rem;"></i>
+                                                <h5 class="text-muted fw-bold">Belum Ada Jadwal untuk {{ $title }} {{ Auth::user()-> }}
+                                                </h5>
+                                                <p class="text-muted small mb-3">
+                                                    @if (Str::contains(strtolower($title), 'dapur'))
+                                                        Dapur saat ini kosong. Kamu bisa memasak tanpa perlu antre!
+                                                    @elseif(Str::contains(strtolower($title), 'mesin cuci'))
+                                                        Area laundry masih tersedia. Yuk, cuci baju kamu sekarang sebelum
+                                                        penuh.
+                                                    @elseif(Str::contains(strtolower($title), 'theater'))
+                                                        Theater Room masih sepi. Siapkan film favoritmu dan buat jadwal
+                                                        nobar!
+                                                    @elseif(Str::contains(strtolower($title), 'cws') || Str::contains(strtolower($title), 'working'))
+                                                        Area belajar masih sangat tenang. Cocok banget buat kamu yang mau
+                                                        fokus!
+                                                    @else
+                                                        Fasilitas ini belum ada yang memesan. Jadilah yang pertama
+                                                        menggunakan fasilitas hari ini!
+                                                    @endif
+                                                </p>
+                                                <a href="{{ route('booking.create', ['kategori_fasilitas' => $category]) }}"
+                                                    class="btn btn-primary btn-sm rounded-pill px-4">
+                                                    Booking Sekarang
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 @endforelse
                             </tbody>
                         </table>
