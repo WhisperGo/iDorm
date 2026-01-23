@@ -41,11 +41,11 @@
         </div>
     </div>
 
-    @include('pengelola.sidebar')
+    @include('template.sidebar')
 
     <main class="main-content">
         
-        @include('pengelola.navbar')
+        @include('template.navbar')
 
         <div class="position-relative">
             <div class="iq-banner">
@@ -56,7 +56,7 @@
                 @yield('content')
             </div>
 
-            @include('pengelola.footer')
+            @include('template.footer')
         </div>
 
     </main>

@@ -12,17 +12,21 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->increments('id');
-            $table->integer('role_id')->unsigned();
+            $table->id(); // Primary Key (BigInt Unsigned)
+
+            // Perbaikan: Gunakan foreignId agar otomatis sinkron dengan tabel roles
+            $table->foreignId('role_id')->constrained('roles')->onUpdate('cascade')->onDelete('restrict');
+
             $table->string('card_id', 4)->unique();
             $table->string('password');
             $table->enum('account_status', ['active', 'frozen'])->default('active');
             $table->dateTime('last_login_at')->nullable();
-            $table->dateTime('created_at')->useCurrent();
-            $table->dateTime('updated_at')->useCurrent();
-            $table->dateTime('deleted_at')->nullable();
+            
+            // Gunakan standar Laravel untuk timestamps dan softDeletes
+            $table->timestamps(); // Menghasilkan created_at & updated_at
+            $table->softDeletes(); // Menghasilkan deleted_at
 
-            $table->foreign('role_id')->references('id')->on('roles')->onUpdate('cascade')->onDelete('restrict');
+            $table->rememberToken();
         });
     }
 

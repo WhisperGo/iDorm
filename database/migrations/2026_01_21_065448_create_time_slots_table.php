@@ -12,13 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('time_slots', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id(); // BigInt Unsigned - Penting agar sinkron dengan bookings.slot_id
             $table->enum('facilities', ['heavy', 'light']);
             $table->time('start_time');
             $table->time('end_time');
-            $table->dateTime('created_at')->useCurrent();
-            $table->dateTime('deleted_at')->useCurrent();
-            $table->dateTime('updated_at')->nullable();
+            
+            // Gunakan standar Laravel
+            $table->timestamps(); // Menghasilkan created_at & updated_at secara otomatis
+            $table->softDeletes(); // Menghasilkan deleted_at yang defaultnya NULL (Penting!)
         });
     }
 

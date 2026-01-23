@@ -12,11 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('roles', function (Blueprint $table) {
-            $table->increments('id');
+            // GANTI increments menjadi id() agar tipenya BIGINT UNSIGNED
+            $table->id(); 
+            
             $table->string('role_name', 20);
-            $table->dateTime('created_at')->useCurrent();
-            $table->dateTime('updated_at')->useCurrent();
-            $table->dateTime('deleted_at')->nullable();
+            
+            // Gunakan standar Laravel agar seragam dengan tabel lainnya
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 

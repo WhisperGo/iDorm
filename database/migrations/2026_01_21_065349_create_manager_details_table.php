@@ -12,16 +12,23 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('manager_details', function (Blueprint $table) {
-            $table->increments('id');
-            $table->integer('user_id')->unsigned()->unique();
+            $table->id();
+
+            // Gunakan foreignId agar otomatis BIGINT UNSIGNED (sinkron dengan users.id)
+            // Tambahkan unique() karena satu user hanya punya satu detail manager
+            $table->foreignId('user_id')
+                  ->unique()
+                  ->constrained('users')
+                  ->onUpdate('cascade')
+                  ->onDelete('cascade');
+
             $table->string('full_name', 100);
             $table->enum('gender', ['Male', 'Female']);
             $table->string('phone_number', 15)->nullable();
-            $table->dateTime('created_at')->useCurrent();
-            $table->dateTime('updated_at')->useCurrent();
-            $table->dateTime('deleted_at')->nullable();
-
-            $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
+            
+            // Gunakan standar Laravel untuk timestamps dan softDeletes
+            $table->timestamps(); 
+            $table->softDeletes();
         });
     }
 

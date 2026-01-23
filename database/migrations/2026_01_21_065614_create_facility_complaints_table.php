@@ -12,18 +12,31 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('facility_complaints', function (Blueprint $table) {
-            $table->increments('id');
-            $table->integer('resident_id')->unsigned();
-            $table->integer('booking_id')->unsigned();
+            $table->id();
+
+            // resident_id merujuk ke tabel users (BigInt Unsigned)
+            $table->foreignId('resident_id')
+                  ->constrained('users')
+                  ->onUpdate('cascade')
+                  ->onDelete('restrict');
+
+            // booking_id merujuk ke tabel bookings (BigInt Unsigned)
+            $table->foreignId('booking_id')
+                  ->constrained('bookings')
+                  ->onUpdate('cascade')
+                  ->onDelete('cascade');
+
             $table->text('description');
-            $table->integer('status_id')->unsigned();
-            $table->dateTime('created_at')->useCurrent();
-            $table->dateTime('updated_at')->useCurrent();
-            $table->dateTime('deleted_at')->nullable();
-        
-            $table->foreign('resident_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('restrict');
-            $table->foreign('booking_id')->references('id')->on('bookings')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('status_id')->references('id')->on('complaint_statuses')->onUpdate('cascade')->onDelete('restrict');
+
+            // status_id merujuk ke tabel complaint_statuses (BigInt Unsigned)
+            $table->foreignId('status_id')
+                  ->constrained('complaint_statuses')
+                  ->onUpdate('cascade')
+                  ->onDelete('restrict');
+
+            // Gunakan standar Laravel untuk pengelolaan waktu
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 

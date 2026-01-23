@@ -12,18 +12,29 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('building_complaints', function (Blueprint $table) {
-            $table->increments('id');
-            $table->integer('resident_id')->unsigned();
+            $table->id();
+
+            // Gunakan foreignId agar tipe data BigInt Unsigned (SINKRON!)
+            // resident_id merujuk ke tabel users
+            $table->foreignId('resident_id')
+                  ->constrained('users')
+                  ->onUpdate('cascade')
+                  ->onDelete('restrict');
+
             $table->string('location_item', 100);
             $table->text('description');
-            $table->integer('status_id')->unsigned();
-            $table->string('photo_path')->nullable();
-            $table->dateTime('created_at')->useCurrent();
-            $table->dateTime('updated_at')->useCurrent();
-            $table->dateTime('deleted_at')->nullable();
 
-            $table->foreign('resident_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('restrict');
-            $table->foreign('status_id')->references('id')->on('complaint_statuses')->onUpdate('cascade')->onDelete('restrict');
+            // status_id merujuk ke tabel complaint_statuses
+            $table->foreignId('status_id')
+                  ->constrained('complaint_statuses')
+                  ->onUpdate('cascade')
+                  ->onDelete('restrict');
+
+            $table->string('photo_path')->nullable();
+            
+            // Standar Laravel untuk waktu
+            $table->timestamps();
+            $table->softDeletes();
         });     
     }
 

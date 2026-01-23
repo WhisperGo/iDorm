@@ -49,13 +49,13 @@
                                         <div class="row">
                                             <div class="col-lg-12">
                                                 <div class="form-group">
-                                                    <label for="email" class="form-label">Username</label>
-                                                    <input type="email"
-                                                        class="form-control @error('email') is-invalid @enderror"
-                                                        id="email" name="email" value="{{ old('email') }}"
-                                                        aria-describedby="email" placeholder=" " required autofocus>
+                                                    <label for="card_id" class="form-label">ID Card (4 Digits)</label>
+                                                    <input type="text" maxlength="4"
+                                                        class="form-control @error('card_id') is-invalid @enderror"
+                                                        id="card_id" name="card_id" value="{{ old('card_id') }}"
+                                                        placeholder="Enter your 4-digit ID" required autofocus>
 
-                                                    @error('email')
+                                                    @error('card_id')
                                                         <div class="invalid-feedback">
                                                             {{ $message }}
                                                         </div>
@@ -68,8 +68,8 @@
                                                     <label for="password" class="form-label">Password</label>
                                                     <input type="password"
                                                         class="form-control @error('password') is-invalid @enderror"
-                                                        id="password" name="password" aria-describedby="password"
-                                                        placeholder=" " required autocomplete="current-password">
+                                                        id="password" name="password" placeholder="Enter password"
+                                                        required autocomplete="current-password">
 
                                                     @error('password')
                                                         <div class="invalid-feedback">
@@ -79,22 +79,23 @@
                                                 </div>
                                             </div>
 
-                                            <div class="col-lg-12 d-flex justify-content-between">
-                                                <div class="form-check mb-3">
+                                            {{-- Letakkan tepat setelah div password --}}
+                                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                                <div class="form-check">
                                                     <input type="checkbox" class="form-check-input" id="remember_me"
                                                         name="remember">
                                                     <label class="form-check-label" for="remember_me">Remember
                                                         Me</label>
                                                 </div>
-
-                                                @if (Route::has('password.request'))
-                                                    <a href="{{ route('password.request') }}">Forgot Password?</a>
-                                                @endif
+                                                {{-- Jika butuh fitur lupa password, aktifkan ini --}}
+                                                {{-- <a href="#">Forgot Password?</a> --}}
                                             </div>
-                                        </div>
 
-                                        <div class="d-flex justify-content-center">
-                                            <button type="submit" class="btn btn-primary">Sign In</button>
+                                            <div class="d-flex justify-content-center">
+                                                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Sign
+                                                    In</button>
+                                            </div>
+                                            {{-- Penutup form ada di sini --}}
                                         </div>
                                     </form>
                                 </div>
@@ -109,25 +110,6 @@
             </div>
         </section>
     </div>
-
-    {{-- <script src="{{ asset('public/hopeui/js/core/libs.min.js') }}"></script>
-
-    <script src="{{ asset('public/hopeui/js/core/external.min.js') }}"></script>
-
-    <script src="{{ asset('public/hopeui/js/charts/widgetcharts.js') }}"></script>
-
-    <script src="{{ asset('public/hopeui/js/charts/vectore-chart.js') }}"></script>
-    <script src="{{ asset('public/hopeui/js/charts/dashboard.js') }}"></script>
-
-    <script src="{{ asset('public/hopeui/js/plugins/fslightbox.js') }}"></script>
-
-    <script src="{{ asset('public/hopeui/js/plugins/setting.js') }}"></script>
-
-    <script src="{{ asset('public/hopeui/js/plugins/slider-tabs.js') }}"></script>
-
-    <script src="{{ asset('public/hopeui/js/plugins/form-wizard.js') }}"></script>
-
-    <script src="{{ asset('public/hopeui/js/hope-ui.js') }}" defer></script> --}}
 
     <script src="{{ asset('hopeui/js/core/libs.min.js') }}"></script>
     <script src="{{ asset('hopeui/js/core/external.min.js') }}"></script>

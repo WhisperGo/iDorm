@@ -127,178 +127,168 @@
                                 <button type="submit" class="btn btn-primary w-100">Booking Co-Working Space</button>
                             </form>
                         </div>
+                        {{-- Bagian Form Mesin Cuci yang sudah disesuaikan --}}
                     @elseif(request('kategori_fasilitas') == 'mesin_cuci')
                         <div class="animate-fade-in">
-                            <h5 class="text-primary mb-3">Formulir Booking Mesin Cuci</h5>
+                            <h5 class="text-primary mb-3">Formulir Booking Mesin Cuci (Area
+                                {{ Auth::user()->residentDetails->gender }})</h5>
 
-                            {{-- Tampilkan Pesan Error dari Controller (Jika ada) --}}
                             @if (session('error'))
-                                <div class="alert alert-danger">
-                                    {{ session('error') }}
-                                </div>
+                                <div class="alert alert-danger">{{ session('error') }}</div>
                             @endif
 
-                            {{-- SATU FORM UTAMA --}}
-                            <form action="/booking/store" method="POST">
+                            <form action="{{ route('booking.store') }}" method="POST">
                                 @csrf
-                                {{-- Input Hidden untuk Kategori --}}
                                 <input type="hidden" name="kategori" value="mesin_cuci">
 
-                                {{-- 1. Input Tanggal & Jam --}}
+                                {{-- Info Otomatis (Multimedia System UX: Memberitahu user data mereka aman) --}}
+                                <div class="alert alert-info py-2 small">
+                                    Booking untuk: <strong>{{ Auth::user()->residentDetails->full_name }}</strong>
+                                    (Kamar: {{ Auth::user()->residentDetails->room_number }})
+                                </div>
+
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <label class="form-label">Tanggal Penggunaan</label>
-                                        <input type="date" class="form-control" name="tanggal"
-                                            value="{{ old('tanggal') }}" required>
+                                        <input type="date" class="form-control @error('tanggal') is-invalid @enderror"
+                                            name="tanggal" value="{{ old('tanggal', date('Y-m-d')) }}" required>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">Jam Mulai</label>
-                                        <input type="time" class="form-control" name="start_time"
-                                            value="{{ old('start_time') }}" required>
+                                        <input type="time"
+                                            class="form-control @error('start_time') is-invalid @enderror"
+                                            name="start_time" value="{{ old('start_time') }}" required>
                                     </div>
                                 </div>
 
-                                {{-- 2. Input Jumlah Mesin --}}
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Berapa mesin yang ingin digunakan?</label>
-                                    <select class="form-select" name="jumlah_mesin" required>
-                                        <option value="" selected disabled>-- Pilih Jumlah --</option>
-                                        @for ($i = 1; $i <= 5; $i++)
-                                            <option value="{{ $i }}"
-                                                {{ old('jumlah_mesin') == $i ? 'selected' : '' }}>
-                                                {{ $i }} Mesin
-                                            </option>
-                                        @endfor
-                                    </select>
-                                </div>
-
-                                {{-- 3. Pilihan Nomor Mesin (Bebas pilih, divalidasi nanti) --}}
-                                <div class="mb-3">
-                                    <label class="form-label d-block text-muted">Pilih Nomor Mesin:</label>
+                                    <label class="form-label fw-bold">Pilih Nomor Mesin:</label>
                                     <div class="row g-2 text-center">
-                                        @for ($j = 1; $j <= 5; $j++)
+                                        {{-- Loop Dinamis dari Database (Mencegah Hardcode) --}}
+                                        @foreach ($facilities as $f)
                                             <div class="col">
-                                                <input type="checkbox" class="btn-check" name="mesin_dipilih[]"
-                                                    id="mesin{{ $j }}" value="{{ $j }}"
-                                                    {{ is_array(old('mesin_dipilih')) && in_array($j, old('mesin_dipilih')) ? 'checked' : '' }}>
+                                                <input type="radio" class="btn-check" name="facility_id"
+                                                    id="mesin{{ $f->id }}" value="{{ $f->id }}" required>
                                                 <label class="btn btn-outline-primary w-100"
-                                                    for="mesin{{ $j }}">M-{{ $j }}</label>
+                                                    for="mesin{{ $f->id }}">
+                                                    {{ str_replace('Mesin Cuci ' . Auth::user()->residentDetails->gender, 'M-', $f->name) }}
+                                                </label>
                                             </div>
-                                        @endfor
+                                        @endforeach
                                     </div>
-                                    <small class="form-text text-muted">Pastikan jumlah mesin yang dicentang sama dengan
-                                        pilihan jumlah mesin di atas.</small>
+                                    @error('facility_id')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
                                 </div>
 
-                                {{-- Tombol Submit --}}
-                                <button type="submit" class="btn btn-primary w-100">
-                                    Booking Mesin Cuci Sekarang
-                                </button>
+                                <button type="submit" class="btn btn-primary w-100">Booking Mesin Cuci Sekarang</button>
                             </form>
+                            @endif
                         </div>
-                    @elseif(request('kategori_fasilitas') == 'theater')
-                        <div class="animate-fade-in">
-                            <h5 class="text-primary mb-3">Formulir Peminjaman Theater</h5>
-                            <form action="/booking/store" method="POST">
-                                @csrf
-                                {{-- Pastikan value kategori sesuai --}}
-                                <input type="hidden" name="kategori" value="cws">
+                @elseif(request('kategori_fasilitas') == 'theater')
+                    <div class="animate-fade-in">
+                        <h5 class="text-primary mb-3">Formulir Peminjaman Theater</h5>
+                        <form action="/booking/store" method="POST">
+                            @csrf
+                            {{-- Pastikan value kategori sesuai --}}
+                            <input type="hidden" name="kategori" value="cws">
 
-                                {{-- Input Tanggal --}}
-                                <div class="mb-3">
-                                    <label class="form-label">Tanggal Peminjaman</label>
-                                    <input type="date" class="form-control" name="tanggal" required>
-                                </div>
-
-                                {{-- Input Jumlah Orang --}}
-                                <div class="mb-3">
-                                    <label class="form-label">Jumlah Orang</label>
-                                    <input type="number" class="form-control" name="jumlah_orang"
-                                        placeholder="Masukkan jumlah orang" min="1" required>
-                                </div>
-
-                                {{-- Input Jam Mulai & Selesai --}}
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Jam Mulai</label>
-                                        <input type="time" class="form-control" name="start_time" required step="60">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Jam Selesai</label>
-                                        <input type="time" class="form-control" name="end_time" required>
-                                    </div>
-                                </div>
-
-                                {{-- Input Keterangan Bebas --}}
-                                <div class="mb-4">
-                                    <label class="form-label">Keterangan Tambahan</label>
-                                    <textarea class="form-control" name="keterangan" rows="3"
-                                        placeholder="Contoh: Untuk keperluan kerja kelompok / meeting project"></textarea>
-                                </div>
-
-                                <button type="submit" class="btn btn-primary w-100">Booking Co-Working Space</button>
-                            </form>
-                        </div>
-                    @elseif(request('kategori_fasilitas') == 'cws')
-                        {{-- Form Theater --}}
-                        <div>
-                            <h5 class="text-warning mb-3">Formulir Peminjaman Theater</h5>
-                            <form action="/booking/store" method="POST">
-                                @csrf
-                                <input type="hidden" name="kategori" value="theater">
-                                <div class="mb-3">
-                                    <label class="form-label">Tanggal Nonton</label>
-                                    <input type="date" class="form-control" name="tanggal" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Judul Film / Acara</label>
-                                    <input type="text" class="form-control" name="judul_acara"
-                                        placeholder="Contoh: Nobar Timnas">
-                                </div>
-                                <button type="submit" class="btn btn-warning w-100">Booking Theater</button>
-                            </form>
-                        </div>
-                        @elseif (request('kategori_fasilitas') == 'sergun')
-                            {{-- Form Dapur --}}
-                            <div class="animate-fade-in">
-                                <h5 class="text-primary mb-3">Formulir Peminjaman Serba Guna</h5>
-                                <form action="/booking/store" method="POST">
-                                    @csrf
-                                    <input type="hidden" name="kategori" value="dapur">
-                                    <div class="mb-3">
-                                        <label class="form-label">Tanggal Peminjaman</label>
-                                        <input type="date" class="form-control" name="tanggal" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Bagian Sergun yang akan di booking</label>
-                                        <select class="form-select" name="item_dapur">
-                                            <option value="">-- Pilih bagian sergun yang akan di booking --</option>
-                                            <option value="area_sergun_A">Area Sergun A (dekat kios dan tangga AG)</option>
-                                            <option value="area_sergun_B">Area Sergun B (dekat UKS)</option>
-                                            <option value="lainnya">Lainnya</option>
-                                        </select>
-                                    </div>
-                                    <div class="row mb-3">
-                                        <div class="col-md-6">
-                                            <label class="form-label">Jam Mulai</label>
-                                            <input type="time" class="form-control" name="start_time" required>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Jam Selesai</label>
-                                            <input type="time" class="form-control" name="end_time" required>
-                                        </div>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary w-100">Booking Sergun</button>
-                                </form>
+                            {{-- Input Tanggal --}}
+                            <div class="mb-3">
+                                <label class="form-label">Tanggal Peminjaman</label>
+                                <input type="date" class="form-control" name="tanggal" required>
                             </div>
-                        @else
-                            {{-- TAMPILAN AWAL (KOSONG / INSTRUKSI) --}}
-                            <div class="text-center py-5">
-                                <h5 class="text-muted">Silakan pilih kategori fasilitas untuk melanjutkan.</h5>
-                                <p class="text-muted small">Formulir peminjaman akan muncul setelah Anda memilih salah satu
-                                    menu di atas.</p>
+
+                            {{-- Input Jumlah Orang --}}
+                            <div class="mb-3">
+                                <label class="form-label">Jumlah Orang</label>
+                                <input type="number" class="form-control" name="jumlah_orang"
+                                    placeholder="Masukkan jumlah orang" min="1" required>
                             </div>
-                        @endif
+
+                            {{-- Input Jam Mulai & Selesai --}}
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Jam Mulai</label>
+                                    <input type="time" class="form-control" name="start_time" required
+                                        step="60">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Jam Selesai</label>
+                                    <input type="time" class="form-control" name="end_time" required>
+                                </div>
+                            </div>
+
+                            {{-- Input Keterangan Bebas --}}
+                            <div class="mb-4">
+                                <label class="form-label">Keterangan Tambahan</label>
+                                <textarea class="form-control" name="keterangan" rows="3"
+                                    placeholder="Contoh: Untuk keperluan kerja kelompok / meeting project"></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100">Booking Co-Working Space</button>
+                        </form>
+                    </div>
+                @elseif(request('kategori_fasilitas') == 'cws')
+                    {{-- Form Theater --}}
+                    <div>
+                        <h5 class="text-warning mb-3">Formulir Peminjaman Theater</h5>
+                        <form action="/booking/store" method="POST">
+                            @csrf
+                            <input type="hidden" name="kategori" value="theater">
+                            <div class="mb-3">
+                                <label class="form-label">Tanggal Nonton</label>
+                                <input type="date" class="form-control" name="tanggal" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Judul Film / Acara</label>
+                                <input type="text" class="form-control" name="judul_acara"
+                                    placeholder="Contoh: Nobar Timnas">
+                            </div>
+                            <button type="submit" class="btn btn-warning w-100">Booking Theater</button>
+                        </form>
+                    </div>
+                @elseif (request('kategori_fasilitas') == 'sergun')
+                    {{-- Form Dapur --}}
+                    <div class="animate-fade-in">
+                        <h5 class="text-primary mb-3">Formulir Peminjaman Serba Guna</h5>
+                        <form action="/booking/store" method="POST">
+                            @csrf
+                            <input type="hidden" name="kategori" value="dapur">
+                            <div class="mb-3">
+                                <label class="form-label">Tanggal Peminjaman</label>
+                                <input type="date" class="form-control" name="tanggal" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Bagian Sergun yang akan di booking</label>
+                                <select class="form-select" name="item_dapur">
+                                    <option value="">-- Pilih bagian sergun yang akan di booking --</option>
+                                    <option value="area_sergun_A">Area Sergun A (dekat kios dan tangga AG)</option>
+                                    <option value="area_sergun_B">Area Sergun B (dekat UKS)</option>
+                                    <option value="lainnya">Lainnya</option>
+                                </select>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Jam Mulai</label>
+                                    <input type="time" class="form-control" name="start_time" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Jam Selesai</label>
+                                    <input type="time" class="form-control" name="end_time" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Booking Sergun</button>
+                        </form>
+                    </div>
+                @else
+                    {{-- TAMPILAN AWAL (KOSONG / INSTRUKSI) --}}
+                    <div class="text-center py-5">
+                        <h5 class="text-muted">Silakan pilih kategori fasilitas untuk melanjutkan.</h5>
+                        <p class="text-muted small">Formulir peminjaman akan muncul setelah Anda memilih salah satu
+                            menu di atas.</p>
+                    </div>
+                    @endif
 
                 </div>
             </div>

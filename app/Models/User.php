@@ -45,4 +45,32 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+        // File: app/Models/User.php
+    public function role() {
+        return $this->belongsTo(Role::class);
+    }
+
+    public function residentDetails(){
+    return $this->hasOne(ResidentDetail::class, 'user_id');
+    }
+
+    public function managerDetails() {
+        return $this->hasOne(ManagerDetail::class, 'user_id');
+    }
+
+    // File: app/Models/ResidentDetail.php
+    public function user() {
+        return $this->belongsTo(User::class);
+    }
+
+    // app/Models/User.php
+    public function managedFacilities() {
+        return $this->belongsToMany(Facility::class, 'facility_admins', 'user_id', 'facility_id');
+    }
+
+    // app/Models/Booking.php
+    public function facility() {
+        return $this->belongsTo(Facility::class);
+    }
 }

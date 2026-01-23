@@ -12,22 +12,36 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('bookings', function (Blueprint $table) {
-            $table->increments('id');
-            $table->integer('user_id')->unsigned();
-            $table->integer('facility_id')->unsigned();
-            $table->integer('slot_id')->unsigned();
-            $table->integer('status_id')->unsigned();
+            $table->id();
+
+            // 1. Relasi - Menggunakan foreignId agar BigInt Unsigned (SINKRON!)
+            $table->foreignId('user_id')->constrained('users')->onUpdate('cascade')->onDelete('restrict');
+            $table->foreignId('facility_id')->constrained('facilities')->onUpdate('cascade')->onDelete('restrict');
+            $table->foreignId('status_id')->constrained('booking_statuses')->onUpdate('cascade')->onDelete('restrict');
+            
+            // 2. Slot ID (Boleh Kosong)
+            $table->foreignId('slot_id')
+                  ->nullable() 
+                  ->constrained('time_slots')
+                  ->onDelete('set null');
+
+            // 3. Data Waktu (KOLOM INI WAJIB ADA karena dipanggil di Controller)
             $table->date('booking_date');
+            $table->time('start_time')->nullable(); // Ditambahkan
+            $table->time('end_time')->nullable();   // Ditambahkan
+
+            // 4. Data Kebersihan & Bukti
+            $table->string('photo_proof_path')->nullable();
+            $table->enum('cleanliness_status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->text('admin_feedback')->nullable();
+
+            // 5. Data Tambahan
             $table->boolean('is_early_release')->default(false);
             $table->dateTime('actual_finish_at')->nullable();
-            $table->dateTime('created_at')->useCurrent();
-            $table->dateTime('updated_at')->useCurrent();
-            $table->dateTime('deleted_at')->nullable();
-        
-            $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('restrict');
-            $table->foreign('facility_id')->references('id')->on('facilities')->onUpdate('cascade')->onDelete('restrict');
-            $table->foreign('slot_id')->references('id')->on('time_slots')->onUpdate('cascade')->onDelete('restrict');
-            $table->foreign('status_id')->references('id')->on('booking_statuses')->onUpdate('cascade')->onDelete('restrict');
+            
+            // 6. Standar Laravel
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 

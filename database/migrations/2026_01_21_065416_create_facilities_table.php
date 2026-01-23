@@ -12,13 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('facilities', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id(); // BigInt Unsigned - Penting untuk relasi bookings.facility_id
             $table->string('name', 50);
             $table->enum('type', ['heavy', 'light']);
             $table->text('description')->nullable();
-            $table->dateTime('created_at')->useCurrent();
-            $table->dateTime('updated_at')->useCurrent();
-            $table->dateTime('deleted_at')->nullable();
+            
+            // Menggunakan standar Laravel agar lebih rapi
+            $table->timestamps(); // Menggantikan created_at & updated_at manual
+            $table->softDeletes(); // Menggantikan deleted_at manual
         });
     }
 

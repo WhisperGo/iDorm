@@ -9,7 +9,7 @@
 
                     {{-- BARIS 1: Tombol Add Sendirian di Atas --}}
                     <div class="mb-3">
-                        <a href="#" class="btn btn-primary d-inline-flex align-items-center px-4 py-2">
+                        <a href="/complaint/create" class="btn btn-primary d-inline-flex align-items-center px-4 py-2">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
                                 class="bi bi-plus-lg me-2" viewBox="0 0 16 16">
                                 <path fill-rule="evenodd"

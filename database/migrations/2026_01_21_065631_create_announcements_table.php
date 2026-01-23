@@ -12,15 +12,20 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('announcements', function (Blueprint $table) {
-            $table->increments('id');
-            $table->integer('author_id')->unsigned();
+            $table->id();
+
+            // Gunakan foreignId agar otomatis BigInt Unsigned (SINKRON dengan users.id)
+            $table->foreignId('author_id')
+                  ->constrained('users')
+                  ->onUpdate('cascade')
+                  ->onDelete('restrict');
+
             $table->string('title', 150);
             $table->text('content');
-            $table->dateTime('created_at')->useCurrent();
-            $table->dateTime('updated_at')->useCurrent();
-            $table->dateTime('deleted_at')->nullable();
-        
-            $table->foreign('author_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('restrict');
+
+            // Standar Laravel untuk pengelolaan waktu
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 

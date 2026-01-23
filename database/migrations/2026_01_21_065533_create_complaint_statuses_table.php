@@ -12,10 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('complaint_statuses', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id(); // BigInt Unsigned - Standar untuk relasi foreign key
             $table->string('status_name', 20);
-            $table->dateTime('created_at')->useCurrent();
-            $table->dateTime('updated_at')->useCurrent();
+            
+            // Menggunakan standar Laravel agar sinkron dengan tabel lainnya
+            $table->timestamps(); 
         });
     }
 

@@ -43,11 +43,11 @@
         </div>
     </div>
 
-    @include('admin.sidebar')
+    @include('template.sidebar')
 
     <main class="main-content">
 
-        @include('admin.navbar')
+        @include('template.navbar')
 
         <div class="position-relative">
             <div class="iq-banner">
@@ -59,7 +59,7 @@
             </div>
 
             <div class="mb-0">
-                @include('admin.footer')
+                @include('template.footer')
             </div>
         </div>
 

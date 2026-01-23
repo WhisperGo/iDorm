@@ -6,7 +6,7 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                     <div class="header-title">
-                        <h4 class="card-title mb-0">Announcement</h4>
+                        <h4 class="card-title mb-0 fw-bold">Announcement</h4>
                     </div>
 
                     <div class="d-flex align-items-center">
@@ -40,242 +40,40 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr class="">
-                                    <td class="text-center"> 1
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur adipisicing elit. Officia, maxime.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur, adipisicing elit. Obcaecati, dolore.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repellat, sit!', 50) }}
-                                    </td>
-                                </tr>
-                                <tr class="">
-                                    <td class="text-center"> 1
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur adipisicing elit. Officia, maxime.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur, adipisicing elit. Obcaecati, dolore.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repellat, sit!', 50) }}
-                                    </td>
-                                </tr>
-                                <tr class="">
-                                    <td class="text-center"> 1
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur adipisicing elit. Officia, maxime.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur, adipisicing elit. Obcaecati, dolore.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repellat, sit!', 50) }}
-                                    </td>
-                                </tr>
-                                <tr class="">
-                                    <td class="text-center"> 1
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur adipisicing elit. Officia, maxime.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur, adipisicing elit. Obcaecati, dolore.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repellat, sit!', 50) }}
-                                    </td>
-                                </tr>
-                                <tr class="">
-                                    <td class="text-center"> 1
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur adipisicing elit. Officia, maxime.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur, adipisicing elit. Obcaecati, dolore.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repellat, sit!', 50) }}
-                                    </td>
-                                </tr>
-                                <tr class="">
-                                    <td class="text-center"> 1
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur adipisicing elit. Officia, maxime.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur, adipisicing elit. Obcaecati, dolore.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repellat, sit!', 50) }}
-                                    </td>
-                                </tr>
-                                <tr class="">
-                                    <td class="text-center"> 1
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur adipisicing elit. Officia, maxime.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur, adipisicing elit. Obcaecati, dolore.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repellat, sit!', 50) }}
-                                    </td>
-                                </tr>
-                                <tr class="">
-                                    <td class="text-center"> 1
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur adipisicing elit. Officia, maxime.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur, adipisicing elit. Obcaecati, dolore.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repellat, sit!', 50) }}
-                                    </td>
-                                </tr>
-                                <tr class="">
-                                    <td class="text-center"> 1
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur adipisicing elit. Officia, maxime.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur, adipisicing elit. Obcaecati, dolore.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repellat, sit!', 50) }}
-                                    </td>
-                                </tr>
-                                <tr class="">
-                                    <td class="text-center"> 1
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur adipisicing elit. Officia, maxime.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur, adipisicing elit. Obcaecati, dolore.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repellat, sit!', 50) }}
-                                    </td>
-                                </tr>
-                                <tr class="">
-                                    <td class="text-center"> 1
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur adipisicing elit. Officia, maxime.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur, adipisicing elit. Obcaecati, dolore.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repellat, sit!', 50) }}
-                                    </td>
-                                </tr>
-                                <tr class="">
-                                    <td class="text-center"> 1
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur adipisicing elit. Officia, maxime.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur, adipisicing elit. Obcaecati, dolore.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repellat, sit!', 50) }}
-                                    </td>
-                                </tr>
-                                <tr class="">
-                                    <td class="text-center"> 1
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur adipisicing elit. Officia, maxime.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur, adipisicing elit. Obcaecati, dolore.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repellat, sit!', 50) }}
-                                    </td>
-                                </tr>
-                                <tr class="">
-                                    <td class="text-center"> 1
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur adipisicing elit. Officia, maxime.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur, adipisicing elit. Obcaecati, dolore.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repellat, sit!', 50) }}
-                                    </td>
-                                </tr>
-                                <tr class="">
-                                    <td class="text-center"> 1
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur adipisicing elit. Officia, maxime.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur, adipisicing elit. Obcaecati, dolore.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repellat, sit!', 50) }}
-                                    </td>
-                                </tr>
-                                <tr class="">
-                                    <td class="text-center"> 1
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur adipisicing elit. Officia, maxime.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur, adipisicing elit. Obcaecati, dolore.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repellat, sit!', 50) }}
-                                    </td>
-                                </tr>
-                                <tr class="">
-                                    <td class="text-center"> 1
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur adipisicing elit. Officia, maxime.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur, adipisicing elit. Obcaecati, dolore.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repellat, sit!', 50) }}
-                                    </td>
-                                </tr>
-                                <tr class="">
-                                    <td class="text-center"> 1
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur adipisicing elit. Officia, maxime.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit amet consectetur, adipisicing elit. Obcaecati, dolore.', 50) }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ Str::limit('Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repellat, sit!', 50) }}
-                                    </td>
-                                </tr>
+                                @forelse($announcements as $announcement)
+                                    <tr>
+                                        <td class="text-center">
+                                            {{ ($announcements->currentPage() - 1) * $announcements->perPage() + $loop->iteration }}
+                                        </td>
+
+                                        <td class="text-center">
+                                            {{ $announcement->created_at->format('d M Y') }}
+                                        </td>
+
+                                        <td class="text-center">
+                                            {{ $announcement->title }}
+                                        </td>
+
+                                        <td class="text-center">
+                                            {{ Str::limit($announcement->description, 50) }}
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="text-center">Belum ada pengumuman untuk saat ini.</td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div>
+                                Showing {{ $announcements->firstItem() }} to {{ $announcements->lastItem() }} of
+                                {{ $announcements->total() }} entries
+                            </div>
+                            <div>
+                                {{ $announcements->links() }}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
