@@ -5,14 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ComplaintStatus extends Model
+class ComplaintCategory extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['status_name', 'color_class'];
+    protected $fillable = ['name'];
 
     public function complaints()
     {
-        return $this->hasMany(Complaint::class, 'status_id');
+        return $this->hasMany(Complaint::class, 'category_id');
     }
 }

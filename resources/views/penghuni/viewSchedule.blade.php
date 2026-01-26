@@ -6,21 +6,62 @@
             <div class="card shadow-sm">
                 <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                     <div class="header-title">
-                        {{-- Judul dinamis sesuai kategori (Dapur, Mesin Cuci, dll) --}}
                         <h4 class="card-title mb-0 fw-bold">Schedule: {{ $title }}</h4>
                     </div>
 
-                    <div class="d-flex gap-3">
-                        {{-- Form Pencarian (Jika kamu ingin tetap pakai @include, pastikan filenya ada) --}}
+                    <div class="d-flex gap-2">
                         <form action="{{ url()->current() }}" method="GET" class="d-flex gap-2">
+                            @if ($category == 'dapur')
+                                <select name="item" class="form-select form-select-sm color-black table-bordered border-"
+                                    onchange="this.form.submit()">
+                                    <option value="">-- Semua Alat --</option>
+                                    <option value="kompor" {{ request('item') == 'kompor' ? 'selected' : '' }}>Kompor
+                                    </option>
+                                    <option value="rice_cooker_kecil"
+                                        {{ request('item') == 'rice_cooker_kecil' ? 'selected' : '' }}>Rice Cooker Kecil
+                                    </option>
+                                    <option value="rice_cooker_besar"
+                                        {{ request('item') == 'rice_cooker_besar' ? 'selected' : '' }}>Rice Cooker Besar
+                                    </option>
+                                    <option value="airfryer_halal"
+                                        {{ request('item') == 'airfryer_halal' ? 'selected' : '' }}>Airfryer Halal</option>
+                                    <option value="airfryer_non_halal"
+                                        {{ request('item') == 'airfryer_non_halal' ? 'selected' : '' }}>Airfryer Non-Halal
+                                    </option>
+                                </select>
+                            @endif
+
+                            @if ($category == 'sergun')
+                                <select name="item" class="form-select form-select-sm" onchange="this.form.submit()">
+                                    <option value="">-- Semua Area --</option>
+                                    <option value="area_sergun_A"
+                                        {{ request('item') == 'area_sergun_A' ? 'selected' : '' }}>Area A</option>
+                                    <option value="area_sergun_B"
+                                        {{ request('item') == 'area_sergun_B' ? 'selected' : '' }}>Area B</option>
+                                </select>
+                            @endif
+
                             <input type="text" name="search" class="form-control form-control-sm"
                                 placeholder="Search name..." value="{{ request('search') }}">
+
                             <button type="submit" class="btn btn-primary btn-sm">Search</button>
+
+                            @if (request('item') || request('search'))
+                                <a href="{{ url()->current() }}" class="btn btn-secondary btn-sm">Reset</a>
+                            @endif
                         </form>
                     </div>
                 </div>
 
                 <div class="card-body">
+                    @if (session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            {!! session('error') !!}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+
                     <div class="table-responsive">
                         <table class="table table-bordered align-middle">
                             <thead class="bg-light">
@@ -33,21 +74,18 @@
                                     <th class="text-center">Status</th>
                                 </tr>
                             </thead>
-                            {{-- Bagian isi tabel di viewSchedule.blade.php --}}
                             <tbody>
-                                @forelse($bookings as $index => $b)
+                                {{-- LOGIKA PENGGABUNGAN CERDAS --}}
+                                {{-- Kita tambah item_dapur & item_sergun di kunci grouping agar alat yang berbeda tidak sengaja tergabung --}}
+                                @forelse($bookings->groupBy(fn($item) => $item->user_id . $item->booking_date . $item->start_time . $item->end_time . $item->item_dapur . $item->item_sergun) as $group)
+                                    @php $b = $group->first(); @endphp
                                     <tr>
-                                        <td class="text-center">{{ $bookings->firstItem() + $index }}</td>
+                                        <td class="text-center">{{ $loop->iteration }}</td>
                                         <td class="text-center">
                                             {{ \Carbon\Carbon::parse($b->booking_date)->format('d M Y') }}</td>
                                         <td class="text-center">
                                             <span class="badge bg-soft-primary text-primary fs-6">
-                                                @if ($b->slot)
-                                                    {{ substr($b->slot->start_time, 0, 5) }} -
-                                                    {{ substr($b->slot->end_time, 0, 5) }}
-                                                @else
-                                                    {{ substr($b->start_time, 0, 5) }} - {{ substr($b->end_time, 0, 5) }}
-                                                @endif
+                                                {{ substr($b->start_time, 0, 5) }} - {{ substr($b->end_time, 0, 5) }}
                                             </span>
                                         </td>
                                         <td>
@@ -56,14 +94,28 @@
                                                 {{ $b->user->residentDetails->room_number }}</small>
                                         </td>
                                         <td>
-                                            <div class="fw-bold">{{ $b->facility->name }}</div>
-                                            {{-- Menampilkan Detail Khusus: Judul Film / Area --}}
-                                            @if ($b->description)
-                                                <small class="text-primary"><i class="bi bi-info-circle"></i>
-                                                    {{ $b->description }}</small>
-                                            @elseif($b->item_sergun)
-                                                <small class="text-primary"><i class="bi bi-geo-alt"></i> Area:
-                                                    {{ ucwords(str_replace('_', ' ', $b->item_sergun)) }}</small>
+                                            {{-- LOGIKA TAMPILAN: MESIN CUCI vs ALAT LAIN --}}
+                                            @if (Str::contains(strtolower($b->facility->name), 'mesin cuci'))
+                                                <div class="fw-bold">Mesin Cuci</div>
+                                                <small class="text-success fw-bold">
+                                                    No. Mesin:
+                                                    @foreach ($group as $item)
+                                                        M-{{ substr($item->facility->name, -1) }}{{ !$loop->last ? ',' : '' }}
+                                                    @endforeach
+                                                </small>
+                                            @else
+                                                <div class="fw-bold">{{ $b->facility->name }}</div>
+                                                @if ($b->item_dapur)
+                                                    <small class="text-danger fw-bold"> Alat:
+                                                        {{ ucwords(str_replace('_', ' ', $b->item_dapur)) }}</small>
+                                                @elseif ($b->item_sergun)
+                                                    <small class="text-primary">
+                                                        Area:
+                                                        {{ ucwords(str_replace('_', ' ', $b->item_sergun)) }}</small>
+                                                @elseif ($b->description)
+                                                    <small class="text-muted"><i class="bi bi-info-circle"></i>
+                                                        {{ $b->description }}</small>
+                                                @endif
                                             @endif
                                         </td>
                                         <td class="text-center">
@@ -82,18 +134,17 @@
                                         </td>
                                     </tr>
                                 @empty
-                                    {{-- PESAN INFORMATIF SAAT DATA KOSONG --}}
                                     <tr>
                                         <td colspan="6" class="text-center py-5">
                                             <div class="d-flex flex-column align-items-center">
                                                 <i class="bi bi-calendar-x text-muted mb-3" style="font-size: 3rem;"></i>
-                                                <h5 class="text-muted fw-bold">Belum Ada Jadwal untuk {{ $title }}>
+                                                <h5 class="text-muted fw-bold">Belum Ada Jadwal untuk {{ $title }}
                                                 </h5>
                                                 <p class="text-muted small mb-3">
                                                     @if (Str::contains(strtolower($title), 'dapur'))
                                                         Dapur saat ini kosong. Kamu bisa memasak tanpa perlu antre!
                                                     @elseif(Str::contains(strtolower($title), 'mesin cuci'))
-                                                        Area laundry masih tersedia. Yuk, cuci baju kamu sekarang sebelum
+                                                        Area mesin cuci masih tersedia. Yuk, cuci baju kamu sekarang sebelum
                                                         penuh.
                                                     @elseif(Str::contains(strtolower($title), 'theater'))
                                                         Theater Room masih sepi. Siapkan film favoritmu dan buat jadwal
@@ -119,7 +170,6 @@
                     </div>
                 </div>
 
-                {{-- Pagination Laravel --}}
                 <div class="d-flex justify-content-end p-4">
                     {{ $bookings->appends(request()->query())->links() }}
                 </div>
@@ -127,7 +177,6 @@
         </div>
     </div>
 
-    {{-- Script tetap menggunakan asset() agar aman --}}
     @push('scripts')
         <script src="{{ asset('hopeui/js/hope-ui.js') }}" defer></script>
     @endpush

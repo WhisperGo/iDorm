@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('complaint_statuses', function (Blueprint $table) {
             $table->id(); // BigInt Unsigned - Standar untuk relasi foreign key
             $table->string('status_name', 20);
-            
             // Menggunakan standar Laravel agar sinkron dengan tabel lainnya
             $table->timestamps(); 
         });
+        
     }
 
     /**

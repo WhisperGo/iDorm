@@ -34,7 +34,7 @@ class DatabaseSeeder extends Seeder
 
         // 3. SEED FACILITIES (Termasuk Filter Gender Mesin Cuci)
         $facilities = [
-            ['name' => 'Dapur Umum Lantai 1', 'type' => 'light'],
+            ['name' => 'Dapur', 'type' => 'light'],
             ['name' => 'Mesin Cuci Male 1', 'type' => 'heavy'],
             ['name' => 'Mesin Cuci Male 2', 'type' => 'heavy'],
             ['name' => 'Mesin Cuci Male 3', 'type' => 'heavy'],

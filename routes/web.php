@@ -40,6 +40,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/complaint', [ComplaintController::class, 'index'])->name('penghuni.complaint');
         Route::get('/complaint/create', [ComplaintController::class, 'create'])->name('complaint.create');
         Route::post('/complaint/store', [ComplaintController::class, 'store'])->name('complaint.store');
+        Route::get('/complaint/detail/{id}', [ComplaintController::class, 'show'])->name('penghuni.complaint.show');
+        
     });
 
     // --- ROLE: ADMIN & MANAGER (Akses bersama untuk Manage Complaint & Resident Data) ---

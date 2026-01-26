@@ -14,32 +14,36 @@ return new class extends Migration
         Schema::create('bookings', function (Blueprint $table) {
             $table->id();
 
-            // 1. Relasi - Menggunakan foreignId agar BigInt Unsigned (SINKRON!)
+            // Relasi
             $table->foreignId('user_id')->constrained('users')->onUpdate('cascade')->onDelete('restrict');
             $table->foreignId('facility_id')->constrained('facilities')->onUpdate('cascade')->onDelete('restrict');
+
+            // HAPUS ->after('facility_id') di sini!
+            $table->string('item_dapur')->nullable(); 
+            $table->string('item_sergun')->nullable(); 
+
             $table->foreignId('status_id')->constrained('booking_statuses')->onUpdate('cascade')->onDelete('restrict');
-            
-            // 2. Slot ID (Boleh Kosong)
+
+            // Slot ID
             $table->foreignId('slot_id')
                   ->nullable() 
                   ->constrained('time_slots')
                   ->onDelete('set null');
 
-            // 3. Data Waktu (KOLOM INI WAJIB ADA karena dipanggil di Controller)
+            // Data Waktu
             $table->date('booking_date');
-            $table->time('start_time')->nullable(); // Ditambahkan
-            $table->time('end_time')->nullable();   // Ditambahkan
+            $table->time('start_time')->nullable();
+            $table->time('end_time')->nullable();
 
-            // 4. Data Kebersihan & Bukti
+            // Data Kebersihan & Bukti
             $table->string('photo_proof_path')->nullable();
             $table->enum('cleanliness_status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->text('admin_feedback')->nullable();
 
-            // 5. Data Tambahan
+            // Data Tambahan
             $table->boolean('is_early_release')->default(false);
             $table->dateTime('actual_finish_at')->nullable();
-            
-            // 6. Standar Laravel
+
             $table->timestamps();
             $table->softDeletes();
         });

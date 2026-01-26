@@ -29,6 +29,19 @@ class ComplaintController extends Controller
     return view('admin.complaint', compact('complaints'));
     }
 
+    public function show($id)
+    {
+        $complaint = \App\Models\Complaint::with(['user.residentDetails', 'category', 'status'])
+            ->findOrFail($id);
+
+        // Keamanan: Jika bukan pemiliknya, dilarang akses (403 Forbidden)
+        if ($complaint->user_id !== Auth::id()) {
+            abort(403, 'Anda tidak memiliki akses ke keluhan ini.');
+        }
+
+        return view('penghuni.complaintDetail', compact('complaint'));
+    }
+
     public function create()
     {
         // Menampilkan view form tambah keluhan

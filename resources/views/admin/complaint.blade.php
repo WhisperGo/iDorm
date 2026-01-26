@@ -41,9 +41,9 @@
                                     <th>No</th>
                                     <th>Tanggal</th>
                                     <th>Lokasi / Item</th>
+                                    <th>Deskripsi</th>
                                     <th>Pelapor (Kamar)</th>
                                     <th class="text-center">Status</th>
-                                    <th class="text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -53,6 +53,8 @@
                                         <td>{{ $item->created_at->format('d-m-Y') }}</td>
                                         <td>
                                             <div class="fw-bold">{{ $item->location_item }}</div>
+                                        </td>
+                                        <td class="text-center">
                                             <small class="text-muted">{{ Str::limit($item->description, 50) }}</small>
                                         </td>
                                         <td>
@@ -73,12 +75,6 @@
                                             @endphp
                                             <span
                                                 class="badge bg-{{ $color }}">{{ $item->status->status_name }}</span>
-                                        </td>
-                                        <td class="text-center">
-                                            <a href="#" class="btn btn-sm btn-icon btn-outline-primary"
-                                                title="Detail Keluhan">
-                                                👁️
-                                            </a>
                                         </td>
                                     </tr>
                                 @empty

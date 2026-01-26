@@ -16,6 +16,7 @@ class AnnouncementSeeder extends Seeder
         // Ambil user pertama yang memiliki role Manager (1) atau Admin (2)
         $admin = User::whereIn('role_id', [1, 2])->first();
 
+        
         // Cek jika admin ditemukan agar tidak error saat seeding
         if ($admin) {
             for ($i = 1; $i <= 25; $i++) {

@@ -19,9 +19,23 @@
                         </div>
                     @endif
 
+                    {{-- PESAN ERROR BENTROK DINAMIS --}}
+                    @if (session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                <div>
+                                    {!! session('error') !!}
+                                </div>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+
                     {{-- 1. INPUT PERTAMA (DROPDOWN UTAMA) --}}
                     <form action="" method="GET" class="mb-4">
-                        <label class="form-label fw-bold">Pilih Fasilitas yang ingin dipinjam:</label>
+                        <label class="form-label fw-bold">Pilih Fasilitas yang ingin dipinjam: <span
+                                class="text-danger">*</span></label>
 
                         <select class="form-select" name="kategori_fasilitas" onchange="this.form.submit()">
                             <option value="" selected disabled>-- Pilih Fasilitas --</option>
@@ -51,27 +65,28 @@
                                 <input type="hidden" name="facility_id" value="{{ $facilities->first()->id ?? '' }}">
                                 <input type="hidden" name="kategori" value="dapur">
                                 <div class="mb-3">
-                                    <label class="form-label">Tanggal Peminjaman</label>
+                                    <label class="form-label">Tanggal Peminjaman <span class="text-danger">*</span></label>
                                     <input type="date" class="form-control" name="booking_date" required
                                         min="{{ date('Y-m-d') }}">
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label">Alat yang dibutuhkan</label>
-                                    <select class="form-select" name="item_dapur">
+                                    <label class="form-label">Alat yang dibutuhkan <span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-select" name="item_dapur" required>
                                         <option value="">-- Pilih peralatan yang dibutuhkan --</option>
-                                        <option value="rice_cooker">Rice Cooker</option>
                                         <option value="kompor">Kompor</option>
-                                        <option value="airfryer">Airfryer</option>
+                                        <option value="rice_cooker_kecil">Rice Cooker Kecil</option>
+                                        <option value="rice_cooker_besar">Rice Cooker Besar</option>
+                                        <option value="airfryer_halal">Airfryer Halal</option>
+                                        <option value="airfryer_non_halal">Airfryer Non Halal</option>
                                     </select>
                                 </div>
-                                <div class="row mb-3">
+                                <div class="row">
                                     <div class="col-md-6">
-                                        <label class="form-label">Jam Mulai</label>
-                                        <input type="time" class="form-control" name="start_time" required>
+                                        <x-time-dropdown name="start_time" label="Jam Mulai" required="true" />
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label">Jam Selesai</label>
-                                        <input type="time" class="form-control" name="end_time" required>
+                                        <x-time-dropdown name="end_time" label="Jam Selesai" required="true" />
                                     </div>
                                 </div>
                                 <button type="submit" class="btn btn-primary w-100">Booking Dapur</button>
@@ -88,37 +103,39 @@
                                     "Theater" atau "Theatre".
                                 </div>
                             @else
-                                {{-- Teks Pembantu untuk Debug (Bisa dihapus nanti) --}}
                                 <div class="alert alert-info py-2">
                                     <small>Booking untuk: <strong>{{ $facilities->first()->name }}</strong> (ID:
                                         {{ $facilities->first()->id }})</small>
                                 </div>
-                            <form action="{{ route('booking.store') }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="facility_id" value="{{ $facilities->first()->id ?? '' }}">
-                                <input type="hidden" name="kategori" value="cws">
-                                <div class="mb-3">
-                                    <label class="form-label">Tanggal Peminjaman</label>
-                                    <input type="date" class="form-control" name="booking_date" required
-                                        min="{{ date('Y-m-d') }}">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Jumlah Orang</label>
-                                    <input type="number" class="form-control" name="jumlah_orang"
-                                        placeholder="Masukkan jumlah orang" min="1" required>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Jam Mulai</label>
-                                        <input type="time" class="form-control" name="start_time" required>
+                                <form action="{{ route('booking.store') }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="facility_id" value="{{ $facilities->first()->id ?? '' }}">
+                                    <input type="hidden" name="kategori" value="cws">
+                                    <div class="mb-3">
+                                        <label class="form-label">Tanggal Peminjaman <span
+                                                class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" name="booking_date" required
+                                            min="{{ date('Y-m-d') }}">
+                                        <small class="text-muted text-danger fw-bold">Note: CWS tidak tersedia di hari
+                                            Kamis.</small>
                                     </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Jam Selesai</label>
-                                        <input type="time" class="form-control" name="end_time" required>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Jumlah Orang <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" name="jumlah_orang"
+                                            placeholder="Masukkan jumlah orang" min="1" required>
+                                        <small class="text-muted">Minimal peminjaman: <strong>20 Orang</strong>.</small>
                                     </div>
-                                </div>
-                                <button type="submit" class="btn btn-primary w-100">Booking Co-Working Space</button>
-                            </form>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <x-time-dropdown name="start_time" label="Jam Mulai *" required="true" />
+                                        </div>
+                                        <div class="col-md-6">
+                                            <x-time-dropdown name="end_time" label="Jam Selesai *" required="true" />
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">Booking Co-Working Space</button>
+                                </form>
                             @endif
                         </div>
 
@@ -132,12 +149,14 @@
 
                                 <div class="row mb-3">
                                     <div class="col-md-6">
-                                        <label class="form-label">Tanggal Penggunaan</label>
+                                        <label class="form-label">Tanggal Penggunaan <span
+                                                class="text-danger">*</span></label>
                                         <input type="date" class="form-control" name="booking_date"
                                             value="{{ old('booking_date') }}" required min="{{ date('Y-m-d') }}">
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label">Pilih Sesi Waktu (Per 2 Jam)</label>
+                                        <label class="form-label">Pilih Sesi Waktu (Per 2 Jam) <span
+                                                class="text-danger">*</span></label>
                                         <select class="form-select" name="slot_id" required>
                                             <option value="" selected disabled>-- Pilih Sesi --</option>
                                             @foreach ($timeSlots as $slot)
@@ -151,7 +170,8 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Pilih Nomor Mesin:</label>
+                                    <label class="form-label fw-bold">Pilih Nomor Mesin: <span
+                                            class="text-danger">*</span></label>
                                     <div class="row g-2 text-center">
                                         @foreach ($facilities as $f)
                                             <div class="col">
@@ -181,7 +201,6 @@
                                     "Theater" atau "Theatre".
                                 </div>
                             @else
-                                {{-- Teks Pembantu untuk Debug (Bisa dihapus nanti) --}}
                                 <div class="alert alert-info py-2">
                                     <small>Booking untuk: <strong>{{ $facilities->first()->name }}</strong> (ID:
                                         {{ $facilities->first()->id }})</small>
@@ -192,26 +211,26 @@
                                         value="{{ $facilities->first()->id ?? '' }}">
                                     <input type="hidden" name="kategori" value="theater">
                                     <div class="mb-3">
-                                        <label class="form-label">Tanggal Nonton</label>
+                                        <label class="form-label">Tanggal Nonton <span
+                                                class="text-danger">*</span></label>
                                         <input type="date" class="form-control" name="booking_date" required
                                             min="{{ date('Y-m-d') }}">
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">Judul Film / Acara</label>
+                                        <label class="form-label">Judul Film / Acara <span
+                                                class="text-danger">*</span></label>
                                         <input type="text" class="form-control" name="description"
-                                            placeholder="Contoh: Nobar Timnas">
+                                            placeholder="Contoh: Acara Kelas" required>
                                     </div>
-                                    <div class="row mb-3">
+                                    <div class="row">
                                         <div class="col-md-6">
-                                            <label class="form-label">Jam Mulai</label>
-                                            <input type="time" class="form-control" name="start_time" required>
+                                            <x-time-dropdown name="start_time" label="Jam Mulai *" required="true" />
                                         </div>
                                         <div class="col-md-6">
-                                            <label class="form-label">Jam Selesai</label>
-                                            <input type="time" class="form-control" name="end_time" required>
+                                            <x-time-dropdown name="end_time" label="Jam Selesai *" required="true" />
                                         </div>
                                     </div>
-                                    <button type="submit" class="btn btn-warning w-100">Booking Theater</button>
+                                    <button type="submit" class="btn btn-primary w-100">Booking Theater</button>
                                 </form>
                             @endif
                         </div>
@@ -226,40 +245,40 @@
                                     "Theater" atau "Theatre".
                                 </div>
                             @else
-                                {{-- Teks Pembantu untuk Debug (Bisa dihapus nanti) --}}
                                 <div class="alert alert-info py-2">
                                     <small>Booking untuk: <strong>{{ $facilities->first()->name }}</strong> (ID:
                                         {{ $facilities->first()->id }})</small>
                                 </div>
-                            <form action="{{ route('booking.store') }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="facility_id" value="{{ $facilities->first()->id ?? '' }}">
-                                <input type="hidden" name="kategori" value="sergun">
-                                <div class="mb-3">
-                                    <label class="form-label">Tanggal Peminjaman</label>
-                                    <input type="date" class="form-control" name="booking_date" required
-                                        min="{{ date('Y-m-d') }}">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Bagian Sergun yang akan di booking</label>
-                                    <select class="form-select" name="item_sergun">
-                                        <option value="">-- Pilih bagian sergun --</option>
-                                        <option value="area_sergun_A">Area Sergun A</option>
-                                        <option value="area_sergun_B">Area Sergun B</option>
-                                    </select>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Jam Mulai</label>
-                                        <input type="time" class="form-control" name="start_time" required>
+                                <form action="{{ route('booking.store') }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="facility_id"
+                                        value="{{ $facilities->first()->id ?? '' }}">
+                                    <input type="hidden" name="kategori" value="sergun">
+                                    <div class="mb-3">
+                                        <label class="form-label">Tanggal Peminjaman <span
+                                                class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" name="booking_date" required
+                                            min="{{ date('Y-m-d') }}">
                                     </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Jam Selesai</label>
-                                        <input type="time" class="form-control" name="end_time" required>
+                                    <div class="mb-3">
+                                        <label class="form-label">Bagian Sergun yang akan di booking <span
+                                                class="text-danger">*</span></label>
+                                        <select class="form-select" name="item_sergun">
+                                            <option value="">-- Pilih bagian sergun --</option>
+                                            <option value="area_sergun_A">Area Sergun A</option>
+                                            <option value="area_sergun_B">Area Sergun B</option>
+                                        </select>
                                     </div>
-                                </div>
-                                <button type="submit" class="btn btn-primary w-100">Booking Sergun</button>
-                            </form>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <x-time-dropdown name="start_time" label="Jam Mulai *" required="true" />
+                                        </div>
+                                        <div class="col-md-6">
+                                            <x-time-dropdown name="end_time" label="Jam Selesai *" required="true" />
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">Booking Sergun</button>
+                                </form>
                             @endif
                         </div>
                     @else
@@ -294,15 +313,12 @@
                                 <tbody>
                                     @forelse($myBookings as $booking)
                                         <tr>
-                                            {{-- Ganti <td>{{ $booking->end_time }}</td> dengan ini: --}}
                                             <td>
                                                 @if ($booking->slot_id && $booking->slot)
-                                                    {{-- Jika ini Mesin Cuci (pakai sesi) --}}
                                                     {{ \Carbon\Carbon::parse($booking->slot->start_time)->format('H:i') }}
                                                     -
                                                     {{ \Carbon\Carbon::parse($booking->slot->end_time)->format('H:i') }}
                                                 @else
-                                                    {{-- Jika ini CWS/Dapur/Lainnya (pakai jam manual) --}}
                                                     {{ \Carbon\Carbon::parse($booking->start_time)->format('H:i') }} -
                                                     {{ \Carbon\Carbon::parse($booking->end_time)->format('H:i') }}
                                                 @endif
