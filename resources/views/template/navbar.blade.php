@@ -40,11 +40,11 @@
                                     </h6>
                                 @elseif (Auth::user()->role->role_name == 'Admin')
                                     <h6 class="mb-0 caption-title fw-bold">
-                                        {{ Auth::user()->adminDetails->full_name ?? Auth::user()->name }}
+                                        {{ Auth::user()->managerDetails->full_name ?? Auth::user()->name }}
                                     </h6>
                                 @elseif (Auth::user()->role->role_name == 'Manager')
                                     <h6 class="mb-0 caption-title fw-bold">
-                                        {{ Auth::user()->headResidentDetails->full_name ?? Auth::user()->name }}
+                                        {{ Auth::user()->managerDetails->full_name ?? Auth::user()->name }}
                                     </h6>
                                 @else
                                     <h6 class="mb-0 caption-title fw-bold">
