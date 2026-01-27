@@ -295,41 +295,72 @@
     @if (in_array(request('kategori_fasilitas'), ['dapur', 'mesin_cuci', 'cws', 'sergun', 'theater']))
         <div class="row justify-content-center mt-4">
             <div class="col-sm-10">
-                <div class="card">
+                <div class="card shadow-sm border-dark">
                     <div class="card-header">
                         <h4 class="card-title mb-0 fw-bold">Status Peminjaman & Kebersihan</h4>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
+                            <table class="table table-hover table-bordered align-middle">
+                                <thead class="bg-light">
                                     <tr>
-                                        <th>Fasilitas</th>
-                                        <th>Waktu Selesai</th>
-                                        <th>Status Foto</th>
-                                        <th width="30%">Aksi</th>
+                                        <th class="text-center">Fasilitas</th>
+                                        <th class="text-center">Waktu Peminjaman</th>
+                                        <th class="text-center">Status Foto</th>
+                                        <th class="text-center" width="30%">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse($myBookings as $booking)
+                                    {{-- LOGIKA GROUPING BERDASARKAN TANGGAL DAN JAM --}}
+                                    @forelse($myBookings->groupBy(fn($item) => $item->booking_date . $item->start_time . $item->end_time) as $group)
+                                        @php
+                                            $booking = $group->first();
+                                        @endphp
                                         <tr>
+                                            {{-- KOLOM 1: FASILITAS --}}
                                             <td>
-                                                @if ($booking->slot_id && $booking->slot)
-                                                    {{ \Carbon\Carbon::parse($booking->slot->start_time)->format('H:i') }}
-                                                    -
-                                                    {{ \Carbon\Carbon::parse($booking->slot->end_time)->format('H:i') }}
+                                                @if (Str::contains(strtolower($booking->facility->name), 'mesin cuci'))
+                                                    <div class="fw-bold">Mesin Cuci</div>
+                                                    <small class="text-success fw-bold">No. Mesin:
+                                                        @foreach ($group as $item)
+                                                            M-{{ substr($item->facility->name, -1) }}{{ !$loop->last ? ',' : '' }}
+                                                        @endforeach
+                                                    </small>
                                                 @else
-                                                    {{ \Carbon\Carbon::parse($booking->start_time)->format('H:i') }} -
-                                                    {{ \Carbon\Carbon::parse($booking->end_time)->format('H:i') }}
+                                                    <div class="fw-bold">{{ $booking->facility->name }}</div>
+                                                    @if ($booking->item_dapur)
+                                                        <small class="text-danger fw-bold">Alat:
+                                                            {{ ucwords(str_replace('_', ' ', $booking->item_dapur)) }}</small>
+                                                    @elseif($booking->item_sergun)
+                                                        <small class="text-primary fw-bold">Area:
+                                                            {{ ucwords(str_replace('_', ' ', $booking->item_sergun)) }}</small>
+                                                    @endif
                                                 @endif
                                             </td>
-                                            <td>
+
+                                            {{-- KOLOM 2: WAKTU --}}
+                                            <td class="text-center">
+                                                <span class="badge bg-soft-primary text-primary">
+                                                    @if ($booking->slot_id && $booking->slot)
+                                                        {{ substr($booking->slot->start_time, 0, 5) }} -
+                                                        {{ substr($booking->slot->end_time, 0, 5) }}
+                                                    @else
+                                                        {{ substr($booking->start_time, 0, 5) }} -
+                                                        {{ substr($booking->end_time, 0, 5) }}
+                                                    @endif
+                                                </span>
+                                            </td>
+
+                                            {{-- KOLOM 3: STATUS FOTO --}}
+                                            <td class="text-center">
                                                 @if ($booking->photo_proof_path)
                                                     <span class="badge bg-success">Sudah Diunggah</span>
                                                 @else
                                                     <span class="badge bg-danger">Belum Ada Foto</span>
                                                 @endif
                                             </td>
+
+                                            {{-- KOLOM 4: AKSI --}}
                                             <td>
                                                 @if (!$booking->photo_proof_path)
                                                     @php
@@ -340,6 +371,7 @@
                                                     @endphp
 
                                                     @if ($isOverdue)
+                                                        {{-- Form upload cukup satu untuk mewakili seluruh grup --}}
                                                         <form action="{{ route('booking.upload', $booking->id) }}"
                                                             method="POST" enctype="multipart/form-data">
                                                             @csrf
@@ -351,21 +383,25 @@
                                                             </div>
                                                         </form>
                                                         <small
-                                                            class="text-danger fw-bold d-block mt-1 animate__animated animate__flash animate__infinite">⚠️
-                                                            Waktu habis! Segera upload foto.</small>
+                                                            class="text-danger fw-bold d-block mt-1 animate__animated animate__flash animate__infinite">
+                                                            ⚠️ Waktu habis! Segera upload foto.
+                                                        </small>
                                                     @else
-                                                        <small class="text-muted">Upload tersedia setelah waktu
+                                                        <small class="text-muted italic">Upload tersedia setelah waktu
                                                             selesai.</small>
                                                     @endif
                                                 @else
-                                                    <button class="btn btn-sm btn-outline-primary"
-                                                        disabled>Terverifikasi</button>
+                                                    <div class="text-center">
+                                                        <button class="btn btn-sm btn-outline-primary w-100" disabled>
+                                                            <i class="bi bi-check-circle-fill me-1"></i> Terverifikasi
+                                                        </button>
+                                                    </div>
                                                 @endif
                                             </td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="4" class="text-center text-muted">Belum ada aktivitas
+                                            <td colspan="4" class="text-center py-4 text-muted">Belum ada aktivitas
                                                 peminjaman hari ini.</td>
                                         </tr>
                                     @endforelse

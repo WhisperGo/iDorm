@@ -13,6 +13,9 @@
     <link rel="stylesheet" href="{{ asset('hopeui/css/customizer.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('hopeui/css/rtl.min.css') }}" />
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    
     <style>
         /* 1. SIDEBAR PALING DEPAN */
         /* Kita paksa Sidebar punya z-index tertinggi */
@@ -33,15 +36,32 @@
             backdrop-filter: blur(10px);
             border-bottom: 1px solid #eee;
         }
+        ::-ms-reveal {
+            display: none;
+        }
+
+        /* Opsional: Menyembunyikan tombol 'clear' bawaan (tanda silang) */
+        ::-ms-clear {
+            display: none;
+        }
     </style>
+
+    <script>
+        const storedTheme = localStorage.getItem('theme');
+        if (storedTheme) {
+            document.getElementById('main-html').setAttribute('data-bs-theme', storedTheme);
+        } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.getElementById('main-html').setAttribute('data-bs-theme', 'dark');
+        }
+    </script>
 </head>
 
-<body class="">
+{{-- <body class="">
     <div id="loading">
         <div class="loader simple-loader">
             <div class="loader-body"></div>
         </div>
-    </div>
+    </div> --}}
 
     @include('template.sidebar')
 
@@ -51,16 +71,14 @@
 
         <div class="position-relative">
             <div class="iq-banner">
-                @include('admin.banner')
+                @include('penghuni.banner')
             </div>
 
             <div class="container-fluid content-inner mt-5 py-0">
                 @yield('content')
             </div>
 
-            <div class="mb-0">
-                @include('template.footer')
-            </div>
+            @include('template.footer')
         </div>
 
     </main>
@@ -76,6 +94,10 @@
     <script src="{{ asset('hopeui/js/plugins/form-wizard.js') }}"></script>
     <script src="{{ asset('hopeui/vendor/aos/dist/aos.js') }}"></script>
     <script src="{{ asset('hopeui/js/hope-ui.js') }}" defer></script>
+
+    @stack('scripts')
 </body>
 
 </html>
+<!doctype html>
+<html lang="en" dir="ltr" data-bs-theme="light" data-bs-theme-color="theme-color-default">

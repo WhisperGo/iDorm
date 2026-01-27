@@ -80,8 +80,8 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ Route::is('pengelola.resident') ? 'active' : '' }}"
-                            href="{{ route('pengelola.resident') }}">
+                        <a class="nav-link {{ Route::is('admin.resident') ? 'active' : '' }}"
+                            href="{{ route('admin.resident') }}">
                             <i class="icon"></i>
                             <span class="item-name">Resident Data</span>
                         </a>
@@ -186,6 +186,15 @@
                             href="{{ route('booking.create') }}">
                             <i class="bi bi-calendar4-week"></i>
                             <span class="item-name">Make a Booking</span>
+                        </a>
+                    </li>
+
+                    {{-- MENU BARU: My Bookings --}}
+                    <li class="nav-item">
+                        <a class="nav-link {{ Route::is('booking.myBookings') ? 'active' : '' }}"
+                            href="{{ route('booking.myBookings') }}">
+                            <i class="bi bi-clock-history"></i>
+                            <span class="item-name">My Bookings</span>
                         </a>
                     </li>
                 @endif

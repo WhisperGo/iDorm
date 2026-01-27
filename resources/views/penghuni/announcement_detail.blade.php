@@ -36,7 +36,7 @@
                     </div>
 
                     {{-- Konten Pengumuman --}}
-                    <div class="announcement-content text-dark lh-base" style="font-size: 1.1rem; white-space: pre-line;">
+                    <div class="announcement-content text-dark lh-base" style="font-size: 1.1rem;">
                         {!! nl2br(e($announcement->content)) !!}
                     </div>
                 </div>

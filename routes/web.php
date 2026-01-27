@@ -31,6 +31,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/facility-schedule/{category}', [BookingController::class, 'showSchedule'])->name('facility.schedule');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
+    Route::get('/my-bookings', [BookingController::class, 'myPersonalHistory'])->name('booking.myBookings');
     // --- ROLE: RESIDENT ONLY ---
     Route::prefix('user')->group(function () {
         Route::get('/booking', [BookingController::class, 'index'])->name('booking.index');

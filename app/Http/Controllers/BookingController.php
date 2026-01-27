@@ -176,8 +176,7 @@ class BookingController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('booking.create', ['kategori_fasilitas' => $request->kategori])
-                 ->with('success', 'Booking berhasil dibuat!');
+            return redirect()->route('booking.myBookings')->with('success', 'Booking berhasil dibuat! Silakan cek jadwal kamu di sini.');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -259,6 +258,19 @@ class BookingController extends Controller
     
             return back()->with('success', 'Foto kebersihan berhasil diunggah. Menunggu verifikasi admin.');
         }
+    }
+
+    public function myPersonalHistory()
+    {
+        $user = Auth::user();
+
+        // Ambil hanya booking milik user ini, urutkan dari yang terbaru
+        $myBookings = \App\Models\Booking::where('user_id', $user->id)
+            ->with(['facility', 'status', 'slot'])
+            ->latest()
+            ->get();
+
+        return view('penghuni.myBookings', compact('myBookings'));
     }
 
     
