@@ -11,7 +11,7 @@
                         </div>
 
                         {{-- Update Search Form --}}
-                        <form action="{{ route('pengelola.resident') }}" method="GET" class="d-flex align-items-center gap-2">
+                        <form action="{{ route('admin.resident') }}" method="GET" class="d-flex align-items-center gap-2">
                             <span class="text-secondary fw-medium">Search:</span>
                             <input type="text" name="search" class="form-control" style="width: 250px;"
                                 placeholder="Name or Room..." value="{{ request('search') }}">
@@ -52,7 +52,7 @@
                                         <td class="text-center">
                                             <div class="btn-group btn-group-sm">
                                                 {{-- Tombol Freeze/Unfreeze --}}
-                                                <form action="{{ route('pengelola.resident.freeze', $res->id) }}"
+                                                <form action="{{ route('admin.resident.freeze', $res->id) }}"
                                                     method="POST">
                                                     @csrf
                                                     <button type="submit"
