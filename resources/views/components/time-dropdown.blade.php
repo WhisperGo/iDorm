@@ -5,7 +5,7 @@
     <label class="form-label fw-bold">{{ $label }}</label>
     <select name="{{ $name }}" id="{{ $name }}" class="form-select" {{ $required ? 'required' : '' }}>
         <option value="">-- Pilih {{ $label }} --</option>
-        @for ($i = 7; $i <= 22; $i++)
+        @for ($i = 0; $i <= 23; $i++)
             @php 
                 $h = str_pad($i, 2, '0', STR_PAD_LEFT); 
             @endphp
