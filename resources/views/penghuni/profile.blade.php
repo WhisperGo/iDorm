@@ -1,36 +1,65 @@
-@extends('penghuni.layouts')
+@extends(auth()->user()->role->role_name === 'Resident' ? 'penghuni.layouts' : (auth()->user()->role->role_name === 'Admin' ? 'admin.layouts' : 'pengelola.layouts'))
+
 
 @section('content')
     <div class="card">
         <div class="card-body">
             <h5 class="fw-bold mb-3">Data Diri (Read Only)</h5>
             <div class="row mb-4">
-                {{-- Bagian Data Diri Tetap Sama --}}
-                <div class="col-md-6 mb-3">
-                    <label>Nama Lengkap</label>
-                    <input type="text" class="form-control bg-light" value="{{ $user->residentDetails->full_name }}"
-                        readonly>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label>Gender</label>
-                    <input type="text" class="form-control bg-light" value="{{ $user->residentDetails->gender }}"
-                        readonly>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label>Kelas</label>
-                    <input type="text" class="form-control bg-light" value="{{ $user->residentDetails->class_name }}"
-                        readonly>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label>Nomor Kamar</label>
-                    <input type="text" class="form-control bg-light" value="{{ $user->residentDetails->room_number }}"
-                        readonly>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label>Nomor Telepon</label>
-                    <input type="text" class="form-control bg-light" value="{{ $user->residentDetails->phone_number }}"
-                        readonly>
-                </div>
+                @if (auth()->user()->role->role_name === 'Resident')
+                    {{-- Bagian Data Diri Tetap Sama --}}
+                    <div class="col-md-6 mb-3">
+                        <label>Nama Lengkap</label>
+                        <input type="text" class="form-control bg-light" value="{{ $user->residentDetails->full_name }}"
+                            readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Gender</label>
+                        <input type="text" class="form-control bg-light" value="{{ $user->residentDetails->gender }}"
+                            readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Kelas</label>
+                        <input type="text" class="form-control bg-light" value="{{ $user->residentDetails->class_name }}"
+                            readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Nomor Kamar</label>
+                        <input type="text" class="form-control bg-light"
+                            value="{{ $user->residentDetails->room_number }}" readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Nomor Telepon</label>
+                        <input type="text" class="form-control bg-light"
+                            value="{{ $user->residentDetails->phone_number }}" readonly>
+                    </div>
+                @else
+                    <div class="col-md-6 mb-3">
+                        <label>Nama Lengkap</label>
+                        <input type="text" class="form-control bg-light" value="{{ $user->managerDetails->full_name }}"
+                            readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Gender</label>
+                        <input type="text" class="form-control bg-light" value="{{ $user->managerDetails->gender }}"
+                            readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Kelas</label>
+                        <input type="text" class="form-control bg-light" value="{{ $user->managerDetails->class_name }}"
+                            readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Nomor Kamar</label>
+                        <input type="text" class="form-control bg-light" value="{{ $user->managerDetails->room_number }}"
+                            readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Nomor Telepon</label>
+                        <input type="text" class="form-control bg-light"
+                            value="{{ $user->managerDetails->phone_number }}" readonly>
+                    </div>
+                @endif
                 {{-- ... kolom lainnya ... --}}
             </div>
 
