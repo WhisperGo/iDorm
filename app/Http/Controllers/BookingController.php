@@ -93,6 +93,10 @@ class BookingController extends Controller
 
         if($request->kategori == 'theater' || $request->kategori == 'theatre') {
             $rules['description'] = 'required|max:255';
+
+            if ($request->jumlah_orang > 50) {
+                return redirect()->back()->with('error', 'Jumlah orang untuk booking Theater maksimal 50 orang.')->withInput();
+            }
         }
 
         // 2. Logic Validasi Khusus
