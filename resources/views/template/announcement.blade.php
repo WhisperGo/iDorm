@@ -6,8 +6,17 @@
             {{-- --- CARD BACKGROUND UTAMA --- --}}
             <div class="card shadow-sm border-0">
                 <div class="card-header d-flex justify-content-between align-items-center flex-wrap bg-white py-3">
-                    <div class="header-title">
+                    <div class="header-title d-flex align-items-center gap-3">
                         <h4 class="card-title mb-0 fw-bold text-dark">Announcement List</h4>
+
+                        {{-- TOMBOL TAMBAH: Hanya muncul untuk Admin & Pengelola --}}
+                        @if (auth()->user()->role->role_name !== 'Resident')
+                            <a href="{{ route('announcements.create') }}"
+                                class="btn btn-primary btn-sm shadow-sm d-inline-flex align-items-center">
+                                {{-- <i class="bi bi-plus-lg me-1"></i> --}}
+                                <span>+ Tambah Pengumuman</span>
+                            </a>
+                        @endif
                     </div>
 
                     <div class="d-flex align-items-center gap-2">
@@ -31,18 +40,20 @@
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-start mb-2">
                                             <div>
-                                                {{-- <h4 class="fw-bold text-primary mb-0">{{ $announcement->title }}</h4> --}}
                                                 <h3 class="fw-bold text-primary mb-0">{{ $announcement->title }}</h3>
-                                                <span class="badge bg-soft-info text-info rounded-pill">
-                                                    <i class="bi bi-calendar3 me-1"></i>
-                                                    {{ $announcement->created_at->format('d M Y') }}
-                                                </span>
-                                                <small class="text-muted">
-                                                    <i class="bi bi-person-circle me-1"></i> Posted by Admin
-                                                </small>
+                                                <div class="mt-1">
+                                                    <span class="badge bg-soft-info text-info rounded-pill me-2">
+                                                        <i class="bi bi-calendar3 me-1"></i>
+                                                        {{ $announcement->created_at->format('d M Y') }}
+                                                    </span>
+                                                    <small class="text-muted">
+                                                        <i class="bi bi-person-circle me-1"></i> Posted by Admin
+                                                    </small>
+                                                </div>
                                             </div>
+                                            {{-- Badge Tanggal di Pojok --}}
                                             <span class="badge rounded-pill bg-label-primary px-3">
-                                                {{ $announcement->created_at->format('d M Y') }}
+                                                {{ $announcement->created_at->diffForHumans() }}
                                             </span>
                                         </div>
                                         <hr class="my-3 opacity-25">

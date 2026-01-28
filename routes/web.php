@@ -42,6 +42,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/complaint/create', [ComplaintController::class, 'create'])->name('complaint.create');
         Route::post('/complaint/store', [ComplaintController::class, 'store'])->name('complaint.store');
         Route::get('/complaint/detail/{id}', [ComplaintController::class, 'show'])->name('penghuni.complaint.show');
+        Route::post('/booking/upload/{booking}', [BookingController::class, 'uploadPhoto'])->name('booking.upload');
         
     });
 

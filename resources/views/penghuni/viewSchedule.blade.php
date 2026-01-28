@@ -157,10 +157,13 @@
                                                         menggunakan fasilitas hari ini!
                                                     @endif
                                                 </p>
-                                                <a href="{{ route('booking.create', ['kategori_fasilitas' => $category]) }}"
-                                                    class="btn btn-primary btn-sm rounded-pill px-4">
-                                                    Booking Sekarang
-                                                </a>
+                                                {{-- kalo manager gausa kasi akses booking --}}
+                                                @if (auth()->user()->role->role_name !== 'Manager')
+                                                    <a href="{{ route('booking.create', ['kategori_fasilitas' => $category]) }}"
+                                                        class="btn btn-primary btn-sm rounded-pill px-4 mt-3">
+                                                        Booking Sekarang
+                                                    </a>
+                                                @endif
                                             </div>
                                         </td>
                                     </tr>

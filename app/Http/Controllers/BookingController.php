@@ -17,13 +17,13 @@ class BookingController extends Controller
 {
     $kategori = $request->get('kategori_fasilitas');
     $user = Auth::user();
-    $gender = $user->residentDetails->gender; 
+    $gender = $user->residentDetails->gender ?? null; 
 
     // 1. Ambil data fasilitas berdasarkan kategori & gender
     $facilities = Facility::query()
         ->when($kategori, function($query) use ($kategori, $gender) {
             if ($kategori == 'mesin_cuci') {
-                return $query->where('name', 'LIKE', "%Mesin Cuci $gender%");
+                return $gender ? $query->where('name', 'LIKE', "%Mesin Cuci $gender%") : $query->where('name', 'LIKE', "%Mesin Cuci%");
             } 
             if ($kategori == 'cws') {
                 return $query->where('name', 'LIKE', "%Co-Working Space%");
@@ -189,7 +189,9 @@ class BookingController extends Controller
     public function showSchedule(Request $request, $category)
     {
         $user = Auth::user();
-        $userGender = Auth::user()->residentDetails->gender;
+        // Karena admin dan manager tidak terpaku kepada gender maka ?? null digunakan untuk menghandle error tersebut
+        $userGender = $user->residentDetails->gender ?? null;
+        
         $search = $request->get('search');
         $itemFilter = $request->get('item');
         
@@ -204,7 +206,11 @@ class BookingController extends Controller
     // Mapping Filter agar Schedule menampilkan data yang benar
         $query->whereHas('facility', function($q) use ($category, $userGender) {
             if ($category == 'mesin-cuci' || $category == 'mesin_cuci') {
-                $q->where('name', 'LIKE', "%Mesin Cuci $userGender%");
+                if($userGender){
+                    $q->where('name', 'LIKE', "%Mesin Cuci $userGender%");
+                } else {
+                    $q->where('name', 'LIKE', "%Mesin Cuci%");
+                }
             } elseif ($category == 'cws') {
                 $q->where('name', 'LIKE', "%Co-Working%");
             } elseif ($category == 'sergun') {
@@ -244,19 +250,18 @@ class BookingController extends Controller
     public function uploadPhoto(Request $request, Booking $booking)
     {
         $request->validate([
-            'photo' => 'required|image|mimes:jpeg,png,jpg|max:2048', // Max 2MB
+            'photo' => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
     
         if ($request->hasFile('photo')) {
-            // Simpan foto ke folder storage/app/public/cleanliness
             $path = $request->file('photo')->store('cleanliness', 'public');
             
             $booking->update([
                 'photo_proof_path' => $path,
-                'cleanliness_status' => 'pending' // Menunggu verifikasi admin
+                'cleanliness_status' => 'pending'
             ]);
     
-            return back()->with('success', 'Foto kebersihan berhasil diunggah. Menunggu verifikasi admin.');
+            return back()->with('success', 'Foto kebersihan berhasil diunggah.');
         }
     }
 
@@ -272,6 +277,4 @@ class BookingController extends Controller
 
         return view('penghuni.myBookings', compact('myBookings'));
     }
-
-    
 }
