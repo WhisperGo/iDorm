@@ -65,7 +65,14 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('manager')->group(function () {
         // Laporan (Hanya Pengelola yang bisa lihat/print)
         Route::get('/reports', [ReportController::class, 'index'])->name('pengelola.report');
+        Route::get('/residents', [ResidentController::class, 'index'])->name('pengelola.resident');
         
+        // Halaman User Data
+        Route::get('/resident-data', [ReportController::class, 'residentIndex'])->name('pengelola.report');
+        
+        // Halaman Loan Report
+        Route::get('/loan-report', [ReportController::class, 'reportIndex'])->name('pengelola.report');
+
         // CRUD Announcement (Hanya Pengelola yang bisa Tambah/Edit/Hapus)
         Route::resource('announcements', AnnouncementController::class)->except(['index']);
     });

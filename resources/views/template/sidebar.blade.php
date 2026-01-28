@@ -66,7 +66,7 @@
                     <li class="nav-item">
                         <a class="nav-link {{ Route::is('pengelola.resident') ? 'active' : '' }}"
                             href="{{ route('pengelola.resident') }}">
-                            <i class="icon"></i>
+                            <i class="bi bi-people-fill"></i>
                             <span class="item-name">User Data</span>
                         </a>
                     </li>
@@ -90,6 +90,12 @@
 
                 <li>
                     <hr class="hr-horizontal">
+                </li>
+
+                <li class="nav-item static-item">
+                    <a class="nav-link static-item disabled" href="#">
+                        <span class="default-icon">Pages</span>
+                    </a>
                 </li>
 
                 {{-- Menu Announcement --}}
@@ -220,10 +226,17 @@
                     <li>
                         <hr class="hr-horizontal">
                     </li>
+
+                    <li class="nav-item static-item">
+                        <a class="nav-link static-item disabled" href="#">
+                            <span class="default-icon">Report</span>
+                        </a>
+                    </li>
+
                     <li class="nav-item">
                         <a class="nav-link {{ Route::is('pengelola.report') ? 'active' : '' }}"
                             href="{{ route('pengelola.report') }}">
-                            <i class="icon"></i>
+                            <i class="bi bi-file-earmark-arrow-down-fill"></i>
                             <span class="item-name">Loan Report</span>
                         </a>
                     </li>
