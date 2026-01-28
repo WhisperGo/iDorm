@@ -92,7 +92,7 @@ class BookingController extends Controller
         }
 
         if($request->kategori == 'theater' || $request->kategori == 'theatre') {
-            $rules['item_sergun'] = 'required|numeric|max:50';
+            $rules['description'] = 'required|max:255';
         }
 
         // 2. Logic Validasi Khusus
@@ -252,15 +252,15 @@ class BookingController extends Controller
         $request->validate([
             'photo' => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
-    
+
         if ($request->hasFile('photo')) {
             $path = $request->file('photo')->store('cleanliness', 'public');
-            
+
             $booking->update([
                 'photo_proof_path' => $path,
                 'cleanliness_status' => 'pending'
             ]);
-    
+
             return back()->with('success', 'Foto kebersihan berhasil diunggah.');
         }
     }

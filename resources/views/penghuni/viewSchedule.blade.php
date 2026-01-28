@@ -12,7 +12,7 @@
                     <div class="d-flex gap-2">
                         <form action="{{ url()->current() }}" method="GET" class="d-flex gap-2">
                             @if ($category == 'dapur')
-                                <select name="item" class="form-select form-select-sm color-black table-bordered border-"
+                                <select name="item" class="form-select form-select-sm color-black"
                                     onchange="this.form.submit()">
                                     <option value="">-- Semua Alat --</option>
                                     <option value="kompor" {{ request('item') == 'kompor' ? 'selected' : '' }}>Kompor
