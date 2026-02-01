@@ -71,7 +71,7 @@ class ComplaintController extends Controller
             'location_item' => $request->location_item,
             'description' => $request->description,
             'photo_path' => $path,
-            'status_id' => 1, 
+            'status_id' => 1,
         ]);
 
         return redirect()->route('admin.complaint')->with('success', 'Keluhan berhasil dikirim dan akan segera diproses.');
@@ -97,7 +97,7 @@ class ComplaintController extends Controller
         if ($search) {
             $query->where(function($q) use ($search) {
                 $q->where('location_item', 'LIKE', "%$search%")
-                  ->orWhere('description', 'LIKE', "%$search%");
+                    ->orWhere('description', 'LIKE', "%$search%");
             });
         }
 

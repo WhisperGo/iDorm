@@ -17,17 +17,17 @@ return new class extends Migration
             // Gunakan foreignId agar otomatis BIGINT UNSIGNED (sinkron dengan users.id)
             // Tambahkan unique() karena satu user hanya punya satu detail manager
             $table->foreignId('user_id')
-                  ->unique()
-                  ->constrained('users')
-                  ->onUpdate('cascade')
-                  ->onDelete('cascade');
+                    ->unique()
+                    ->constrained('users')
+                    ->onUpdate('cascade')
+                    ->onDelete('cascade');
 
             $table->string('full_name', 100);
             $table->enum('gender', ['Male', 'Female']);
             $table->string('phone_number', 15)->nullable();
             
             // Gunakan standar Laravel untuk timestamps dan softDeletes
-            $table->timestamps(); 
+            $table->timestamps();
             $table->softDeletes();
         });
     }

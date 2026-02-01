@@ -51,8 +51,8 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['auth'])->group(function () {
         
         // Manajemen Resident (Bisa diakses Admin & Manager)
-        Route::get('/residents', [ResidentController::class, 'index'])->name('pengelola.resident'); 
-        Route::get('/residents', [ResidentController::class, 'index'])->name('admin.resident'); 
+        Route::get('/residents', [ResidentController::class, 'index'])->name('pengelola.resident');
+        Route::get('/residents', [ResidentController::class, 'index'])->name('admin.resident');
         Route::post('/residents/{user}/toggle-freeze', [ResidentController::class, 'toggleFreeze'])->name('pengelola.resident.freeze');
         Route::post('/residents/{user}/toggle-freeze', [ResidentController::class, 'toggleFreeze'])->name('admin.resident.freeze');
 

@@ -92,6 +92,18 @@ class DatabaseSeeder extends Seeder
             'room_number' => 'B332',  // Sesuai Regex
         ]);
 
+        $user2 = User::create([
+            'role_id' => 3,
+            'card_id' => '1112', // Pastikan card_id unik jika di database diset UNIQUE
+            'password' => Hash::make('password'),
+        ]);
+        $user2->residentDetails()->create([
+            'full_name' => 'Wilep Pernando',
+            'gender' => 'Male',
+            'class_name' => 'PPTI 22',
+            'room_number' => 'A321',
+        ]);
+
         // D. PENGHUNI WANITA (RESIDENT FEMALE)
         $femaleRes = User::create([
             'role_id' => 3,
