@@ -21,10 +21,13 @@ class AnnouncementController extends Controller
     // 2. Form Tambah (Hanya Admin/Pengelola)
     public function create()
     {
+        $title = "Create Announcement";
+        $subtitle = "Create a new announcement for residents.";
+
         if (Auth::user()->role->role_name === 'Resident') {
             abort(403, 'Penghuni tidak diizinkan membuat pengumuman.');
         }
-        return view('template.announcement'); // Pisahkan view form tambah
+        return view('admin.addAnnouncement', compact('title', 'subtitle')); // Pisahkan view form tambah
     }
 
     public function show($id)
@@ -60,10 +63,13 @@ class AnnouncementController extends Controller
     // 4. Form Edit (Hanya Admin/Pengelola)
     public function edit(Announcement $announcement)
     {
+        $title = "Edit Announcement";
+        $subtitle = "Edit the announcement details.";
+        
         if (Auth::user()->role->role_name === 'Resident') {
             abort(403);
         }
-        return view('template.announcement', compact('announcement'));
+        return view('admin.editAnnouncement', compact('announcement', 'title', 'subtitle'));
     }
 
     // 5. Update Data (Hanya Admin/Pengelola)
@@ -78,7 +84,10 @@ class AnnouncementController extends Controller
             'content' => 'required',
         ]);
 
-        $announcement->update($request->only(['title', 'content']));
+        $announcement->update([
+            'title' => $request->title,
+            'content' => $request->content,
+        ]);
 
         return redirect()->route('announcements')->with('success', 'Pengumuman berhasil diperbarui!');
     }
@@ -91,6 +100,7 @@ class AnnouncementController extends Controller
         }
         
         $announcement->delete();
-        return back()->with('success', 'Pengumuman berhasil dihapus.');
+
+        return redirect()->route('announcements')->with('success', 'Pengumuman berhasil dihapus!');
     }
 }
