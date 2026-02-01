@@ -18,10 +18,10 @@ return new class extends Migration
             // GABUNGKAN definisi kolom dan foreign key di sini
             // Pakai foreignId agar otomatis BigInt (sinkron dengan users.id)
             $table->foreignId('user_id')
-                  ->unique()
-                  ->constrained('users')
-                  ->onUpdate('cascade')
-                  ->onDelete('cascade');
+                    ->unique()
+                    ->constrained('users')
+                    ->onUpdate('cascade')
+                    ->onDelete('cascade');
 
             $table->string('full_name', 100);
             $table->enum('gender', ['Male', 'Female']);

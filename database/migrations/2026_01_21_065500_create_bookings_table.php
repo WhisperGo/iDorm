@@ -19,16 +19,16 @@ return new class extends Migration
             $table->foreignId('facility_id')->constrained('facilities')->onUpdate('cascade')->onDelete('restrict');
 
             // HAPUS ->after('facility_id') di sini!
-            $table->string('item_dapur')->nullable(); 
-            $table->string('item_sergun')->nullable(); 
+            $table->string('item_dapur')->nullable();
+            $table->string('item_sergun')->nullable();
 
             $table->foreignId('status_id')->constrained('booking_statuses')->onUpdate('cascade')->onDelete('restrict');
 
             // Slot ID
             $table->foreignId('slot_id')
-                  ->nullable() 
-                  ->constrained('time_slots')
-                  ->onDelete('set null');
+                    ->nullable() 
+                    ->constrained('time_slots')
+                    ->onDelete('set null');
 
             // Data Waktu
             $table->date('booking_date');

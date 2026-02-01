@@ -10,15 +10,15 @@ class Booking extends Model
     use SoftDeletes;
     
     protected $fillable = [
-    'user_id', 
-    'facility_id', 
+    'user_id',
+    'facility_id',
     'item_dapur',
     'item_sergun',
-    'status_id', 
-    'slot_id', 
-    'booking_date', 
-    'start_time', 
-    'end_time', 
+    'status_id',
+    'slot_id',
+    'booking_date',
+    'start_time',
+    'end_time',
     'cleanliness_status',
 ];
 

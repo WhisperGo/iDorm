@@ -25,9 +25,9 @@
                             <thead class="bg-light">
                                 <tr>
                                     <th class="text-center" width="5%">No.</th>
-                                    <th class="text-center">Nama Lengkap</th>
+                                    <th class="text-center">Full Name</th>
                                     <th class="text-center">Gender</th>
-                                    <th class="text-center" width="10%">Nomor Kamar</th>
+                                    <th class="text-center" width="10%">Room Number</th>
                                     <th class="text-center">Account Status</th>
                                     <th class="text-center" width="15%">Action</th>
                                 </tr>
@@ -52,14 +52,14 @@
                                         <td class="text-center">
                                             <div class="btn-group btn-group-sm">
                                                 {{-- Tombol Freeze/Unfreeze --}}
-                                                <form action="{{ route('admin.resident.freeze', $res->id) }}"
-                                                    method="POST">
+                                                <form action="{{ route('admin.resident.freeze', $res->id) }}" method="POST"
+                                                    onsubmit="return confirm('Apakah Anda yakin ingin mengubah status akun ini?')">
                                                     @csrf
                                                     <button type="submit"
                                                         class="btn {{ $res->account_status == 'active' ? 'btn-outline-danger' : 'btn-outline-success' }}"
                                                         title="{{ $res->account_status == 'active' ? 'Freeze Account' : 'Unfreeze Account' }}">
                                                         <i class="icon">
-                                                            {!! $res->account_status == 'active' ? '❄️' : '🔥' !!}
+                                                            {{ $res->account_status == 'active' ? '❄️' : '🔥' }}
                                                         </i>
                                                     </button>
                                                 </form>

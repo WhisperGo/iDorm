@@ -19,7 +19,7 @@ class AdminBookingController extends Controller
 
         // 2. LOGIKA AUTO-FILTER BERDASARKAN URL
         // Kita cek URL-nya, misal: /view/dapur atau /view/mesin-cuci
-        $path = $request->path(); 
+        $path = $request->path();
 
         if (Str::contains($path, 'dapur')) {
             $query->whereHas('facility', fn($q) => $q->where('name', 'LIKE', '%Dapur%'));

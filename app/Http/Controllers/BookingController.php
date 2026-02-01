@@ -35,7 +35,7 @@ class BookingController extends Controller
                 // Mencari kata Theater atau Theatre (RE vs ER)
                 return $query->where(function($q) {
                     $q->where('name', 'LIKE', '%Theater%')
-                      ->orWhere('name', 'LIKE', '%Theatre%');
+                        ->orWhere('name', 'LIKE', '%Theatre%');
                 });
             }
             if ($kategori == 'dapur') {
@@ -162,7 +162,7 @@ class BookingController extends Controller
                     })
                     ->where(function($query) use ($data) {
                         $query->where('start_time', '<', $data['end_time'])
-                              ->where('end_time', '>', $data['start_time']);
+                                ->where('end_time', '>', $data['start_time']);
                     })->exists();
 
                 if ($cekTabrakan) {

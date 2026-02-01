@@ -21,7 +21,7 @@ class DashboardController extends Controller
         // LOGIKA PEMILIHAN VIEW
         if ($role === 'Manager') {
             return view('pengelola.dashboard', compact('announcements'));
-        } 
+        }
         
         if ($role === 'Admin') {
             return view('admin.dashboard', compact('announcements'));

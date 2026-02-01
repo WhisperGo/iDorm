@@ -16,9 +16,9 @@ return new class extends Migration
 
             // Gunakan foreignId agar otomatis BigInt Unsigned (SINKRON dengan users.id)
             $table->foreignId('author_id')
-                  ->constrained('users')
-                  ->onUpdate('cascade')
-                  ->onDelete('restrict');
+                    ->constrained('users')
+                    ->onUpdate('cascade')
+                    ->onDelete('restrict');
 
             $table->string('title', 150);
             $table->text('content');

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('status_name', 20);
             
             // Menggunakan standar Laravel agar sinkron dengan tabel lainnya
-            $table->timestamps(); 
+            $table->timestamps();
         });
     }
 

@@ -4,6 +4,9 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -21,6 +24,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'account_status',
     ];
 
     /**
@@ -51,8 +55,8 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class);
     }
 
-    public function residentDetails(){
-    return $this->hasOne(ResidentDetail::class, 'user_id');
+    public function residentDetails(): HasOne {
+        return $this->hasOne(ResidentDetail::class, 'user_id');
     }
 
     public function managerDetails() {
@@ -65,12 +69,12 @@ class User extends Authenticatable
     }
 
     // app/Models/User.php
-    public function managedFacilities() {
+    public function managedFacilities(): BelongsToMany {
         return $this->belongsToMany(Facility::class, 'facility_admins', 'user_id', 'facility_id');
     }
 
     // app/Models/Booking.php
-    public function facility() {
+    public function facility(): BelongsTo {
         return $this->belongsTo(Facility::class);
     }
 }

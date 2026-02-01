@@ -17,25 +17,25 @@ return new class extends Migration
             // Gunakan foreignId agar tipe data BigInt Unsigned (SINKRON!)
             // resident_id merujuk ke tabel users
             $table->foreignId('resident_id')
-                  ->constrained('users')
-                  ->onUpdate('cascade')
-                  ->onDelete('restrict');
+                    ->constrained('users')
+                    ->onUpdate('cascade')
+                    ->onDelete('restrict');
 
             $table->string('location_item', 100);
             $table->text('description');
 
             // status_id merujuk ke tabel complaint_statuses
             $table->foreignId('status_id')
-                  ->constrained('complaint_statuses')
-                  ->onUpdate('cascade')
-                  ->onDelete('restrict');
+                    ->constrained('complaint_statuses')
+                    ->onUpdate('cascade')
+                    ->onDelete('restrict');
 
             $table->string('photo_path')->nullable();
             
             // Standar Laravel untuk waktu
             $table->timestamps();
             $table->softDeletes();
-        });     
+        });
     }
 
     /**
