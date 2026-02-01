@@ -59,7 +59,7 @@ Route::middleware(['auth'])->group(function () {
     // 7. ROLE: MANAGER ONLY (Reports)
     Route::prefix('manager')->group(function () {
         Route::get('/reports', [ReportController::class, 'index'])->name('pengelola.report');
-        Route::get('/resident-data', [ReportController::class, 'residentIndex'])->name('pengelola.resident_data');
+        Route::get('/resident-data', [ResidentController::class, 'index'])->name('pengelola.resident');
         Route::get('/loan-report', [ReportController::class, 'reportIndex'])->name('pengelola.loan_report');
     });
 });

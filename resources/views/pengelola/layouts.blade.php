@@ -13,6 +13,9 @@
     <link rel="stylesheet" href="{{ asset('hopeui/css/customizer.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('hopeui/css/rtl.min.css') }}" />
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
     <style>
         /* 1. SIDEBAR PALING DEPAN */
         /* Kita paksa Sidebar punya z-index tertinggi */
@@ -35,11 +38,11 @@
 </head>
 
 <body class="">
-    <div id="loading">
+    {{-- <div id="loading">
         <div class="loader simple-loader">
             <div class="loader-body"></div>
         </div>
-    </div>
+    </div> --}}
 
     @include('template.sidebar')
 

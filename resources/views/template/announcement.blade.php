@@ -44,8 +44,25 @@
                                                         <i class="bi bi-calendar3 me-1"></i>
                                                         {{ $announcement->created_at->format('d M Y') }}
                                                     </span>
+
+                                                    {{-- Info Nama dengan Background Berwarna sesuai Role --}}
                                                     <small class="text-muted">
-                                                        <i class="bi bi-person-circle me-1"></i> Posted by Admin
+                                                        <i class="bi bi-person-circle me-1"></i>
+                                                        Posted by
+                                                        @php
+                                                            $role = $announcement->author->role->role_name ?? 'Admin';
+                                                            $bgClass = match ($role) {
+                                                                'Admin' => 'bg-primary',
+                                                                'Manager', 'Pengelola' => 'bg-success',
+                                                                default => 'bg-secondary',
+                                                            };
+                                                        @endphp
+
+                                                        {{-- Hanya bagian nama ini yang diberi latar warna --}}
+                                                        <span
+                                                            class="badge {{ $bgClass }} rounded-pill text-white fw-bold shadow-sm px-2">
+                                                            {{ $announcement->author->managerDetails->full_name ?? 'Admin' }}
+                                                        </span>
                                                     </small>
                                                 </div>
                                             </div>
@@ -61,17 +78,18 @@
                                         {{-- FITUR EDIT & HAPUS: Hanya untuk Admin/Pengelola --}}
                                         @if (auth()->user()->role->role_name !== 'Resident')
                                             <div class="d-flex justify-content-end gap-2 pt-3 border-top">
-                                                <a href="{{ route('announcements.edit', $announcement->id) }}" 
-                                                   class="btn btn-sm btn-soft-warning rounded-pill px-3">
+                                                <a href="{{ route('announcements.edit', $announcement->id) }}"
+                                                    class="btn btn-sm btn-soft-warning rounded-pill px-3">
                                                     <i class="bi bi-pencil-square me-1"></i> Edit
                                                 </a>
-                                                
-                                                <form action="{{ route('announcements.destroy', $announcement->id) }}" 
-                                                      method="POST" 
-                                                      onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengumuman ini?')">
+
+                                                <form action="{{ route('announcements.destroy', $announcement->id) }}"
+                                                    method="POST"
+                                                    onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengumuman ini?')">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-soft-danger rounded-pill px-3">
+                                                    <button type="submit"
+                                                        class="btn btn-sm btn-soft-danger rounded-pill px-3">
                                                         <i class="bi bi-trash3 me-1"></i> Hapus
                                                     </button>
                                                 </form>
