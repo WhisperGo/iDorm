@@ -82,7 +82,7 @@
                     <li class="nav-item">
                         <a class="nav-link {{ Route::is('admin.resident') ? 'active' : '' }}"
                             href="{{ route('admin.resident') }}">
-                            <i class="icon"></i>
+                            <i class="bi bi-people-fill"></i>
                             <span class="item-name">Resident Data</span>
                         </a>
                     </li>

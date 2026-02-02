@@ -5,122 +5,156 @@
         <div class="col-sm-12">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                    <h4 class="fw-bold mb-0"><i class="bi bi-journal-text me-2"></i>Riwayat Peminjaman Saya</h4>
-                    <a href="{{ route('booking.create') }}" class="btn btn-primary">
-                        <i class="bi bi-plus-lg"></i> Buat Booking Baru
+                    <h4 class="fw-bold mb-0 text-primary"><i class="bi bi-calendar-check me-2"></i>Riwayat Peminjaman Saya
+                    </h4>
+                    <a href="{{ route('booking.create') }}" class="btn btn-primary shadow-sm">
+                        <i class="bi bi-plus-lg"></i> Booking Baru
                     </a>
                 </div>
                 <div class="card-body">
+                    {{-- Alert Pesan Sukses/Error --}}
                     @if (session('success'))
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert">
                             <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     @endif
 
                     <div class="table-responsive">
-                        <table class="table table-bordered table-hover align-middle">
+                        <table class="table table-hover align-middle border">
                             <thead class="bg-light">
                                 <tr>
                                     <th class="text-center" width="5%">No.</th>
                                     <th>Fasilitas & Detail</th>
-                                    <th class="text-center">Tanggal & Waktu</th>
-                                    <th class="text-center">Status</th>
-                                    <th class="text-center" width="30%">Aksi / Bukti Foto</th>
+                                    <th class="text-center">Waktu Peminjaman</th>
+                                    <th class="text-center">Status Sistem</th>
+                                    <th class="text-center" width="30%">Aksi / Bukti Kebersihan</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {{-- LOGIKA GROUPING: Berdasarkan Tanggal dan Jam --}}
                                 @forelse($myBookings->groupBy(fn($item) => $item->booking_date . $item->start_time . $item->end_time) as $group)
                                     @php
                                         $b = $group->first();
+                                        // Mengambil status real-time dari Accessor Model
+                                        $status = $b->calculated_status;
+
+                                        // Mapping Warna Badge
+                                        $badgeColor =
+                                            [
+                                                'Booked' => 'info',
+                                                'Accepted' => 'primary',
+                                                'On Going' => 'warning',
+                                                'Canceled' => 'danger',
+                                                'Verifying Cleanliness' => 'dark',
+                                                'Completed' => 'success',
+                                                'Awaiting Cleanliness Photo' => 'secondary',
+                                            ][$status] ?? 'light';
                                     @endphp
                                     <tr>
                                         <td class="text-center">{{ $loop->iteration }}</td>
                                         <td>
-                                            {{-- JIKA MESIN CUCI: Gabungkan nomor mesinnya --}}
                                             @if (Str::contains(strtolower($b->facility->name), 'mesin cuci'))
-                                                <div class="fw-bold text-primary">Mesin Cuci</div>
-                                                <small class="badge bg-soft-success text-success">
-                                                    No. Mesin:
+                                                <div class="fw-bold text-dark">Layanan Laundry</div>
+                                                <small class="text-primary fw-semibold">
+                                                    Mesin:
                                                     @foreach ($group as $item)
                                                         M-{{ substr($item->facility->name, -1) }}{{ !$loop->last ? ',' : '' }}
                                                     @endforeach
                                                 </small>
                                             @else
-                                                <div class="fw-bold text-primary">{{ $b->facility->name }}</div>
-                                                @if ($b->item_dapur)
-                                                    <small class="badge bg-soft-danger text-danger">Alat:
-                                                        {{ ucwords(str_replace('_', ' ', $b->item_dapur)) }}</small>
-                                                @elseif($b->item_sergun)
-                                                    <small class="badge bg-soft-primary text-primary">Area:
-                                                        {{ ucwords(str_replace('_', ' ', $b->item_sergun)) }}</small>
-                                                @elseif($b->description)
-                                                    <small
-                                                        class="text-muted italic">"{{ Str::limit($b->description, 30) }}"</small>
+                                                <div class="fw-bold text-dark">{{ $b->facility->name }}</div>
+                                                @if ($b->item_dapur || $b->item_sergun)
+                                                    <small class="badge bg-soft-secondary text-secondary">
+                                                        {{ ucwords(str_replace('_', ' ', $b->item_dapur ?? $b->item_sergun)) }}
+                                                    </small>
                                                 @endif
                                             @endif
                                         </td>
                                         <td class="text-center">
-                                            <div class="fw-bold">
+                                            <div class="small fw-bold">
                                                 {{ \Carbon\Carbon::parse($b->booking_date)->format('d M Y') }}</div>
-                                            <span class="badge bg-soft-info text-info">
+                                            <div class="badge bg-light text-dark border">
                                                 {{ substr($b->start_time, 0, 5) }} - {{ substr($b->end_time, 0, 5) }}
-                                            </span>
+                                            </div>
                                         </td>
                                         <td class="text-center">
-                                            @php
-                                                $statusClass =
-                                                    [
-                                                        'Booked' => 'info',
-                                                        'Cancelled' => 'danger',
-                                                        'Completed' => 'success',
-                                                        'Ongoing' => 'warning',
-                                                    ][$b->status->status_name] ?? 'secondary';
-                                            @endphp
-                                            <span class="badge bg-{{ $statusClass }} text-uppercase px-3 py-2">
-                                                {{ $b->status->status_name }}
+                                            <span class="badge bg-{{ $badgeColor }} text-uppercase shadow-xs"
+                                                style="font-size: 0.75rem;">
+                                                {{ $status }}
                                             </span>
+                                            @if ($b->is_early_release)
+                                                <div class="mt-1"><span class="badge bg-soft-warning text-warning"
+                                                        style="font-size: 0.65rem;">Selesai Lebih Awal</span></div>
+                                            @endif
                                         </td>
                                         <td>
-                                            @if ($b->photo_proof_path)
-                                                <div class="text-center text-success fw-bold">
-                                                    <i class="bi bi-check-all fs-5"></i><br>
-                                                    <small>Bukti Terunggah</small>
-                                                </div>
-                                            @else
-                                                @php
-                                                    $endTime = \Carbon\Carbon::parse(
-                                                        $b->booking_date . ' ' . $b->end_time,
-                                                    );
-                                                    $isOverdue = now() > $endTime;
-                                                @endphp
+                                            <div class="d-flex flex-column align-items-center gap-2">
 
-                                                @if ($isOverdue)
-                                                    {{-- Jika digabung, upload foto cukup satu kali untuk mewakili grup tersebut --}}
-                                                    <form action="{{ route('booking.upload', $b->id) }}" method="POST"
-                                                        enctype="multipart/form-data">
+                                                {{-- 1. LOGIKA TOMBOL SELESAI AWAL --}}
+                                                @if ($status === 'On Going' && !$b->is_early_release)
+                                                    <form action="{{ route('booking.earlyRelease', $b->id) }}"
+                                                        method="POST"
+                                                        onsubmit="return confirm('Apakah Anda sudah selesai menggunakan fasilitas?')">
                                                         @csrf
-                                                        <div class="input-group input-group-sm">
-                                                            <input type="file" name="photo" class="form-control"
-                                                                required>
-                                                            <button class="btn btn-warning" type="submit">Upload</button>
-                                                        </div>
+                                                        <button type="submit"
+                                                            class="btn btn-sm btn-outline-warning fw-bold">
+                                                            <i class="bi bi-stop-circle me-1"></i> Selesai Sekarang
+                                                        </button>
                                                     </form>
-                                                @else
-                                                    <div class="text-center">
-                                                        <small class="text-muted"><i class="bi bi-hourglass-split"></i>
-                                                            Upload tersedia setelah jam selesai</small>
+
+                                                    {{-- 2. LOGIKA UPLOAD FOTO (Waktu Habis ATAU Selesai Awal, dan belum ada foto) --}}
+                                                @elseif(($status === 'Awaiting Cleanliness Photo' || $b->is_early_release) && !$b->photo_proof_path)
+                                                    <div class="card p-2 bg-light border-dashed w-100">
+                                                        <form action="{{ route('booking.upload', $b->id) }}" method="POST"
+                                                            enctype="multipart/form-data">
+                                                            @csrf
+                                                            <label class="form-label small fw-bold mb-1">Unggah Foto
+                                                                Kebersihan:</label>
+                                                            <div class="input-group input-group-sm">
+                                                                <input type="file" name="photo" class="form-control"
+                                                                    required>
+                                                                <button class="btn btn-primary"
+                                                                    type="submit">Kirim</button>
+                                                            </div>
+                                                        </form>
                                                     </div>
+
+                                                    {{-- 3. LOGIKA MENUNGGU VERIFIKASI ADMIN --}}
+                                                @elseif($status === 'Verifying Cleanliness')
+                                                    <div class="text-center">
+                                                        <span class="text-muted small"><i
+                                                                class="bi bi-hourglass-split me-1"></i> Menunggu Verifikasi
+                                                            Kebersihan oleh Admin</span>
+                                                        <br>
+                                                        <a href="{{ asset('storage/' . $b->photo_proof_path) }}"
+                                                            target="_blank" class="badge bg-info text-decoration-none">Lihat
+                                                            Foto Anda</a>
+                                                    </div>
+
+                                                    {{-- 4. LOGIKA SELESAI (COMPLETED) --}}
+                                                @elseif($status === 'Completed')
+                                                    <div class="text-success text-center">
+                                                        <i class="bi bi-patch-check-fill fs-4"></i>
+                                                        <div class="small fw-bold">Selesai & Bersih</div>
+                                                    </div>
+
+                                                    {{-- 5. LOGIKA BOOKED (BELUM MULAI) --}}
+                                                @elseif($status === 'Booked')
+                                                    <small class="text-muted italic">Menunggu persetujuan admin...</small>
+                                                @elseif($status === 'Accepted')
+                                                    <small class="text-primary fw-bold"><i
+                                                            class="bi bi-info-circle me-1"></i> Silakan datang saat jam
+                                                        mulai</small>
                                                 @endif
-                                            @endif
+
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
                                         <td colspan="5" class="text-center py-5 text-muted">
-                                            <i class="bi bi-inbox fs-1 d-block mb-3"></i>
-                                            Kamu belum memiliki riwayat peminjaman.
+                                            <i class="bi bi-inbox fs-1 d-block mb-3 opacity-25"></i>
+                                            Belum ada riwayat peminjaman.
                                         </td>
                                     </tr>
                                 @endforelse
@@ -131,4 +165,30 @@
             </div>
         </div>
     </div>
+
+    <style>
+        .bg-soft-success {
+            background-color: #e8fadf;
+        }
+
+        .bg-soft-primary {
+            background-color: #e7f1ff;
+        }
+
+        .bg-soft-danger {
+            background-color: #fce8e8;
+        }
+
+        .bg-soft-info {
+            background-color: #e1f5fe;
+        }
+
+        .bg-soft-warning {
+            background-color: #fff9db;
+        }
+
+        .border-dashed {
+            border: 1px dashed #dee2e6;
+        }
+    </style>
 @endsection

@@ -109,21 +109,22 @@
                 <button type="submit" class="btn btn-primary w-100">Simpan Password Baru</button>
             </form>
         </div>
-    @endsection
+    </div>
+@endsection
 
-    @push('scripts')
-        <script>
-            function togglePassword(inputId, el) {
-                const passwordInput = document.getElementById(inputId);
-                const icon = el.querySelector('i');
+@push('scripts')
+    <script>
+        function togglePassword(inputId, el) {
+            const passwordInput = document.getElementById(inputId);
+            const icon = el.querySelector('i');
 
-                if (passwordInput.type === "password") {
-                    passwordInput.type = "text";
-                    icon.classList.replace('bi-eye', 'bi-eye-slash');
-                } else {
-                    passwordInput.type = "password";
-                    icon.classList.replace('bi-eye-slash', 'bi-eye');
-                }
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                icon.classList.replace('bi-eye', 'bi-eye-slash');
+            } else {
+                passwordInput.type = "password";
+                icon.classList.replace('bi-eye-slash', 'bi-eye');
             }
-        </script>
-    @endpush
+        }
+    </script>
+@endpush

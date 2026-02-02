@@ -12,9 +12,9 @@
                         {{-- TOMBOL TAMBAH: Hanya muncul untuk Admin & Pengelola --}}
                         @if (auth()->user()->role->role_name !== 'Resident')
                             <a href="{{ route('announcements.create') }}"
-                                class="btn btn-primary btn-sm shadow-sm d-inline-flex align-items-center">
-                                {{-- <i class="bi bi-plus-lg me-1"></i> --}}
-                                <span>+ Tambah Pengumuman</span>
+                                class="btn btn-primary btn-sm shadow-sm d-inline-flex align-items-center rounded-pill px-3">
+                                <i class="bi bi-plus-lg me-1"></i>
+                                <span>Tambah Pengumuman</span>
                             </a>
                         @endif
                     </div>
@@ -30,11 +30,9 @@
                     </div>
                 </div>
 
-                <div class="card-body bg-light-subtle"> {{-- Warna background agak beda biar card dalamnya 'pop' --}}
-
+                <div class="card-body bg-light-subtle">
                     <div class="row">
                         @forelse($announcements as $announcement)
-                            {{-- --- LOOPING CARD PENGUMUMAN (DI DALAM) --- --}}
                             <div class="col-12 mb-3">
                                 <div class="card border-0 shadow-sm animate__animated animate__fadeInUp">
                                     <div class="card-body">
@@ -46,20 +44,57 @@
                                                         <i class="bi bi-calendar3 me-1"></i>
                                                         {{ $announcement->created_at->format('d M Y') }}
                                                     </span>
+
+                                                    {{-- Info Nama dengan Background Berwarna sesuai Role --}}
                                                     <small class="text-muted">
-                                                        <i class="bi bi-person-circle me-1"></i> Posted by Admin
+                                                        <i class="bi bi-person-circle me-1"></i>
+                                                        Posted by
+                                                        @php
+                                                            $role = $announcement->author->role->role_name ?? 'Admin';
+                                                            $bgClass = match ($role) {
+                                                                'Admin' => 'bg-primary',
+                                                                'Manager', 'Pengelola' => 'bg-success',
+                                                                default => 'bg-secondary',
+                                                            };
+                                                        @endphp
+
+                                                        {{-- Hanya bagian nama ini yang diberi latar warna --}}
+                                                        <span
+                                                            class="badge {{ $bgClass }} rounded-pill text-white fw-bold shadow-sm px-2">
+                                                            {{ $announcement->author->managerDetails->full_name ?? 'Admin' }}
+                                                        </span>
                                                     </small>
                                                 </div>
                                             </div>
-                                            {{-- Badge Tanggal di Pojok --}}
                                             <span class="badge rounded-pill bg-label-primary px-3">
                                                 {{ $announcement->created_at->diffForHumans() }}
                                             </span>
                                         </div>
                                         <hr class="my-3 opacity-25">
-                                        <p class="card-text text-secondary" style="line-height: 1.7;">
+                                        <p class="card-text text-secondary mb-4" style="line-height: 1.7;">
                                             {{ $announcement->content }}
                                         </p>
+
+                                        {{-- FITUR EDIT & HAPUS: Hanya untuk Admin/Pengelola --}}
+                                        @if (auth()->user()->role->role_name !== 'Resident')
+                                            <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                                                <a href="{{ route('announcements.edit', $announcement->id) }}"
+                                                    class="btn btn-sm btn-soft-warning rounded-pill px-3">
+                                                    <i class="bi bi-pencil-square me-1"></i> Edit
+                                                </a>
+
+                                                <form action="{{ route('announcements.destroy', $announcement->id) }}"
+                                                    method="POST"
+                                                    onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengumuman ini?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit"
+                                                        class="btn btn-sm btn-soft-danger rounded-pill px-3">
+                                                        <i class="bi bi-trash3 me-1"></i> Hapus
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -72,7 +107,7 @@
                         @endforelse
                     </div>
 
-                    {{-- --- PAGINATION DI DALAM CARD BACKGROUND --- --}}
+                    {{-- --- PAGINATION --- --}}
                     <div class="d-flex justify-content-between align-items-center mt-3 px-2">
                         <div class="text-muted small">
                             Showing {{ $announcements->firstItem() }} to {{ $announcements->lastItem() }} of

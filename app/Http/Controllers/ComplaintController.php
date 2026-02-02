@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\BuildingComplaint; // TAMBAHKAN INI
+use App\Models\Complaint;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Models\BuildingComplaint; // TAMBAHKAN INI
 
 class ComplaintController extends Controller
 {
@@ -12,21 +14,21 @@ class ComplaintController extends Controller
 
     public function index()
     {
-    $user = Auth::user();
-    
-    // Jika dia Penghuni, filter berdasarkan nomor kamarnya
-    if($user->role->role_name === 'Resident') {
-        $userRoom = $user->residentDetails->room_number;
-        
-        $complaints = BuildingComplaint::whereHas('resident.residentDetails', function($q) use ($userRoom) {
-            $q->where('room_number', $userRoom);
-        })->latest()->paginate(10);
-    } else {
-        // Admin/Pengelola bisa lihat semua
-        $complaints = BuildingComplaint::latest()->paginate(10);
-    }
+        $user = Auth::user();
 
-    return view('admin.complaint', compact('complaints'));
+        // Jika dia Penghuni, filter berdasarkan nomor kamarnya
+        if ($user->role->role_name === 'Resident') {
+            $userRoom = $user->residentDetails->room_number;
+
+            $complaints = BuildingComplaint::whereHas('resident.residentDetails', function ($q) use ($userRoom) {
+                $q->where('room_number', $userRoom);
+            })->latest()->paginate(10);
+        } else {
+            // Admin/Pengelola bisa lihat semua
+            $complaints = BuildingComplaint::latest()->paginate(10);
+        }
+
+        return view('admin.complaint', compact('complaints'));
     }
 
     public function show($id)
@@ -83,26 +85,20 @@ class ComplaintController extends Controller
 
     public function adminIndex(Request $request)
     {
-        $user = Auth::user();
-        $search = $request->get('search');
+        $search = $request->search;
 
-        $query = BuildingComplaint::with(['resident.residentDetails', 'status']);
+        // GUNAKAN BuildingComplaint, karena model ini yang punya 'location_item'
+        $complaints = BuildingComplaint::with(['resident.residentDetails', 'status'])
+            ->when($search, function ($query, $search) {
+                return $query->where('location_item', 'like', "%{$search}%")
+                    ->orWhereHas('resident.residentDetails', function ($q) use ($search) {
+                        $q->where('full_name', 'like', "%{$search}%");
+                    });
+            })
+            ->latest()
+            ->paginate(10);
 
-        // Jika Resident, filter berdasarkan kolom yang ada di database (misal: resident_id)
-        if ($user->role->role_name === 'Resident') {
-            // GANTI 'user_id' menjadi 'resident_id' jika itu nama kolom di DB kamu
-            $query->where('resident_id', $user->id);
-        }
-
-        if ($search) {
-            $query->where(function($q) use ($search) {
-                $q->where('location_item', 'LIKE', "%$search%")
-                    ->orWhere('description', 'LIKE', "%$search%");
-            });
-        }
-
-        $complaints = $query->latest()->paginate(10);
-
+        // Kirim variabel ke view
         return view('admin.complaint', compact('complaints'));
     }
 }

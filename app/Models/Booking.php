@@ -2,6 +2,11 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use App\Models\User;
+use App\Models\Facility;
+use App\Models\TimeSlot;
+use App\Models\BookingStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -19,6 +24,9 @@ class Booking extends Model
     'booking_date',
     'start_time',
     'end_time',
+    'description',
+    'jumlah_orang',
+    'photo_proof_path',
     'cleanliness_status',
 ];
 
@@ -45,4 +53,34 @@ class Booking extends Model
     {
         return $this->belongsTo(BookingStatus::class, 'status_id');
     }
-}
+
+    // Di dalam class Booking
+    public function getCalculatedStatusAttribute()
+        {
+            $now = Carbon::now();
+            $start = Carbon::parse($this->booking_date . ' ' . $this->start_time);
+            $end = Carbon::parse($this->booking_date . ' ' . $this->end_time);
+        
+            // 1. Jika status sudah Completed atau Canceled, kembalikan status asli
+            if (in_array($this->status->status_name, ['Completed', 'Canceled'])) {
+                return $this->status->status_name;
+            }
+        
+            // 2. Jika statusnya Accepted, cek waktunya
+            if ($this->status->status_name === 'Accepted') {
+                if ($now->between($start, $end)) {
+                    return 'On Going';
+                }
+                if ($now->greaterThan($end)) {
+                    return 'Awaiting Cleanliness Photo';
+                }
+            }
+        
+            // 3. Jika statusnya 'Verifying' (setelah upload foto)
+            if ($this->status->status_name === 'Verifying') {
+                return 'Verifying Cleanliness';
+            }
+        
+            return $this->status->status_name; // Default: Booked
+        }
+}   
