@@ -98,6 +98,7 @@
     <script src="{{ asset('hopeui/vendor/aos/dist/aos.js') }}"></script>
     <script src="{{ asset('hopeui/js/hope-ui.js') }}" defer></script>
 
+    @yield('styles')
     @stack('scripts')
 </body>
 

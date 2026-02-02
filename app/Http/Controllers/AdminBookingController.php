@@ -47,7 +47,7 @@ class AdminBookingController extends Controller
             });
         }
 
-        if (auth()->user()->role->role_name === 'Resident') {
+        if (Auth::user()->role->role_name === 'Resident') {
         abort(403, 'Anda tidak punya akses untuk menyetujui peminjaman.');
         }
 

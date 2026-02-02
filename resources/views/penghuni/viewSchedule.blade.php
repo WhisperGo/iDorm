@@ -10,6 +10,7 @@
                     </div>
 
                     <div class="d-flex gap-2">
+                        {{-- Form Filter & Search Tetap Sama --}}
                         <form action="{{ url()->current() }}" method="GET" class="d-flex gap-2">
                             @if ($category == 'dapur')
                                 <select name="item" class="form-select form-select-sm color-black"
@@ -43,7 +44,6 @@
 
                             <input type="text" name="search" class="form-control form-control-sm"
                                 placeholder="Search name..." value="{{ request('search') }}">
-
                             <button type="submit" class="btn btn-primary btn-sm">Search</button>
 
                             @if (request('item') || request('search'))
@@ -54,11 +54,11 @@
                 </div>
 
                 <div class="card-body">
-                    @if (session('error'))
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                            {!! session('error') !!}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    {{-- Alert Session --}}
+                    @if (session('success'))
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     @endif
 
@@ -72,11 +72,30 @@
                                     <th class="text-center">Resident Name</th>
                                     <th class="text-center">Facility Item</th>
                                     <th class="text-center">Status</th>
+                                    {{-- <th class="text-center">Action</th> --}}
+
+                                    {{-- 1. HEADER AKSI KHUSUS ADMIN --}}
+                                    @php
+                                        // Normalisasi: Ubah mesin-cuci atau mesin_cuci menjadi mesin cuci agar pasti cocok
+                                        $currentCategory = str_replace(['-', '_'], ' ', strtolower($category));
+                                        $adminCategory = str_replace(
+                                            ['-', '_'],
+                                            ' ',
+                                            strtolower(auth()->user()->assigned_category ?? ''),
+                                        );
+
+                                        // Manager melihat semua, Admin hanya melihat kategori yang ditugaskan
+                                        $canAccess =
+                                            auth()->user()->role->role_name === 'Manager' ||
+                                            (auth()->user()->role->role_name === 'Admin' &&
+                                                $currentCategory === $adminCategory);
+                                    @endphp
+                                    @if ($canAccess)
+                                        <th class="text-center">Admin Action</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody>
-                                {{-- LOGIKA PENGGABUNGAN CERDAS --}}
-                                {{-- Kita tambah item_dapur & item_sergun di kunci grouping agar alat yang berbeda tidak sengaja tergabung --}}
                                 @forelse($bookings->groupBy(fn($item) => $item->user_id . $item->booking_date . $item->start_time . $item->end_time . $item->item_dapur . $item->item_sergun) as $group)
                                     @php $b = $group->first(); @endphp
                                     <tr>
@@ -94,11 +113,9 @@
                                                 {{ $b->user->residentDetails->room_number }}</small>
                                         </td>
                                         <td>
-                                            {{-- LOGIKA TAMPILAN: MESIN CUCI vs ALAT LAIN --}}
                                             @if (Str::contains(strtolower($b->facility->name), 'mesin cuci'))
                                                 <div class="fw-bold">Mesin Cuci</div>
-                                                <small class="text-success fw-bold">
-                                                    No. Mesin:
+                                                <small class="text-success fw-bold">No. Mesin:
                                                     @foreach ($group as $item)
                                                         M-{{ substr($item->facility->name, -1) }}{{ !$loop->last ? ',' : '' }}
                                                     @endforeach
@@ -109,12 +126,8 @@
                                                     <small class="text-danger fw-bold"> Alat:
                                                         {{ ucwords(str_replace('_', ' ', $b->item_dapur)) }}</small>
                                                 @elseif ($b->item_sergun)
-                                                    <small class="text-primary">
-                                                        Area:
+                                                    <small class="text-primary"> Area:
                                                         {{ ucwords(str_replace('_', ' ', $b->item_sergun)) }}</small>
-                                                @elseif ($b->description)
-                                                    <small class="text-muted"><i class="bi bi-info-circle"></i>
-                                                        {{ $b->description }}</small>
                                                 @endif
                                             @endif
                                         </td>
@@ -123,6 +136,7 @@
                                                 $statusClass =
                                                     [
                                                         'Booked' => 'info',
+                                                        'Accepted' => 'primary',
                                                         'Cancelled' => 'danger',
                                                         'Completed' => 'success',
                                                         'Ongoing' => 'warning',
@@ -132,6 +146,33 @@
                                                 {{ $b->status->status_name }}
                                             </span>
                                         </td>
+
+                                        {{-- 2. TOMBOL AKSI KHUSUS ADMIN --}}
+                                        @if ($canAccess)
+                                            <td class="text-center">
+                                                @if ($b->status->status_name === 'Booked')
+                                                    <div class="d-flex gap-1 justify-content-center">
+                                                        {{-- Karena grouping, kita kirimkan ID pertama dari grup tersebut --}}
+                                                        <form
+                                                            action="{{ route('admin.booking.action', [$b->id, 'accept']) }}"
+                                                            method="POST">
+                                                            @csrf @method('PUT')
+                                                            <button type="submit" class="btn btn-success btn-sm p-1"
+                                                                title="Accept"><i class="bi bi-check-lg"></i></button>
+                                                        </form>
+                                                        <form
+                                                            action="{{ route('admin.booking.action', [$b->id, 'cancel']) }}"
+                                                            method="POST">
+                                                            @csrf @method('PUT')
+                                                            <button type="submit" class="btn btn-danger btn-sm p-1"
+                                                                title="Reject"><i class="bi bi-x-lg"></i></button>
+                                                        </form>
+                                                    </div>
+                                                @else
+                                                    <small class="text-muted italic">Processed</small>
+                                                @endif
+                                            </td>
+                                        @endif
                                     </tr>
                                 @empty
                                     <tr>

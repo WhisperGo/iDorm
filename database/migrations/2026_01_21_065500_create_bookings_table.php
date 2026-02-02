@@ -35,6 +35,9 @@ return new class extends Migration
             $table->time('start_time')->nullable();
             $table->time('end_time')->nullable();
 
+            $table->text('description')->nullable();
+            $table->integer('jumlah_orang')->nullable();
+
             // Data Kebersihan & Bukti
             $table->string('photo_proof_path')->nullable();
             $table->enum('cleanliness_status', ['pending', 'approved', 'rejected'])->default('pending');
