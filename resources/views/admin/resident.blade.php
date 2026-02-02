@@ -51,7 +51,6 @@
                                         </td>
                                         <td class="text-center">
                                             <div class="btn-group btn-group-sm">
-                                                {{-- Tombol Freeze/Unfreeze --}}
                                                 <form action="{{ route('admin.resident.freeze', $res->id) }}" method="POST"
                                                     onsubmit="return confirm('Apakah Anda yakin ingin mengubah status akun ini?')">
                                                     @csrf

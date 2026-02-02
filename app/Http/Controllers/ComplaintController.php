@@ -6,11 +6,11 @@ use App\Models\BuildingComplaint; // TAMBAHKAN INI
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class ComplaintController extends Controller 
+class ComplaintController extends Controller
 {
     // app/Http/Controllers/ComplaintController.php
 
-    public function index() 
+    public function index()
     {
     $user = Auth::user();
     
@@ -91,7 +91,7 @@ class ComplaintController extends Controller
         // Jika Resident, filter berdasarkan kolom yang ada di database (misal: resident_id)
         if ($user->role->role_name === 'Resident') {
             // GANTI 'user_id' menjadi 'resident_id' jika itu nama kolom di DB kamu
-            $query->where('resident_id', $user->id); 
+            $query->where('resident_id', $user->id);
         }
 
         if ($search) {

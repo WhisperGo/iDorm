@@ -98,6 +98,34 @@
     @stack('scripts')
 </body>
 
+<script>
+    document.querySelectorAll('.btn-freeze').forEach(button => {
+        button.addEventListener('click', function(e) {
+            const form = this.closest('.freeze-form');
+            const status = this.getAttribute('title'); // Mengambil teks dari title
+
+            Swal.fire({
+                title: 'Konfirmasi Perubahan',
+                text: `Apakah Anda yakin ingin melakukan "${status}"?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, Lanjutkan!',
+                cancelButtonText: 'Batal',
+                background: '#fff',
+                customClass: {
+                    popup: 'format-swal'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit(); // Submit form jika user klik 'Ya'
+                }
+            });
+        });
+    });
+</script>
+
 </html>
 <!doctype html>
 <html lang="en" dir="ltr" data-bs-theme="light" data-bs-theme-color="theme-color-default">
