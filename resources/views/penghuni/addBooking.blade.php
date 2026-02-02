@@ -222,6 +222,13 @@
                                         <input type="text" class="form-control" name="description"
                                             placeholder="Contoh: Acara Kelas" required>
                                     </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Jumlah Orang <span
+                                                class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" name="jumlah_orang" min="1"
+                                            placeholder="Berapa orang yang ikut nonton?" required>
+                                        <small class="text-muted">Maksimal peminjaman: <strong>50 Orang</strong>.</small>
+                                    </div>
                                     <div class="row">
                                         <div class="col-md-6">
                                             <x-time-dropdown name="start_time" label="Jam Mulai *" required="true" />

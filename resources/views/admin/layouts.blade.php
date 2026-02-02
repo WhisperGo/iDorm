@@ -56,8 +56,8 @@
     </script>
 </head>
 
-{{-- <body class="">
-    <div id="loading">
+<body class="">
+    {{-- <div id="loading">
         <div class="loader simple-loader">
             <div class="loader-body"></div>
         </div>

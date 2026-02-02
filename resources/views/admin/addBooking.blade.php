@@ -311,6 +311,9 @@
                                                         $isOverdue = now() > $endTime;
                                                     @endphp
 
+                                                    @if ()
+                                                        
+                                                    @endif
                                                     @if ($isOverdue)
                                                         <form action="{{ route('booking.upload', $booking->id) }}"
                                                             method="POST" enctype="multipart/form-data">

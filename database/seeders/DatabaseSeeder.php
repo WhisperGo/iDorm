@@ -14,22 +14,22 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        
-        // 1. SEED ROLES (ID: 1, 2, 3)
+        // 1. SEED ROLES
         $roles = ['Manager', 'Admin', 'Resident'];
         foreach ($roles as $r) {
-            Role::create(['role_name' => $r]);
+            Role::firstOrCreate(['role_name' => $r]);
         }
 
-        // 2. SEED STATUSES (Agar fitur Booking & Complaint tidak error)
-        $bStatuses = ['Booked', 'Ongoing', 'Completed', 'Cancelled'];
+        // 2. SEED STATUSES (Update sesuai alur baru)
+        // ID: 1 (Booked), 2 (Accepted), 3 (Canceled), 4 (Verifying), 5 (Completed)
+        $bStatuses = ['Booked', 'Accepted', 'Canceled', 'Verifying', 'Completed'];
         foreach ($bStatuses as $bs) {
-            BookingStatus::create(['status_name' => $bs]);
+            BookingStatus::firstOrCreate(['status_name' => $bs]);
         }
 
         $cStatuses = ['Submitted', 'On Progress', 'Resolved'];
         foreach ($cStatuses as $cs) {
-            ComplaintStatus::create(['status_name' => $cs]);
+            ComplaintStatus::firstOrCreate(['status_name' => $cs]);
         }
 
         // 3. SEED FACILITIES (Termasuk Filter Gender Mesin Cuci)
@@ -49,37 +49,57 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Co-Working Space A', 'type' => 'light'],
             ['name' => 'Serba Guna Hall', 'type' => 'light'],
         ];
+        
         foreach ($facilities as $f) {
-            Facility::create($f);
+            Facility::firstOrCreate(['name' => $f['name']], $f);
         }
 
-        // 4. SEED USERS (Login menggunakan card_id 4 digit)
-        
-        // A. PENGELOLA (MANAGER)
-        $manager = User::create([
-            'role_id' => 1,
-            'card_id' => '0001',
-            'password' => Hash::make('password'),
-            'account_status' => 'active',
-        ]);
-        $manager->managerDetails()->create([
-            'full_name' => 'Bp. Budi Pengelola',
-            'gender' => 'Male',
-            'phone_number' => '08123456789',
-        ]);
+        // 4. SEED ADMIN PER FASILITAS (Role ID: 2)
+        // Pastikan kolom 'assigned_category' sudah ada di migrasi users kamu
+        $adminData = [
+            [
+                'card_id' => '1001',
+                'name' => 'Admin Dapur (Siti)',
+                'category' => 'dapur'
+            ],
+            [
+                'card_id' => '1002',
+                'name' => 'Admin Laundry (Bambang)',
+                'category' => 'mesin_cuci'
+            ],
+            [
+                'card_id' => '1003',
+                'name' => 'Admin Theater (Rian)',
+                'category' => 'theater'
+            ],
+            [
+                'card_id' => '1004',
+                'name' => 'Admin CWS (Dewi)',
+                'category' => 'cws'
+            ],
+            [
+                'card_id' => '1005',
+                'name' => 'Admin Sergun (Eko)',
+                'category' => 'sergun'
+            ],
+        ];
 
-        // B. ADMIN PIC (ADMIN)
-        $admin = User::create([
-            'role_id' => 2,
-            'card_id' => '0002',
-            'password' => Hash::make('password'),
-        ]);
-        $admin->managerDetails()->create([
-            'full_name' => 'Siti Admin Dapur',
-            'gender' => 'Female',
-        ]);
+        foreach ($adminData as $data) {
+            $user = User::create([
+                'role_id' => 2, // Role Admin
+                'card_id' => $data['card_id'],
+                'password' => Hash::make('password'),
+                'assigned_category' => $data['category'], // KOLOM PENTING UNTUK OTORITAS
+                'account_status' => 'active',
+            ]);
 
-        // C. PENGHUNI PRIA (RESIDENT MALE)
+            $user->managerDetails()->create([
+                'full_name' => $data['name'],
+                'gender' => ($data['card_id'] == '1004') ? 'Female' : 'Male',
+            ]);
+        }
+
+        // 5. SEED PENGHUNI (RESIDENT)
         $maleRes = User::create([
             'role_id' => 3,
             'card_id' => '1111',
@@ -88,8 +108,8 @@ class DatabaseSeeder extends Seeder
         $maleRes->residentDetails()->create([
             'full_name' => 'Jason Wijaya',
             'gender' => 'Male',
-            'class_name' => 'PPTI 20', // Sesuai Regex
-            'room_number' => 'B332',  // Sesuai Regex
+            'class_name' => 'PPTI 20',
+            'room_number' => 'B332',
         ]);
 
         $user2 = User::create([
@@ -122,6 +142,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AnnouncementSeeder::class,
             TimeSlotSeeder::class,
+            BookingSeeder::class,
         ]);
         // -------------------------
 

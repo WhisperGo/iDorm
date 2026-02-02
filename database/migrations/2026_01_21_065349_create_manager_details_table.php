@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('full_name', 100);
             $table->enum('gender', ['Male', 'Female']);
             $table->string('phone_number', 15)->nullable();
+            $table->string('photo_path')->nullable();
             
             // Gunakan standar Laravel untuk timestamps dan softDeletes
             $table->timestamps();

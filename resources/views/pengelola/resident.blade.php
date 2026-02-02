@@ -40,12 +40,12 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td class="text-center">1</td>
+                                    {{-- <td class="text-center">1</td>
                                     <td class="text-center">Jason Wijaya</td>
                                     <td class="text-center">1 Januari 1910</td>
                                     <td class="text-center">L</td>
                                     <td class="text-center">B332</td>
-                                    <td class="text-center">Penghuni</td>
+                                    <td class="text-center">Penghuni</td> --}}
                                     <td>
                                         <div class="d-flex flex-column gap-1">
                                             <button type="button" class="btn btn-primary">Freeze Account</button>

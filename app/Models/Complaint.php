@@ -45,4 +45,10 @@ class Complaint extends Model
     {
         return $this->belongsTo(ComplaintStatus::class, 'status_id');
     }
+
+    public function resident()
+    {
+        // Mengaitkan ke tabel users (karena resident adalah user)
+        return $this->belongsTo(User::class, 'user_id'); 
+    }
 }

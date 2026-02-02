@@ -50,19 +50,35 @@
                                             </span>
                                         </td>
                                         <td class="text-center">
-                                            <div class="btn-group btn-group-sm">
+                                            <div class="d-flex align-items-center gap-2">
+                                                {{-- Tombol Freeze/Unfreeze --}}
                                                 <form action="{{ route('admin.resident.freeze', $res->id) }}" method="POST"
+                                                    class="m-0" {{-- Menghilangkan margin bawaan form --}}
                                                     onsubmit="return confirm('Apakah Anda yakin ingin mengubah status akun ini?')">
                                                     @csrf
                                                     <button type="submit"
-                                                        class="btn {{ $res->account_status == 'active' ? 'btn-outline-danger' : 'btn-outline-success' }}"
+                                                        class="btn btn-sm {{ $res->account_status == 'active' ? 'btn-outline-danger' : 'btn-outline-success' }} d-flex align-items-center justify-content-center"
+                                                        style="width: 75px; height: 45px;" {{-- Lebar dan tinggi dikunci agar sama --}}
                                                         title="{{ $res->account_status == 'active' ? 'Freeze Account' : 'Unfreeze Account' }}">
-                                                        <i class="icon">
-                                                            {{ $res->account_status == 'active' ? '❄️' : '🔥' }}
-                                                        </i>
+                                                        <div class="d-flex flex-column align-items-center lh-1"
+                                                            style="font-size: 11px; font-weight:700">
+                                                            <span>{{ $res->account_status == 'active' ? 'Freeze' : 'Unfreeze' }}</span>
+                                                            <span>Account</span>
+                                                        </div>
                                                     </button>
                                                 </form>
-                                                <a href="#" class="btn btn-outline-primary" title="Edit Data">📝</a>
+
+                                                {{-- Tombol Edit --}}
+                                                <a href="{{ route('admin.profile.edit', $res->id) }}"
+                                                    class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center"
+                                                    style="width: 75px; height: 45px;" {{-- Disamakan dengan tombol sebelah --}}
+                                                    title="Edit Data">
+                                                    <div class="d-flex flex-column align-items-center lh-1"
+                                                        style="font-size: 11px; font-weight:700">
+                                                        <span>Edit</span>
+                                                        <span>Account</span>
+                                                    </div>
+                                                </a>
                                             </div>
                                         </td>
                                     </tr>
