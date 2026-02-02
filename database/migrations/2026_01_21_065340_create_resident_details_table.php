@@ -28,6 +28,7 @@ return new class extends Migration
             $table->string('class_name', 7);
             $table->string('room_number', 4);
             $table->string('phone_number', 15)->nullable();
+            $table->string('photo_path')->nullable();
             
             // Gunakan standar timestamps & softDeletes
             $table->timestamps();

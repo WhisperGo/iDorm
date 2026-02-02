@@ -282,4 +282,62 @@ class BookingController extends Controller
 
         return view('penghuni.myBookings', compact('myBookings'));
     }
+
+    public function adminAction(Booking $booking, $action)
+    {
+        $admin = Auth::user();
+        $facilityName = strtolower($booking->facility->name);
+        $adminCategory = strtolower($admin->assigned_category);
+    
+        // Pemetaan Alias (Singkatan ke Nama Lengkap)
+        $aliasMap = [
+            'cws' => ['co-working', 'cws', 'working space'],
+            'sergun' => ['serba guna', 'sergun', 'hall'],
+            'mesin_cuci' => ['mesin cuci', 'laundry'],
+            'theater' => ['theater', 'theatre']
+        ];
+    
+        // Cek Otoritas
+        $hasAccess = false;
+        if ($admin->role->role_name === 'Manager') {
+            $hasAccess = true;
+        } else {
+            // Ambil daftar kata kunci berdasarkan kategori admin
+            $keywords = $aliasMap[$adminCategory] ?? [$adminCategory];
+            foreach ($keywords as $keyword) {
+                if (str_contains($facilityName, $keyword)) {
+                    $hasAccess = true;
+                    break;
+                }
+            }
+        }
+    
+        if (!$hasAccess) {
+            return back()->with('error', 'Maaf, Anda Admin ' . $adminCategory . ' tidak berhak mengelola ' . $booking->facility->name);
+        }
+    
+        // Eksekusi Perubahan Status
+        if ($action === 'accept') {
+            $booking->update(['status_id' => 2]); // ID 2: Accepted
+            return back()->with('success', 'Status berhasil diubah menjadi Accepted.');
+        } elseif ($action === 'cancel') {
+            $booking->update(['status_id' => 3]); // ID 3: Canceled
+            return back()->with('error', 'Status berhasil diubah menjadi Canceled.');
+        }
+    
+        return back();
+    }
+    
+    // Fungsi untuk Early Release (Penghuni)
+    public function earlyRelease(Booking $booking)
+    {
+        if ($booking->user_id !== Auth::id()) abort(403);
+
+        $booking->update([
+            'is_early_release' => true,
+            'actual_finish_at' => now(),
+        ]);
+
+        return back()->with('success', 'Peminjaman diakhiri lebih awal. Silakan upload foto kebersihan.');
+    }
 }
