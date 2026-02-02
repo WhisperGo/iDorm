@@ -31,23 +31,11 @@ class ResidentController extends Controller
         return view('admin.resident', compact('residents'));
     }
 
-// App/Http/Controllers/ResidentController.php
-
     public function toggleFreeze(User $user)
     {
-        // Cegah admin membekukan dirinya sendiri (opsional tapi disarankan)
-        if (auth()->id() === $user->id) {
-            return back()->with('error', 'Kamu tidak bisa membekukan akunmu sendiri!');
-        }
+        $newStatus = $user->account_status === 'active' ? 'frozen' : 'active';
+        $user->update(['account_status' => $newStatus]);
 
-        $newStatus = ($user->account_status === 'active') ? 'frozen' : 'active';
-        
-        $user->update([
-            'account_status' => $newStatus
-        ]);
-
-        $message = $newStatus === 'frozen' ? 'Akun telah dibekukan.' : 'Akun telah diaktifkan kembali.';
-        
-        return back()->with('success', $message);
+        return back()->with('success', "Status akun berhasil diubah menjadi $newStatus");
     }
 }
