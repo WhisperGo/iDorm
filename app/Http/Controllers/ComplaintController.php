@@ -27,6 +27,18 @@ class ComplaintController extends Controller
 
             // DIUBAH: Arahkan ke view khusus penghuni
             return view('admin.complaint', compact('complaints'));
+            $complaints = BuildingComplaint::whereHas(
+                'resident.residentDetails',
+                function ($q) use ($userRoom) {
+                    $q->where('room_number', $userRoom);
+            })
+            ->latest()
+            ->paginate(10);
+        } else {
+            //Pengelola bisa lihat semua
+            $complaints = BuildingComplaint::with(['resident.residentDetails', 'status'])
+                                            ->latest()
+                                            ->paginate(10);
         }
 
         // Admin/Pengelola bisa lihat semua
@@ -49,6 +61,12 @@ class ComplaintController extends Controller
         if ($complaint->resident->residentDetails->room_number !== $user->residentDetails->room_number) {
             abort(403, 'Anda tidak memiliki akses ke keluhan ini.');
         }
+    }
+    
+    public function show($id)
+    {
+        $complaint = BuildingComplaint::with(['resident.residentDetails', 'status'])
+                                                ->findOrFail($id);
 
         return view('admin.complaintDetail', compact('complaint'));
     }
@@ -88,6 +106,8 @@ class ComplaintController extends Controller
 
         // DIUBAH: Redirect ke index milik penghuni
         return redirect()->route('complaint.index')->with('success', 'Keluhan berhasil dikirim!');
+        return redirect()->route('admin.complaint')
+                        ->with('success', 'Keluhan berhasil dikirim dan akan segera diproses.');
     }
 
     /**
