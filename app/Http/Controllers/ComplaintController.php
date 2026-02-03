@@ -8,27 +8,27 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Models\BuildingComplaint; // TAMBAHKAN INI
 
-class ComplaintController extends Controller 
+class ComplaintController extends Controller
 {
     // app/Http/Controllers/ComplaintController.php
 
-    public function index() 
+    public function index()
     {
-    $user = Auth::user();
-    
-    // Jika dia Penghuni, filter berdasarkan nomor kamarnya
-    if($user->role->role_name === 'Resident') {
-        $userRoom = $user->residentDetails->room_number;
-        
-        $complaints = BuildingComplaint::whereHas('resident.residentDetails', function($q) use ($userRoom) {
-            $q->where('room_number', $userRoom);
-        })->latest()->paginate(10);
-    } else {
-        // Admin/Pengelola bisa lihat semua
-        $complaints = BuildingComplaint::latest()->paginate(10);
-    }
+        $user = Auth::user();
 
-    return view('admin.complaint', compact('complaints'));
+        // Jika dia Penghuni, filter berdasarkan nomor kamarnya
+        if ($user->role->role_name === 'Resident') {
+            $userRoom = $user->residentDetails->room_number;
+
+            $complaints = BuildingComplaint::whereHas('resident.residentDetails', function ($q) use ($userRoom) {
+                $q->where('room_number', $userRoom);
+            })->latest()->paginate(10);
+        } else {
+            // Admin/Pengelola bisa lihat semua
+            $complaints = BuildingComplaint::latest()->paginate(10);
+        }
+
+        return view('admin.complaint', compact('complaints'));
     }
 
     public function show($id)
@@ -86,18 +86,18 @@ class ComplaintController extends Controller
     public function adminIndex(Request $request)
     {
         $search = $request->search;
-    
+
         // GUNAKAN BuildingComplaint, karena model ini yang punya 'location_item'
         $complaints = BuildingComplaint::with(['resident.residentDetails', 'status'])
-            ->when($search, function($query, $search) {
+            ->when($search, function ($query, $search) {
                 return $query->where('location_item', 'like', "%{$search}%")
-                             ->orWhereHas('resident.residentDetails', function($q) use ($search) {
-                                 $q->where('full_name', 'like', "%{$search}%");
-                             });
+                    ->orWhereHas('resident.residentDetails', function ($q) use ($search) {
+                        $q->where('full_name', 'like', "%{$search}%");
+                    });
             })
             ->latest()
             ->paginate(10);
-    
+
         // Kirim variabel ke view
         return view('admin.complaint', compact('complaints'));
     }
