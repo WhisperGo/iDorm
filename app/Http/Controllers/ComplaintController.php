@@ -20,37 +20,27 @@ class ComplaintController extends Controller
         if ($user->role->role_name === 'Resident') {
             $userRoom = $user->residentDetails->room_number;
 
-            $complaints = BuildingComplaint::whereHas('resident.residentDetails', function ($q) use ($userRoom) {
-                $q->where('room_number', $userRoom);
-            })->latest()->paginate(10);
+            $complaints = BuildingComplaint::whereHas(
+                'resident.residentDetails',
+                function ($q) use ($userRoom) {
+                    $q->where('room_number', $userRoom);
+            })
+            ->latest()
+            ->paginate(10);
         } else {
-            // Admin/Pengelola bisa lihat semua
-            $complaints = BuildingComplaint::latest()->paginate(10);
+            //Pengelola bisa lihat semua
+            $complaints = BuildingComplaint::with(['resident.residentDetails', 'status'])
+                                            ->latest()
+                                            ->paginate(10);
         }
 
         return view('admin.complaint', compact('complaints'));
     }
 
-    public function showResident($id)
+    public function show($id)
     {
-        $complaint = \App\Models\Complaint::with(['user.residentDetails', 'category', 'status'])
-                                            ->findOrFail($id);
-        // Keamanan: Jika bukan pemiliknya, dilarang akses (403 Forbidden)
-        if ($complaint->user_id !== Auth::id()) {
-            abort(403, 'Anda tidak memiliki akses ke keluhan ini.');
-        }
-        return view('penghuni.complaintDetail', compact('complaint'));
-    }
-
-    public function showAdmin($id)
-    {
-        $complaint = \App\Models\BuildingComplaint::with(['resident.residentDetails', 'status'])
-            ->findOrFail($id);
-
-        // Keamanan: Jika bukan pemiliknya, dilarang akses (403 Forbidden)
-        // if ($complaint->user_id !== Auth::id()) {
-        //     abort(403, 'Anda tidak memiliki akses ke keluhan ini.');
-        // }
+        $complaint = BuildingComplaint::with(['resident.residentDetails', 'status'])
+                                                ->findOrFail($id);
 
         return view('admin.complaintDetail', compact('complaint'));
     }
@@ -95,7 +85,8 @@ class ComplaintController extends Controller
             'status_id' => 1,
         ]);
 
-        return redirect()->route('admin.complaint')->with('success', 'Keluhan berhasil dikirim dan akan segera diproses.');
+        return redirect()->route('admin.complaint')
+                        ->with('success', 'Keluhan berhasil dikirim dan akan segera diproses.');
     }
 
     // app/Http/Controllers/ComplaintController.php

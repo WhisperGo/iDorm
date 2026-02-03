@@ -47,25 +47,25 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/complaint', [ComplaintController::class, 'index'])->name('penghuni.complaint');
         Route::get('/complaint/create', [ComplaintController::class, 'create'])->name('complaint.create');
         Route::post('/complaint/store', [ComplaintController::class, 'store'])->name('complaint.store');
-        Route::get('/complaint/detail/{id}', [ComplaintController::class, 'showResident'])->name('penghuni.complaint.show');
+        Route::get('/complaint/detail/{id}', [ComplaintController::class, 'show'])->name('penghuni.complaint.show');
     });
 
-    // 6. ROLE: ADMIN & MANAGER (Pengelola)
+    // 6. ROLE: ADMIN
     // Route untuk nampilin form edit
     Route::prefix('admin')->group(function () {
         Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('admin.profile.edit');
-
-        // Route untuk PROSES UPDATE (Ini yang tadi hilang atau salah panggil)
         Route::put('/profile/update', [ProfileController::class, 'update'])->name('admin.profile.update');
 
         Route::get('/residents', [ResidentController::class, 'index'])->name('admin.resident'); // Satu rute cukup
         Route::post('/residents/{user}/toggle-freeze', [ResidentController::class, 'toggleFreeze'])->name('admin.resident.freeze');
 
-        Route::get('/complaints', [ComplaintController::class, 'adminIndex'])->name('admin.complaint');
         Route::post('/booking/{booking}/{action}', [AdminBookingController::class, 'updateStatus'])->name('admin.booking.update');
+        Route::put('/booking/{booking}/{action}', [BookingController::class, 'adminAction'])->name('admin.booking.action');
 
-        Route::put('booking/{booking}/{action}', [BookingController::class, 'adminAction'])->name('admin.booking.action');
-        Route::get('/complaints/{id}', [ComplaintController::class, 'showAdmin'])->name('admin.complaint.showAdminOnly');
+        Route::get('/complaint', [ComplaintController::class, 'index'])->name('admin.complaint');
+        Route::get('/complaint/create', [ComplaintController::class, 'create'])->name('complaint.create');
+        Route::post('/complaint/store', [ComplaintController::class, 'store'])->name('complaint.store');
+        Route::get('/complaint/{id}', [ComplaintController::class, 'show'])->name('admin.complaint.show');
     });
 
 

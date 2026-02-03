@@ -55,7 +55,7 @@
                                         <td>{{ $item->created_at->format('d-m-Y') }}</td>
 
                                         <td>
-                                            <a href="{{ route('admin.complaint.showAdminOnly', $item->id) }}" class="fw-bold text-primary">
+                                            <a href="{{ route('admin.complaint.show', $item->id) }}" class="fw-bold text-primary">
                                                 {{ $item->location_item }}
                                             </a>
                                         </td>
@@ -91,6 +91,10 @@
                                             <span
                                                 class="badge bg-{{ $color }}">{{ $item->status->status_name }}</span>
                                         </td>
+
+                                        {{-- @if ($item->)
+                                            
+                                        @endif --}}
                                     </tr>
                                 @empty
                                     <tr>
