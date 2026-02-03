@@ -291,6 +291,7 @@ class BookingController extends Controller
     
         // Pemetaan Alias (Singkatan ke Nama Lengkap)
         $aliasMap = [
+            'dapur' => ['dapur', 'kitchen'],
             'cws' => ['co-working', 'cws', 'working space'],
             'sergun' => ['serba guna', 'sergun', 'hall'],
             'mesin_cuci' => ['mesin cuci', 'laundry'],
@@ -313,7 +314,7 @@ class BookingController extends Controller
         }
     
         if (!$hasAccess) {
-            return back()->with('error', 'Maaf, Anda Admin ' . $adminCategory . ' tidak berhak mengelola ' . $booking->facility->name);
+            return back()->with('error', 'Maaf, Anda tidak berhak mengelola fasilitas ini.');
         }
     
         // Eksekusi Perubahan Status
@@ -323,6 +324,14 @@ class BookingController extends Controller
         } elseif ($action === 'cancel') {
             $booking->update(['status_id' => 3]); // ID 3: Canceled
             return back()->with('error', 'Status berhasil diubah menjadi Canceled.');
+        } elseif ($action === 'complete') {
+            $booking->update([
+                'status_id' => 5,
+                'cleanliness_status' => 'approved',
+                ]); // ID 5: Completed
+            return back()->with('success', 'Foto kebersihan disetujui, peminjaman selesai!.');
+        } else {
+            return back()->with('error', 'Aksi tidak dikenali.');
         }
     
         return back();
