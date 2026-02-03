@@ -3,110 +3,100 @@
 namespace App\Http\Controllers;
 
 use App\Models\Complaint;
+use App\Models\BuildingComplaint;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use App\Models\BuildingComplaint; // TAMBAHKAN INI
 
 class ComplaintController extends Controller
 {
-    // app/Http/Controllers/ComplaintController.php
-
+    /**
+     * Tampilan List Keluhan
+     */
     public function index()
     {
         $user = Auth::user();
 
-        // Jika dia Penghuni, filter berdasarkan nomor kamarnya
         if ($user->role->role_name === 'Resident') {
             $userRoom = $user->residentDetails->room_number;
 
+            // Logika Sekamar: Bisa lihat keluhan dari kamar yang sama
             $complaints = BuildingComplaint::whereHas('resident.residentDetails', function ($q) use ($userRoom) {
                 $q->where('room_number', $userRoom);
             })->latest()->paginate(10);
-        } else {
-            // Admin/Pengelola bisa lihat semua
-            $complaints = BuildingComplaint::latest()->paginate(10);
+
+            // DIUBAH: Arahkan ke view khusus penghuni
+            return view('admin.complaint', compact('complaints'));
         }
 
+        // Admin/Pengelola bisa lihat semua
+        $complaints = BuildingComplaint::latest()->paginate(10);
         return view('admin.complaint', compact('complaints'));
     }
 
+    /**
+     * Detail Keluhan untuk Penghuni
+     */
     public function showResident($id)
     {
-        $complaint = \App\Models\Complaint::with(['user.residentDetails', 'category', 'status'])
-                                            ->findOrFail($id);
-        // Keamanan: Jika bukan pemiliknya, dilarang akses (403 Forbidden)
-        if ($complaint->user_id !== Auth::id()) {
+        // Gunakan BuildingComplaint agar konsisten dengan store()
+        $complaint = BuildingComplaint::with(['resident.residentDetails', 'status'])
+                                        ->findOrFail($id);
+
+        $user = Auth::user();
+        
+        // Keamanan: Cek apakah keluhan berasal dari kamar yang sama
+        if ($complaint->resident->residentDetails->room_number !== $user->residentDetails->room_number) {
             abort(403, 'Anda tidak memiliki akses ke keluhan ini.');
         }
-        return view('penghuni.complaintDetail', compact('complaint'));
-    }
-
-    public function showAdmin($id)
-    {
-        $complaint = \App\Models\BuildingComplaint::with(['resident.residentDetails', 'status'])
-            ->findOrFail($id);
-
-        // Keamanan: Jika bukan pemiliknya, dilarang akses (403 Forbidden)
-        // if ($complaint->user_id !== Auth::id()) {
-        //     abort(403, 'Anda tidak memiliki akses ke keluhan ini.');
-        // }
 
         return view('admin.complaintDetail', compact('complaint'));
     }
 
-    public function showManager($id)
-    {
-        $complaint = \App\Models\BuildingComplaint::with(['resident.residentDetails', 'status'])
-            ->findOrFail($id);
-
-        return view('pengelola.complaintDetail', compact('complaint'));
-    }
-
+    /**
+     * Form Tambah Keluhan
+     */
     public function create()
     {
-        // Menampilkan view form tambah keluhan
-        // Pastikan file view ini ada di: resources/views/admin/complaint/create.blade.php
+        // Pastikan path view-nya sesuai dengan folder penghuni jika ada
         return view('admin.addComplaint');
     }
 
+    /**
+     * Simpan Keluhan Baru
+     */
     public function store(Request $request)
     {
-        // 1. Validasi
         $request->validate([
             'location_item' => 'required|string|max:255',
             'description' => 'required|string',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        // 2. Handle Upload Foto jika ada
         $path = null;
         if ($request->hasFile('photo')) {
             $path = $request->file('photo')->store('complaints/building', 'public');
         }
 
-        // 3. Simpan ke Database
-        // Asumsi status_id = 1 adalah 'Submitted' atau 'Pending'
-        \App\Models\BuildingComplaint::create([
+        BuildingComplaint::create([
             'resident_id' => Auth::id(),
             'location_item' => $request->location_item,
             'description' => $request->description,
             'photo_path' => $path,
-            'status_id' => 1,
+            'status_id' => 1, // Default: Submitted
         ]);
 
-        return redirect()->route('admin.complaint')->with('success', 'Keluhan berhasil dikirim dan akan segera diproses.');
+        // DIUBAH: Redirect ke index milik penghuni
+        return redirect()->route('complaint.index')->with('success', 'Keluhan berhasil dikirim!');
     }
 
-    // app/Http/Controllers/ComplaintController.php
-
-    // app/Http/Controllers/ComplaintController.php
-
+    /**
+     * Tampilan List Keluhan khusus Admin (dengan Fitur Search)
+     */
     public function adminIndex(Request $request)
     {
         $search = $request->search;
 
-        // GUNAKAN BuildingComplaint, karena model ini yang punya 'location_item'
         $complaints = BuildingComplaint::with(['resident.residentDetails', 'status'])
             ->when($search, function ($query, $search) {
                 return $query->where('location_item', 'like', "%{$search}%")
@@ -117,15 +107,16 @@ class ComplaintController extends Controller
             ->latest()
             ->paginate(10);
 
-        // Kirim variabel ke view
         return view('admin.complaint', compact('complaints'));
     }
 
+    /**
+     * Update Status Keluhan (Oleh Admin)
+     */
     public function updateStatus(Request $request, $id)
     {
-        $complaint = \App\Models\BuildingComplaint::findOrFail($id);
+        $complaint = BuildingComplaint::findOrFail($id);
 
-        // Validasi sederhana: pastikan status_id valid (asumsi 3 adalah 'Resolved')
         $complaint->update([
             'status_id' => $request->status_id
         ]);

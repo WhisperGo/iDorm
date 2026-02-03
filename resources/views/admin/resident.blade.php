@@ -10,18 +10,14 @@
                             <h4 class="card-title mb-0 fw-bold">Resident Data</h4>
                         </div>
 
-                        {{-- Update Search Form --}}
-                        <form action="{{ route('admin.resident') }}" method="GET" class="d-flex align-items-center gap-2">
-                            <span class="text-secondary fw-medium">Search:</span>
-                            <input type="text" name="search" class="form-control" style="width: 250px;"
-                                placeholder="Name or Room..." value="{{ request('search') }}">
-                        </form>
+                        {{-- Wadah tempat memindahkan Live Filter agar sejajar --}}
+                        <div id="live-filter-container"></div>
                     </div>
                 </div>
 
                 <div class="card-body mt-0">
                     <div class="table-responsive">
-                        <table class="table table-bordered align-middle">
+                        <table id="datatable" class="table table-bordered align-middle dataTable" data-toggle="data-table">
                             <thead class="bg-light">
                                 <tr>
                                     <th class="text-center" width="5%">No.</th>
@@ -51,14 +47,13 @@
                                         </td>
                                         <td class="text-center">
                                             <div class="d-flex align-items-center gap-2">
-                                                {{-- Tombol Freeze/Unfreeze --}}
                                                 <form action="{{ route('admin.resident.freeze', $res->id) }}" method="POST"
-                                                    class="m-0" {{-- Menghilangkan margin bawaan form --}}
+                                                    class="m-0"
                                                     onsubmit="return confirm('Apakah Anda yakin ingin mengubah status akun ini?')">
                                                     @csrf
                                                     <button type="submit"
                                                         class="btn btn-sm {{ $res->account_status == 'active' ? 'btn-outline-danger' : 'btn-outline-success' }} d-flex align-items-center justify-content-center"
-                                                        style="width: 75px; height: 45px;" {{-- Lebar dan tinggi dikunci agar sama --}}
+                                                        style="width: 75px; height: 45px;"
                                                         title="{{ $res->account_status == 'active' ? 'Freeze Account' : 'Unfreeze Account' }}">
                                                         <div class="d-flex flex-column align-items-center lh-1"
                                                             style="font-size: 11px; font-weight:700">
@@ -68,11 +63,9 @@
                                                     </button>
                                                 </form>
 
-                                                {{-- Tombol Edit --}}
                                                 <a href="{{ route('admin.profile.edit', $res->id) }}"
                                                     class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center"
-                                                    style="width: 75px; height: 45px;" {{-- Disamakan dengan tombol sebelah --}}
-                                                    title="Edit Data">
+                                                    style="width: 75px; height: 45px;" title="Edit Data">
                                                     <div class="d-flex flex-column align-items-center lh-1"
                                                         style="font-size: 11px; font-weight:700">
                                                         <span>Edit</span>
@@ -98,4 +91,49 @@
             </div>
         </div>
     </div>
+
+    @push('scripts')
+        <script src="{{ asset('hopeui/js/hope-ui.js') }}" defer></script>
+        <script>
+            window.onload = function() {
+                // 1. Hapus inisialisasi lama jika ada
+                if ($.fn.DataTable.isDataTable('#datatable')) {
+                    $('#datatable').DataTable().destroy();
+                }
+
+                // 2. Inisialisasi DataTable dengan dom 'f' (filter) saja di awal
+                var table = $('#datatable').DataTable({
+                    "paging": false,
+                    "lengthChange": false,
+                    "info": false,
+                    "searching": true,
+                    "ordering": true,
+                    "dom": 'frt', // 'f' untuk filter, 'r' processing, 't' table
+                    "language": {
+                        "search": "Live Filter:", // Teks label
+                        "searchPlaceholder": "Type to filter..."
+                    }
+                });
+
+                // 3. PINDAHKAN elemen search ke container di header agar sejajar dengan judul
+                $('.dataTables_filter').appendTo('#live-filter-container');
+
+                // 4. FIX POSISI: Paksa label menjadi flex agar teks dan input sejajar horizontal
+                $('.dataTables_filter label').css({
+                    'display': 'flex',
+                    'align-items': 'center',
+                    'gap': '10px',
+                    'margin-bottom': '0',
+                    'font-weight': 'bold',
+                    'color': '#333'
+                });
+
+                // 5. Styling kotak inputnya
+                $('.dataTables_filter input').addClass('form-control form-control-sm border-primary').css({
+                    'width': '250px',
+                    'margin-left': '0' // Hapus margin bawaan datatable
+                });
+            };
+        </script>
+    @endpush
 @endsection

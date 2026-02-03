@@ -44,7 +44,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/booking/{booking}/early-release', [BookingController::class, 'earlyRelease'])->name('booking.earlyRelease');
         Route::post('/booking/{booking}/upload-photo', [BookingController::class, 'uploadPhoto'])->name('booking.upload');
 
-        Route::get('/complaint', [ComplaintController::class, 'index'])->name('penghuni.complaint');
+        Route::get('/complaint', [ComplaintController::class, 'index'])->name('complaint.index');
         Route::get('/complaint/create', [ComplaintController::class, 'create'])->name('complaint.create');
         Route::post('/complaint/store', [ComplaintController::class, 'store'])->name('complaint.store');
         Route::get('/complaint/detail/{id}', [ComplaintController::class, 'showResident'])->name('penghuni.complaint.show');
