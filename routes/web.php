@@ -64,6 +64,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/admin/booking/{booking}/{action}', [AdminBookingController::class, 'updateStatus'])->name('admin.booking.update');
     
     Route::put('/admin/booking/{booking}/{action}', [BookingController::class, 'adminAction'])->name('admin.booking.action');
+    Route::patch('/complaints/{id}/status', [ComplaintController::class, 'updateStatus'])->name('admin.complaint.updateStatus');
+    Route::get('/complaints/{id}', [ComplaintController::class, 'show'])->name('admin.complaint.showAdminOnly');
     
 
     // 7. ROLE: MANAGER ONLY (Reports)

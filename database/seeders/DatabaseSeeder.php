@@ -54,6 +54,19 @@ class DatabaseSeeder extends Seeder
             Facility::firstOrCreate(['name' => $f['name']], $f);
         }
 
+        // PENGELOLA (MANAGER)
+        $manager = User::create([
+            'role_id' => 1,
+            'card_id' => '0001',
+            'password' => Hash::make('password'),
+            'account_status' => 'active',
+        ]);
+        $manager->managerDetails()->create([
+            'full_name' => 'Bp. Budi Pengelola',
+            'gender' => 'Male',
+            'phone_number' => '08123456789',
+        ]);
+
         // 4. SEED ADMIN PER FASILITAS (Role ID: 2)
         // Pastikan kolom 'assigned_category' sudah ada di migrasi users kamu
         $adminData = [

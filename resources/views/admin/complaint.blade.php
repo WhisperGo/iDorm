@@ -43,6 +43,7 @@
                                     <th>Lokasi / Item</th>
                                     <th>Deskripsi</th>
                                     <th>Pelapor (Kamar)</th>
+                                    <th>Foto</th>
                                     <th class="text-center">Status</th>
                                 </tr>
                             </thead>
@@ -50,21 +51,35 @@
                                 @forelse($complaints as $index => $item)
                                     <tr>
                                         <td>{{ $complaints->firstItem() + $index }}</td>
+
                                         <td>{{ $item->created_at->format('d-m-Y') }}</td>
+
                                         <td>
-                                            <div class="fw-bold">{{ $item->location_item }}</div>
+                                            <a href="{{ route('admin.complaint.showAdminOnly', $item->id) }}" class="fw-bold text-primary">
+                                                {{ $item->location_item }}
+                                            </a>
                                         </td>
-                                        <td class="text-center">
+
+                                        <td>
                                             <small class="text-muted">{{ Str::limit($item->description, 50) }}</small>
                                         </td>
+
                                         <td>
                                             <div>{{ $item->resident->residentDetails->full_name }}</div>
-                                            <small class="badge bg-soft-primary text-primary">
-                                                Kamar: {{ $item->resident->residentDetails->room_number }}
-                                            </small>
+                                            <small class="badge bg-soft-primary text-primary">Kamar:
+                                                {{ $item->resident->residentDetails->room_number }}</small>
                                         </td>
+
+                                        <td>
+                                            @if ($item->photo_path)
+                                                <img src="{{ asset('storage/' . $item->photo_path) }}" class="rounded"
+                                                    style="width: 50px; height: 50px; object-fit: cover;">
+                                            @else
+                                                <span class="text-muted small">No Photo</span>
+                                            @endif
+                                        </td>
+
                                         <td class="text-center">
-                                            {{-- Warna Badge Dinamis --}}
                                             @php
                                                 $color = match ($item->status->status_name) {
                                                     'Submitted' => 'warning',
