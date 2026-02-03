@@ -47,7 +47,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/complaint', [ComplaintController::class, 'index'])->name('penghuni.complaint');
         Route::get('/complaint/create', [ComplaintController::class, 'create'])->name('complaint.create');
         Route::post('/complaint/store', [ComplaintController::class, 'store'])->name('complaint.store');
-        Route::get('/complaint/detail/{id}', [ComplaintController::class, 'show'])->name('penghuni.complaint.show');
+        Route::get('/complaint/detail/{id}', [ComplaintController::class, 'showResident'])->name('penghuni.complaint.show');
     });
 
     // 6. ROLE: ADMIN & MANAGER (Pengelola)
@@ -65,7 +65,7 @@ Route::middleware(['auth'])->group(function () {
     
     Route::put('/admin/booking/{booking}/{action}', [BookingController::class, 'adminAction'])->name('admin.booking.action');
     Route::patch('/complaints/{id}/status', [ComplaintController::class, 'updateStatus'])->name('admin.complaint.updateStatus');
-    Route::get('/complaints/{id}', [ComplaintController::class, 'show'])->name('admin.complaint.showAdminOnly');
+    Route::get('/complaints/{id}', [ComplaintController::class, 'showAdmin'])->name('admin.complaint.showAdminOnly');
     
 
     // 7. ROLE: MANAGER ONLY (Reports)
