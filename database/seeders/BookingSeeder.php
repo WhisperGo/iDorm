@@ -30,9 +30,28 @@ class BookingSeeder extends Seeder
 
         $this->command->info("Sedang mengisi 100 data booking dummy... Mohon tunggu sebentar.");
 
-        // 2. Looping 100 kali (Atau ganti angka 100 sesuai kebutuhan)
+        // 2. Looping 1000 kali (Atau ganti angka 100 sesuai kebutuhan)
         for ($i = 0; $i < 1000; $i++) {
-            $facility = $facilities->random();
+            // A. Ambil Resident secara acak dulu untuk tahu gendernya
+            $resident = $residents->random();
+            $gender = $resident->residentDetails->gender; // 'Male' atau 'Female'
+            
+            // B. Cari fasilitas yang cocok: 
+            // Jika Mesin Cuci, cari yang namanya mengandung gender si resident.
+            // Jika bukan Mesin Cuci, ambil bebas (random).
+            $filteredFacilities = $facilities->filter(function($f) use ($gender) {
+                if (str_contains(strtolower($f->name), 'mesin cuci')) {
+                    return str_contains($f->name, $gender);
+                }
+                return true;
+            });
+
+            $facility = $filteredFacilities->values()->random();
+            if ($facility instanceof \Illuminate\Support\Collection) {
+                $this->command->error("Waduh! Variabel facility masih berupa Collection.");
+                continue;
+                };
+
             $fname = strtolower($facility->name);
             
             // Pilih tanggal acak antara 1 bulan lalu sampai 1 bulan depan
@@ -53,7 +72,7 @@ class BookingSeeder extends Seeder
             }
 
             $data = [
-                'user_id'       => $residents->random()->id,
+                'user_id'       => $resident->id,
                 'facility_id'   => $facility->id,
                 'booking_date'  => $dateStr,
                 'status_id'     => $statusId,

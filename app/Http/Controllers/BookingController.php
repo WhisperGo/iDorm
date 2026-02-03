@@ -193,14 +193,22 @@ class BookingController extends Controller
 
     public function showSchedule(Request $request, $category)
     {
-        $user = Auth::user();
-        // Karena admin dan manager tidak terpaku kepada gender maka ?? null digunakan untuk menghandle error tersebut
-        $userGender = $user->residentDetails->gender ?? null;
         
+        $user = Auth::user();
+        $role = $user->role->role_name;
+        $userGender = $user->residentDetails->gender ?? null;
+        $adminCategory = $user->assigned_category;
+
+        // 1. Normalisasi kategori untuk pengecekan (mesin-cuci -> mesin_cuci)
+        $normalizedCategory = str_replace('-', '_', strtolower($category));
+        // 2. Proteksi Akses Admin: Jangan sampai Admin Dapur bisa buka URL Mesin Cuci
+        if ($role === 'Admin' && $normalizedCategory !== strtolower($adminCategory)) {
+            return redirect()->route('booking.schedule', ['category' => str_replace('_', '-', $adminCategory)])
+            ->with('error', 'Akses ditolak! Anda hanya admin ' . $adminCategory);
+            }
+
         $search = $request->get('search');
         $itemFilter = $request->get('item');
-        
-        // Konversi slug 'mesin-cuci' menjadi 'Mesin Cuci' untuk judul
         $title = ucwords(str_replace(['-', '_'], ' ', $category));
 
         // Ambil data booking untuk fasilitas terkait
@@ -209,21 +217,29 @@ class BookingController extends Controller
         // $query->where('user_id', $user->id); 
         // }
     // Mapping Filter agar Schedule menampilkan data yang benar
-        $query->whereHas('facility', function($q) use ($category, $userGender) {
-            if ($category == 'mesin-cuci' || $category == 'mesin_cuci') {
-                if($userGender){
-                    $q->where('name', 'LIKE', "%Mesin Cuci $userGender%");
-                } else {
+        // 3. Filter Query Utama
+        $query->whereHas('facility', function($q) use ($normalizedCategory, $userGender, $role) {
+
+            // Logika KHUSUS Mesin Cuci
+            if (str_contains($normalizedCategory, 'mesin')) {
+                if ($role === 'Manager') {
                     $q->where('name', 'LIKE', "%Mesin Cuci%");
+                } else {
+                    // KUNCI GENDER: Hanya tarik yang mengandung "Mesin Cuci [Gender]"
+                    // Gunakan $userGender yang didapat dari database (Male/Female)
+                    $q->where('name', 'LIKE', "Mesin Cuci $userGender%");
                 }
-            } elseif ($category == 'cws') {
+            } 
+            // Logika Fasilitas Lainnya
+            elseif ($normalizedCategory == 'cws') {
                 $q->where('name', 'LIKE', "%Co-Working%");
-            } elseif ($category == 'sergun') {
-                $q->where('name', 'LIKE', "%Serba Guna%");
-            } elseif ($category == 'theater') {
+            } elseif ($normalizedCategory == 'theater') {
                 $q->where('name', 'LIKE', "%Theater%");
+            } elseif ($normalizedCategory == 'sergun') {
+                $q->where('name', 'LIKE', "%Serba Guna%");
             } else {
-                $q->where('name', 'LIKE', "%$category%");
+                // Dapur atau kategori lain: filter berdasarkan nama kategori
+                $q->where('name', 'LIKE', "%" . str_replace('_', ' ', $normalizedCategory) . "%");
             }
         });
 
@@ -243,6 +259,7 @@ class BookingController extends Controller
         });
     }
 
+    // dd($role, $userGender, $query->toSql(), $query->getBindings());
     $bookings = $query->orderBy('booking_date', 'desc')
                       ->orderBy('start_time', 'asc')
                       ->paginate(10);
@@ -288,6 +305,7 @@ class BookingController extends Controller
         $admin = Auth::user();
         $facilityName = strtolower($booking->facility->name);
         $adminCategory = strtolower($admin->assigned_category);
+        $adminGender = strtolower($admin->residentDetails->gender ?? ''); // male or female
     
         // Pemetaan Alias (Singkatan ke Nama Lengkap)
         $aliasMap = [
@@ -308,13 +326,22 @@ class BookingController extends Controller
             foreach ($keywords as $keyword) {
                 if (str_contains($facilityName, $keyword)) {
                     $hasAccess = true;
+
+                    // --- TAMBAHKAN PROTEKSI GENDER DI SINI ---
+                    if ($adminCategory === 'mesin_cuci') {
+                        // Cek apakah gender admin ada di dalam nama fasilitas
+                        // Misal: Admin Male mau ACC "Mesin Cuci Female 1" -> Akan ditolak
+                        if (!str_contains($facilityName, $adminGender)) {
+                            $hasAccess = false;
+                        }
                     break;
                 }
             }
         }
     
         if (!$hasAccess) {
-            return back()->with('error', 'Maaf, Anda tidak berhak mengelola fasilitas ini.');
+            $msg = ($adminCategory === 'mesin_cuci') ? "Anda tidak berhak mengelola Mesin Cuci Gender Lain" : "Anda tidak berhak mengelola fasilitas ini";
+            return back()->with('error', $msg);
         }
     
         // Eksekusi Perubahan Status
@@ -335,6 +362,7 @@ class BookingController extends Controller
         }
     
         return back();
+    }
     }
     
     // Fungsi untuk Early Release (Penghuni)
