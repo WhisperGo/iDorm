@@ -31,7 +31,7 @@ class BookingSeeder extends Seeder
         $this->command->info("Sedang mengisi 100 data booking dummy... Mohon tunggu sebentar.");
 
         // 2. Looping 100 kali (Atau ganti angka 100 sesuai kebutuhan)
-        for ($i = 0; $i < 100; $i++) {
+        for ($i = 0; $i < 1000; $i++) {
             $facility = $facilities->random();
             $fname = strtolower($facility->name);
             
@@ -40,13 +40,13 @@ class BookingSeeder extends Seeder
             $date = Carbon::instance($randomDate);
             $dateStr = $date->format('Y-m-d');
 
-            // Logika Status Berdasarkan Tanggal
+            // Penyesuaian Status ID sesuai DatabaseSeeder
             if ($date->isPast()) {
-                $statusId = rand(0, 1) ? 3 : 2; // 3: Completed, 2: Cancelled (Asumsi ID statusmu)
-                $cleanStatus = 'approved';
+                $statusId = rand(0, 1) ? 5 : 3; // 5: Completed, 3: Canceled
+                $cleanStatus = ($statusId == 5) ? 'approved' : 'pending';
             } elseif ($date->isToday()) {
-                $statusId = rand(1, 4); // Campuran Booked, Ongoing, dll
-                $cleanStatus = 'pending';
+                $statusId = rand(1, 4); // Booked, Accepted, Canceled, Verifying
+                $cleanStatus = ($statusId == 4) ? 'pending' : 'pending';
             } else {
                 $statusId = 1; // 1: Booked
                 $cleanStatus = 'pending';
