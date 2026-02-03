@@ -210,7 +210,7 @@
                     @php
                         // Tentukan nama rute berdasarkan role
                         $complaintRoute =
-                            Auth::user()->role->role_name === 'Resident' ? 'penghuni.complaint' : 'admin.complaint';
+                            Auth::user()->role->role_name === 'Resident' ? 'complaint.index' : 'admin.complaint';
                     @endphp
                     <a class="nav-link {{ Route::is($complaintRoute) ? 'active' : '' }}"
                         href="{{ route($complaintRoute) }}">

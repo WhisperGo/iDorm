@@ -9,47 +9,42 @@
                         <h4 class="card-title mb-0 fw-bold">Schedule: {{ $title }}</h4>
                     </div>
 
-                    <div class="d-flex gap-2">
-                        {{-- Form Filter & Search Tetap Sama --}}
-                        <form action="{{ url()->current() }}" method="GET" class="d-flex gap-2">
-                            @if ($category == 'dapur')
-                                <select name="item" class="form-select form-select-sm color-black"
-                                    onchange="this.form.submit()">
-                                    <option value="">-- Semua Alat --</option>
-                                    <option value="kompor" {{ request('item') == 'kompor' ? 'selected' : '' }}>Kompor
-                                    </option>
-                                    <option value="rice_cooker_kecil"
-                                        {{ request('item') == 'rice_cooker_kecil' ? 'selected' : '' }}>Rice Cooker Kecil
-                                    </option>
-                                    <option value="rice_cooker_besar"
-                                        {{ request('item') == 'rice_cooker_besar' ? 'selected' : '' }}>Rice Cooker Besar
-                                    </option>
-                                    <option value="airfryer_halal"
-                                        {{ request('item') == 'airfryer_halal' ? 'selected' : '' }}>Airfryer Halal</option>
-                                    <option value="airfryer_non_halal"
-                                        {{ request('item') == 'airfryer_non_halal' ? 'selected' : '' }}>Airfryer Non-Halal
-                                    </option>
+                    {{-- Kita buat container kosong untuk menampung Dropdown & Live Filter nantinya --}}
+                    <div id="filter-container" class="d-flex align-items-center gap-2">
+                        @if ($category == 'dapur' || $category == 'sergun')
+                            <form action="{{ url()->current() }}" method="GET" id="manual-filter-form">
+                                <select name="item" class="form-select form-select-sm"
+                                    style="width: auto; min-width: 150px;" onchange="this.form.submit()">
+                                    @if ($category == 'dapur')
+                                        <option value="">-- Semua Alat --</option>
+                                        <option value="kompor" {{ request('item') == 'kompor' ? 'selected' : '' }}>Kompor
+                                        </option>
+                                        <option value="rice_cooker_kecil"
+                                            {{ request('item') == 'rice_cooker_kecil' ? 'selected' : '' }}>Rice Cooker Kecil
+                                        </option>
+                                        <option value="rice_cooker_besar"
+                                            {{ request('item') == 'rice_cooker_besar' ? 'selected' : '' }}>Rice Cooker Besar
+                                        </option>
+                                        <option value="airfryer_halal"
+                                            {{ request('item') == 'airfryer_halal' ? 'selected' : '' }}>Airfryer Halal
+                                        </option>
+                                        <option value="airfryer_non_halal"
+                                            {{ request('item') == 'airfryer_non_halal' ? 'selected' : '' }}>Airfryer
+                                            Non-Halal</option>
+                                    @else
+                                        <option value="">-- Semua Area --</option>
+                                        <option value="area_sergun_A"
+                                            {{ request('item') == 'area_sergun_A' ? 'selected' : '' }}>Area A</option>
+                                        <option value="area_sergun_B"
+                                            {{ request('item') == 'area_sergun_B' ? 'selected' : '' }}>Area B</option>
+                                    @endif
                                 </select>
-                            @endif
+                            </form>
+                        @endif
 
-                            @if ($category == 'sergun')
-                                <select name="item" class="form-select form-select-sm" onchange="this.form.submit()">
-                                    <option value="">-- Semua Area --</option>
-                                    <option value="area_sergun_A"
-                                        {{ request('item') == 'area_sergun_A' ? 'selected' : '' }}>Area A</option>
-                                    <option value="area_sergun_B"
-                                        {{ request('item') == 'area_sergun_B' ? 'selected' : '' }}>Area B</option>
-                                </select>
-                            @endif
-
-                            <input type="text" name="search" class="form-control form-control-sm"
-                                placeholder="Search name..." value="{{ request('search') }}">
-                            <button type="submit" class="btn btn-primary btn-sm">Search</button>
-
-                            @if (request('item') || request('search'))
-                                <a href="{{ url()->current() }}" class="btn btn-secondary btn-sm">Reset</a>
-                            @endif
-                        </form>
+                        @if (request('item') || request('search'))
+                            <a href="{{ url()->current() }}" class="btn btn-secondary btn-sm">Reset</a>
+                        @endif
                     </div>
                 </div>
 
@@ -71,7 +66,7 @@
                     @endif
 
                     <div class="table-responsive">
-                        <table class="table table-bordered align-middle">
+                        <table id="datatable" class="table table-bordered align-middle dataTable" data-toggle="data-table">
                             <thead class="bg-light">
                                 <tr>
                                     <th class="text-center" width="5%">No.</th>
@@ -84,21 +79,25 @@
 
                                     {{-- 1. HEADER AKSI KHUSUS ADMIN --}}
                                     @php
-                                        // Normalisasi: Ubah mesin-cuci atau mesin_cuci menjadi mesin cuci agar pasti cocok
-                                        $currentCategory = str_replace(['-', '_'], ' ', strtolower($category));
-                                        $adminCategory = str_replace(
+                                        $user = Auth::user();
+                                        $role = $user->role->role_name;
+
+                                        // Normalisasi keduanya: buang '-' dan '_' agar jadi 'mesincuci'
+                                        $normalizedURL = str_replace(['-', '_'], '', strtolower($category));
+                                        $normalizedAdmin = str_replace(
                                             ['-', '_'],
-                                            ' ',
-                                            strtolower(auth()->user()->assigned_category ?? ''),
+                                            '',
+                                            strtolower($user->assigned_category ?? ''),
                                         );
 
-                                        // Manager melihat semua, Admin hanya melihat kategori yang ditugaskan
-                                        $canAccess = $canAccess =
-                                            in_array(auth()->user()->role->role_name, ['Manager', 'Admin']) &&
-                                            str_contains(
-                                                strtolower($category),
-                                                strtolower(auth()->user()->assigned_category ?? ''),
-                                            );
+                                        // Tentukan akses
+                                        $canAccess = false;
+                                        if ($role === 'Manager') {
+                                            $canAccess = true; // Manager bebas akses apa saja
+                                        } elseif ($role === 'Admin') {
+                                            // Admin hanya bisa akses jika kategorinya cocok
+                                            $canAccess = $normalizedURL === $normalizedAdmin;
+                                        }
                                     @endphp
                                     @if ($canAccess)
                                         <th class="text-center">Admin Action</th>
@@ -257,5 +256,45 @@
 
     @push('scripts')
         <script src="{{ asset('hopeui/js/hope-ui.js') }}" defer></script>
+        <script>
+            window.onload = function() {
+                if ($.fn.DataTable.isDataTable('#datatable')) {
+                    $('#datatable').DataTable().destroy();
+                }
+
+                const table = $('#datatable').DataTable({
+                    "paging": false,
+                    "lengthChange": false,
+                    "info": false,
+                    "searching": true,
+                    "ordering": true,
+                    "dom": 'rt', // Kita sembunyikan 'f' bawaan karena akan kita pindah posisinya
+                    "language": {
+                        "search": "<span class='ms-2 fw-bold small text-dark'>Search:</span>",
+                        "searchPlaceholder": "Type to filter..."
+                    }
+                });
+
+                // 1. Buat elemen search secara manual agar bisa kita atur posisinya
+                const searchHtml = `
+                <div class="dataTables_filter d-flex align-items-center" id="custom-search-input">
+                    <label class="mb-0 d-flex align-items-center gap-3">
+                        <span class="fw-bold small text-dark">Search:</span>
+                        <input type="search" class="form-control form-control-sm border-primary" 
+                               placeholder="Type to filter..." aria-controls="datatable" 
+                               style="width: 200px; border-radius: 5px;">
+                    </label>
+                </div>
+            `;
+
+                // 2. Masukkan search ke dalam container di header (biar sejajar sama dropdown)
+                $('#filter-container').append(searchHtml);
+
+                // 3. Hubungkan input manual tadi dengan fungsi pencarian DataTable
+                $('#custom-search-input input').on('keyup', function() {
+                    table.search(this.value).draw();
+                });
+            };
+        </script>
     @endpush
 @endsection

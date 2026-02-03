@@ -202,10 +202,10 @@ class BookingController extends Controller
         // 1. Normalisasi kategori untuk pengecekan (mesin-cuci -> mesin_cuci)
         $normalizedCategory = str_replace('-', '_', strtolower($category));
         // 2. Proteksi Akses Admin: Jangan sampai Admin Dapur bisa buka URL Mesin Cuci
-        if ($role === 'Admin' && $normalizedCategory !== strtolower($adminCategory)) {
-            return redirect()->route('booking.schedule', ['category' => str_replace('_', '-', $adminCategory)])
-            ->with('error', 'Akses ditolak! Anda hanya admin ' . $adminCategory);
-            }
+        // if ($role === 'Admin' && $normalizedCategory !== strtolower($adminCategory)) {
+        //     return redirect()->route('booking.schedule', ['category' => str_replace('_', '-', $adminCategory)])
+        //     ->with('error', 'Akses ditolak! Anda hanya admin ' . $adminCategory);
+        //     }
 
         $search = $request->get('search');
         $itemFilter = $request->get('item');
