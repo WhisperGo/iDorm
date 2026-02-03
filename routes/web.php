@@ -67,7 +67,11 @@ Route::middleware(['auth'])->group(function () {
         Route::put('booking/{booking}/{action}', [BookingController::class, 'adminAction'])->name('admin.booking.action');
         Route::patch('/complaints/{id}/status', [ComplaintController::class, 'updateStatus'])->name('admin.complaint.updateStatus');
         Route::get('/complaints/{id}', [ComplaintController::class, 'showAdmin'])->name('admin.complaint.showAdminOnly');
-    });
+    
+        // Parameter {category} bersifat dinamis (bisa diisi 'dapur', 'mesin-cuci', dll)
+        Route::get('/schedule/{category}', [BookingController::class, 'showSchedule'])
+        ->name('booking.schedule');
+        });
 
 
     // 7. ROLE: MANAGER ONLY (Reports)
