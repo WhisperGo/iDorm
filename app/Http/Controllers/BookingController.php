@@ -320,10 +320,10 @@ class BookingController extends Controller
         // Eksekusi Perubahan Status
         if ($action === 'accept') {
             $booking->update(['status_id' => 2]); // ID 2: Accepted
-            return back()->with('success', 'Status berhasil diubah menjadi Accepted.');
+            return back()->with('success', 'Peminjaman sudah di setujui.');
         } elseif ($action === 'cancel') {
             $booking->update(['status_id' => 3]); // ID 3: Canceled
-            return back()->with('error', 'Status berhasil diubah menjadi Canceled.');
+            return back()->with('error', 'Peminjaman sudah tidak di setujui.');
         } elseif ($action === 'complete') {
             $booking->update([
                 'status_id' => 5,
