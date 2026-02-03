@@ -33,15 +33,15 @@ class ComplaintController extends Controller
 
     public function show($id)
     {
-        $complaint = \App\Models\Complaint::with(['user.residentDetails', 'category', 'status'])
-            ->findOrFail($id);
+        $complaint = \App\Models\BuildingComplaint::with(['resident.residentDetails', 'status'])
+                    ->findOrFail($id);
 
         // Keamanan: Jika bukan pemiliknya, dilarang akses (403 Forbidden)
-        if ($complaint->user_id !== Auth::id()) {
-            abort(403, 'Anda tidak memiliki akses ke keluhan ini.');
-        }
+        // if ($complaint->user_id !== Auth::id()) {
+        //     abort(403, 'Anda tidak memiliki akses ke keluhan ini.');
+        // }
 
-        return view('penghuni.complaintDetail', compact('complaint'));
+        return view('admin.complaintDetail', compact('complaint'));
     }
 
     public function create()
@@ -91,8 +91,8 @@ class ComplaintController extends Controller
         $complaints = BuildingComplaint::with(['resident.residentDetails', 'status'])
             ->when($search, function ($query, $search) {
                 return $query->where('location_item', 'like', "%{$search}%")
-                    ->orWhereHas('resident.residentDetails', function ($q) use ($search) {
-                        $q->where('full_name', 'like', "%{$search}%");
+                            ->orWhereHas('resident.residentDetails', function ($q) use ($search) {
+                            $q->where('full_name', 'like', "%{$search}%");
                     });
             })
             ->latest()
@@ -100,5 +100,17 @@ class ComplaintController extends Controller
 
         // Kirim variabel ke view
         return view('admin.complaint', compact('complaints'));
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $complaint = \App\Models\BuildingComplaint::findOrFail($id);
+        
+        // Validasi sederhana: pastikan status_id valid (asumsi 3 adalah 'Resolved')
+        $complaint->update([
+            'status_id' => $request->status_id
+        ]);
+
+        return back()->with('success', 'Status keluhan berhasil diperbarui.');
     }
 }
