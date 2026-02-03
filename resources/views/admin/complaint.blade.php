@@ -49,6 +49,51 @@
                                         <th>Pelapor (Kamar)</th>
                                         <th>Foto</th>
                                         <th class="text-center">Status</th>
+                                        <td>{{ $complaints->firstItem() + $index }}</td>
+
+                                        <td>{{ $item->created_at->format('d-m-Y') }}</td>
+
+                                        <td>
+                                            <a href="{{ route('admin.complaint.show', $item->id) }}" class="fw-bold text-primary">
+                                                {{ $item->location_item }}
+                                            </a>
+                                        </td>
+
+                                        <td>
+                                            <small class="text-muted">{{ Str::limit($item->description, 50) }}</small>
+                                        </td>
+
+                                        <td>
+                                            <div>{{ $item->resident->residentDetails->full_name }}</div>
+                                            <small class="badge bg-soft-primary text-primary">Kamar:
+                                                {{ $item->resident->residentDetails->room_number }}</small>
+                                        </td>
+
+                                        <td>
+                                            @if ($item->photo_path)
+                                                <img src="{{ asset('storage/' . $item->photo_path) }}" class="rounded"
+                                                    style="width: 50px; height: 50px; object-fit: cover;">
+                                            @else
+                                                <span class="text-muted small">No Photo</span>
+                                            @endif
+                                        </td>
+
+                                        <td class="text-center">
+                                            @php
+                                                $color = match ($item->status->status_name) {
+                                                    'Submitted' => 'warning',
+                                                    'On Progress' => 'info',
+                                                    'Resolved' => 'success',
+                                                    default => 'secondary',
+                                                };
+                                            @endphp
+                                            <span
+                                                class="badge bg-{{ $color }}">{{ $item->status->status_name }}</span>
+                                        </td>
+
+                                        {{-- @if ($item->)
+                                            
+                                        @endif --}}
                                     </tr>
                                 </thead>
                                 <tbody>
