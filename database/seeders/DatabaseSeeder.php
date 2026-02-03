@@ -59,28 +59,43 @@ class DatabaseSeeder extends Seeder
         $adminData = [
             [
                 'card_id' => '1001',
-                'name' => 'Admin Dapur (Siti)',
-                'category' => 'dapur'
+                'name' => 'Siti Admin Dapur',
+                'category' => 'dapur',
+                'room' => 'A101',
+                'gender' => 'Female',
+                'class_name' => 'PPTI 21'
             ],
             [
                 'card_id' => '1002',
-                'name' => 'Admin Laundry (Bambang)',
-                'category' => 'mesin_cuci'
+                'name' => 'Bambang Admin Mesin Cuci',
+                'category' => 'mesin_cuci',
+                'room' => 'B202',
+                'gender' => 'Male',
+                'class_name' => 'PPTI 22'
             ],
             [
                 'card_id' => '1003',
-                'name' => 'Admin Theater (Rian)',
-                'category' => 'theater'
+                'name' => 'Rian Admin Theater',
+                'category' => 'theater',
+                'room' => 'B203',
+                'gender' => 'Male',
+                'class_name' => 'PPTI 23'
             ],
             [
                 'card_id' => '1004',
-                'name' => 'Admin CWS (Dewi)',
-                'category' => 'cws'
+                'name' => 'Dewi Admin Co-Working Space',
+                'category' => 'cws',
+                'room' => 'B204',
+                'gender' => 'Female',
+                'class_name' => 'PPTI 24'
             ],
             [
                 'card_id' => '1005',
-                'name' => 'Admin Sergun (Eko)',
-                'category' => 'sergun'
+                'name' => 'Eko Admin Sergun',
+                'category' => 'sergun',
+                'room' => 'B205',
+                'gender' => 'Male',
+                'class_name' => 'PPTI 25'
             ],
         ];
 
@@ -93,9 +108,11 @@ class DatabaseSeeder extends Seeder
                 'account_status' => 'active',
             ]);
 
-            $user->managerDetails()->create([
+            $user->residentDetails()->create([
                 'full_name' => $data['name'],
-                'gender' => ($data['card_id'] == '1004') ? 'Female' : 'Male',
+                'gender' => $data['gender'],
+                'room_number' => $data['room'],
+                'class_name' => $data['class_name']
             ]);
         }
 
