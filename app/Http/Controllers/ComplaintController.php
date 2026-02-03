@@ -55,6 +55,14 @@ class ComplaintController extends Controller
         return view('admin.complaintDetail', compact('complaint'));
     }
 
+    public function showManager($id)
+    {
+        $complaint = \App\Models\BuildingComplaint::with(['resident.residentDetails', 'status'])
+            ->findOrFail($id);
+
+        return view('pengelola.complaintDetail', compact('complaint'));
+    }
+
     public function create()
     {
         // Menampilkan view form tambah keluhan
