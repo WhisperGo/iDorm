@@ -85,10 +85,12 @@
                                         );
 
                                         // Manager melihat semua, Admin hanya melihat kategori yang ditugaskan
-                                        $canAccess =
-                                            auth()->user()->role->role_name === 'Manager' ||
-                                            (auth()->user()->role->role_name === 'Admin' &&
-                                                $currentCategory === $adminCategory);
+                                        $canAccess = $canAccess =
+                                            in_array(auth()->user()->role->role_name, ['Manager', 'Admin']) &&
+                                            str_contains(
+                                                strtolower($category),
+                                                strtolower(auth()->user()->assigned_category ?? ''),
+                                            );
                                     @endphp
                                     @if ($canAccess)
                                         <th class="text-center">Admin Action</th>
@@ -168,6 +170,30 @@
                                                                 title="Reject"><i class="bi bi-x-lg"></i></button>
                                                         </form>
                                                     </div>
+                                                @elseif ($b->status->status_name === 'Verifying')
+                                                    {{-- TOMBOL BARU: Untuk Menyetujui Foto Kebersihan --}}
+                                                    <div class="d-flex flex-column gap-1 align-items-center">
+                                                        {{-- Tombol Lihat Foto (Opsional, agar Admin bisa cek dulu) --}}
+                                                        @if ($b->upload_photo)
+                                                            <a href="{{ asset('storage/' . $b->upload_photo) }}"
+                                                                target="_blank" class="btn btn-info btn-xs mb-1 py-0 px-2"
+                                                                style="font-size: 10px;">
+                                                                <i class="bi bi-eye"></i> Lihat Foto
+                                                            </a>
+                                                        @endif
+                                                        <form
+                                                            action="{{ route('admin.booking.action', [$b->id, 'complete']) }}"
+                                                            method="POST">
+                                                            @csrf @method('PUT')
+                                                            <button type="submit" class="btn btn-primary btn-sm px-2 py-1"
+                                                                style="font-size: 11px;">
+                                                                <i class="bi bi-stars"></i> Setujui Kebersihan
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                @elseif ($b->status->status_name === 'Accepted' || $b->status->status_name === 'Ongoing')
+                                                    <small class="text-primary fw-bold italic">Waiting for
+                                                        Resident...</small>
                                                 @else
                                                     <small class="text-muted italic">Processed</small>
                                                 @endif
