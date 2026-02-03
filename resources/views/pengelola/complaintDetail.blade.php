@@ -6,7 +6,7 @@
             <div class="card shadow-sm border-0">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4 class="card-title fw-bold mb-0">Detail Keluhan</h4>
-                    <a href="{{ route('admin.complaint') }}" class="btn btn-sm btn-secondary">
+                    <a href="{{ route('pengelola.complaint') }}" class="btn btn-sm btn-secondary">
                         <i class="bi bi-arrow-left"></i> Kembali
                     </a>
                 </div>
@@ -84,6 +84,25 @@
                         </div>
                     </div>
                 </div>
+
+                {{-- Tombol Aksi Khusus Admin/Manager --}}
+                @if (auth()->user()->role->role_name !== 'Resident' && auth()->user()->role->role_name !== 'Admin')
+                    <div class="card-footer bg-white border-top-0 pb-4 px-4">
+                        <div class="d-flex gap-2">
+                            @if ($complaint->status->status_name !== 'Resolved')
+                                <form action="{{ route('pengelola.complaint.updateStatus', $complaint->id) }}" method="POST"
+                                    class="w-100">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="status_id" value="3"> {{-- 3 = Resolved --}}
+                                    <button type="submit" class="btn btn-success w-100 py-2 fw-bold">
+                                        <i class="bi bi-check-circle-fill me-2"></i> Tandai Selesai (Resolve)
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
