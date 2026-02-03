@@ -65,7 +65,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/booking/{booking}/{action}', [AdminBookingController::class, 'updateStatus'])->name('admin.booking.update');
 
         Route::put('booking/{booking}/{action}', [BookingController::class, 'adminAction'])->name('admin.booking.action');
-        Route::patch('/complaints/{id}/status', [ComplaintController::class, 'updateStatus'])->name('admin.complaint.updateStatus');
         Route::get('/complaints/{id}', [ComplaintController::class, 'showAdmin'])->name('admin.complaint.showAdminOnly');
     
         // Parameter {category} bersifat dinamis (bisa diisi 'dapur', 'mesin-cuci', dll)
@@ -84,6 +83,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/reports', [ReportController::class, 'index'])->name('pengelola.report');
         Route::get('/resident-data', [ResidentController::class, 'index'])->name('pengelola.resident');
         Route::get('/loan-report', [ReportController::class, 'reportIndex'])->name('pengelola.loan_report');
+        Route::get('/complaints', [ComplaintController::class, 'adminIndex'])->name('pengelola.complaint');
+        Route::get('/complaints/{id}', [ComplaintController::class, 'showManager'])->name('pengelola.complaint.showPengelolaOnly');
+        Route::patch('/complaints/{id}/status', [ComplaintController::class, 'updateStatus'])->name('pengelola.updateStatus');
     });
 });
 
