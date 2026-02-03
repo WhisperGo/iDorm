@@ -14,7 +14,7 @@ use App\Http\Controllers\AnnouncementController;
 Route::redirect('/', '/login');
 
 Route::middleware(['auth'])->group(function () {
-    
+
     // 1. DASHBOARD & PROFILE
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -43,7 +43,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/booking/store', [BookingController::class, 'store'])->name('booking.store');
         Route::post('/booking/{booking}/early-release', [BookingController::class, 'earlyRelease'])->name('booking.earlyRelease');
         Route::post('/booking/{booking}/upload-photo', [BookingController::class, 'uploadPhoto'])->name('booking.upload');
-        
+
         Route::get('/complaint', [ComplaintController::class, 'index'])->name('penghuni.complaint');
         Route::get('/complaint/create', [ComplaintController::class, 'create'])->name('complaint.create');
         Route::post('/complaint/store', [ComplaintController::class, 'store'])->name('complaint.store');
@@ -52,33 +52,35 @@ Route::middleware(['auth'])->group(function () {
 
     // 6. ROLE: ADMIN & MANAGER (Pengelola)
     // Route untuk nampilin form edit
-    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('admin.profile.edit');
+    Route::prefix('admin')->group(function () {
+        Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('admin.profile.edit');
 
-    // Route untuk PROSES UPDATE (Ini yang tadi hilang atau salah panggil)
-    Route::put('/profile/update', [ProfileController::class, 'update'])->name('admin.profile.update');
-    
-    Route::get('/residents', [ResidentController::class, 'index'])->name('admin.resident'); // Satu rute cukup
-    Route::post('/residents/{user}/toggle-freeze', [ResidentController::class, 'toggleFreeze'])->name('admin.resident.freeze');
-    
-    Route::get('/complaints', [ComplaintController::class, 'adminIndex'])->name('admin.complaint');
-    Route::post('/admin/booking/{booking}/{action}', [AdminBookingController::class, 'updateStatus'])->name('admin.booking.update');
-    
-    Route::put('/admin/booking/{booking}/{action}', [BookingController::class, 'adminAction'])->name('admin.booking.action');
-    Route::patch('/complaints/{id}/status', [ComplaintController::class, 'updateStatus'])->name('admin.complaint.updateStatus');
-    Route::get('/complaints/{id}', [ComplaintController::class, 'showAdmin'])->name('admin.complaint.showAdminOnly');
-    
+        // Route untuk PROSES UPDATE (Ini yang tadi hilang atau salah panggil)
+        Route::put('/profile/update', [ProfileController::class, 'update'])->name('admin.profile.update');
+
+        Route::get('/residents', [ResidentController::class, 'index'])->name('admin.resident'); // Satu rute cukup
+        Route::post('/residents/{user}/toggle-freeze', [ResidentController::class, 'toggleFreeze'])->name('admin.resident.freeze');
+
+        Route::get('/complaints', [ComplaintController::class, 'adminIndex'])->name('admin.complaint');
+        Route::post('/booking/{booking}/{action}', [AdminBookingController::class, 'updateStatus'])->name('admin.booking.update');
+
+        Route::put('booking/{booking}/{action}', [BookingController::class, 'adminAction'])->name('admin.booking.action');
+        Route::patch('/complaints/{id}/status', [ComplaintController::class, 'updateStatus'])->name('admin.complaint.updateStatus');
+        Route::get('/complaints/{id}', [ComplaintController::class, 'showAdmin'])->name('admin.complaint.showAdminOnly');
+    });
+
 
     // 7. ROLE: MANAGER ONLY (Reports)
     Route::prefix('manager')->group(function () {
         // Tambahkan baris ini!
-    Route::get('/admin/residents', [ComplaintController::class, 'adminIndex'])->name('admin.resident.index');
-    
-    // Rute update yang kita buat tadi juga pastikan ada di sini
-    Route::put('/admin/resident/{id}/update', [ProfileController::class, 'update'])->name('admin.profile.update');
+        Route::get('/admin/residents', [ComplaintController::class, 'adminIndex'])->name('admin.resident.index');
+
+        // Rute update yang kita buat tadi juga pastikan ada di sini
+        Route::put('/admin/resident/{id}/update', [ProfileController::class, 'update'])->name('admin.profile.update');
         Route::get('/reports', [ReportController::class, 'index'])->name('pengelola.report');
         Route::get('/resident-data', [ResidentController::class, 'index'])->name('pengelola.resident');
         Route::get('/loan-report', [ReportController::class, 'reportIndex'])->name('pengelola.loan_report');
     });
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
