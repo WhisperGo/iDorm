@@ -69,107 +69,55 @@ class DatabaseSeeder extends Seeder
 
         // 4. SEED ADMIN PER FASILITAS (Role ID: 2)
         // Pastikan kolom 'assigned_category' sudah ada di migrasi users kamu
+        // 5. SEED ADMIN FASILITAS (Minimal 2 Orang Per Fasilitas)
         $adminData = [
-            [
-                'card_id' => '1001',
-                'name' => 'Siti Admin Dapur',
-                'category' => 'dapur',
-                'room' => 'A101',
-                'gender' => 'Female',
-                'class_name' => 'PPTI 21'
-            ],
-            [
-                'card_id' => '1002',
-                'name' => 'Bambang Admin Mesin Cuci',
-                'category' => 'mesin_cuci',
-                'room' => 'B202',
-                'gender' => 'Male',
-                'class_name' => 'PPTI 22'
-            ],
-            [
-                'card_id' => '1003',
-                'name' => 'Rian Admin Theater',
-                'category' => 'theater',
-                'room' => 'B203',
-                'gender' => 'Male',
-                'class_name' => 'PPTI 23'
-            ],
-            [
-                'card_id' => '1004',
-                'name' => 'Dewi Admin Co-Working Space',
-                'category' => 'cws',
-                'room' => 'B204',
-                'gender' => 'Female',
-                'class_name' => 'PPTI 24'
-            ],
-            [
-                'card_id' => '1005',
-                'name' => 'Eko Admin Sergun',
-                'category' => 'sergun',
-                'room' => 'B205',
-                'gender' => 'Male',
-                'class_name' => 'PPTI 25'
-            ],
+            // DAPUR
+            ['card_id' => '1001', 'name' => 'Siti Admin Dapur 1', 'category' => 'dapur', 'room' => 'A101', 'gender' => 'Female', 'class' => 'PPTI 21'],
+            ['card_id' => '1006', 'name' => 'Ani Admin Dapur 2', 'category' => 'dapur', 'room' => 'A102', 'gender' => 'Female', 'class' => 'PPTI 21'],
+            // MESIN CUCI
+            ['card_id' => '1002', 'name' => 'Bambang Admin MC 1', 'category' => 'mesin_cuci', 'room' => 'B202', 'gender' => 'Male', 'class' => 'PPTI 22'],
+            ['card_id' => '1007', 'name' => 'Joko Admin MC 2', 'category' => 'mesin_cuci', 'room' => 'B203', 'gender' => 'Male', 'class' => 'PPTI 22'],
+            // THEATER
+            ['card_id' => '1003', 'name' => 'Rian Admin Theater 1', 'category' => 'theater', 'room' => 'B301', 'gender' => 'Male', 'class' => 'PPTI 23'],
+            ['card_id' => '1008', 'name' => 'Dimas Admin Theater 2', 'category' => 'theater', 'room' => 'B302', 'gender' => 'Male', 'class' => 'PPTI 23'],
+            // CWS
+            ['card_id' => '1004', 'name' => 'Dewi Admin CWS 1', 'category' => 'cws', 'room' => 'A201', 'gender' => 'Female', 'class' => 'PPTI 24'],
+            ['card_id' => '1009', 'name' => 'Maya Admin CWS 2', 'category' => 'cws', 'room' => 'A202', 'gender' => 'Female', 'class' => 'PPTI 24'],
+            // SERGUN
+            ['card_id' => '1005', 'name' => 'Eko Admin Sergun 1', 'category' => 'sergun', 'room' => 'B401', 'gender' => 'Male', 'class' => 'PPTI 25'],
+            ['card_id' => '1010', 'name' => 'Budi Admin Sergun 2', 'category' => 'sergun', 'room' => 'B402', 'gender' => 'Male', 'class' => 'PPTI 25'],
         ];
 
         foreach ($adminData as $data) {
             $user = User::create([
-                'role_id' => 2, // Role Admin
+                'role_id' => 2,
                 'card_id' => $data['card_id'],
                 'password' => Hash::make('password'),
-                'assigned_category' => $data['category'], // KOLOM PENTING UNTUK OTORITAS
+                'assigned_category' => $data['category'],
                 'account_status' => 'active',
             ]);
-
             $user->residentDetails()->create([
                 'full_name' => $data['name'],
                 'gender' => $data['gender'],
                 'room_number' => $data['room'],
-                'class_name' => $data['class_name']
+                'class_name' => $data['class']
             ]);
         }
 
-        // 5. SEED PENGHUNI (RESIDENT)
-        $maleRes = User::create([
-            'role_id' => 3,
-            'card_id' => '1111',
-            'password' => Hash::make('password'),
-        ]);
-        $maleRes->residentDetails()->create([
-            'full_name' => 'Jason Wijaya',
-            'gender' => 'Male',
-            'class_name' => 'PPTI 20',
-            'room_number' => 'B332',
-        ]);
-
-        $user2 = User::create([
-            'role_id' => 3,
-            'card_id' => '1112', // Pastikan card_id unik jika di database diset UNIQUE
-            'password' => Hash::make('password'),
-        ]);
-        $user2->residentDetails()->create([
-            'full_name' => 'Wilep Pernando',
-            'gender' => 'Male',
-            'class_name' => 'PPTI 22',
-            'room_number' => 'A321',
-        ]);
-
-        // D. PENGHUNI WANITA (RESIDENT FEMALE)
-        $femaleRes = User::create([
-            'role_id' => 3,
-            'card_id' => '2222',
-            'password' => Hash::make('password'),
-        ]);
-        $femaleRes->residentDetails()->create([
-            'full_name' => 'Siska Rose',
-            'gender' => 'Female',
-            'class_name' => 'PPTI 21',
-            'room_number' => 'A105',
-        ]);
+        // foreach ($adminData as $data) {
+        //     $user = User::create([
+        //         'role_id' => 2, // Role Admin
+        //         'card_id' => $data['card_id'],
+        //         'password' => Hash::make('password'),
+        //         'assigned_category' => $data['category'], // KOLOM PENTING UNTUK OTORITAS
+        //         'account_status' => 'active',
+        //     ]);
+        // }
 
         // --- TAMBAHKAN DI SINI ---
         // Memanggil Seeder Tambahan
         $this->call([
+            ResidentSeeder::class,
             AnnouncementSeeder::class,
             TimeSlotSeeder::class,
             BookingSeeder::class,
