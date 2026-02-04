@@ -20,7 +20,7 @@
                                 <div class="border rounded overflow-hidden">
                                     <img src="{{ asset('storage/' . $complaint->photo_path) }}"
                                         class="img-fluid w-100 cursor-pointer" alt="Foto Keluhan"
-                                        style="max-height: 200px; object-fit: contain;" >
+                                        style="max-height: 200px; object-fit: contain;">
                                 </div>
                             @else
                                 <div class="bg-light rounded d-flex align-items-center justify-content-center border"
@@ -75,34 +75,40 @@
                                 </div>
                             </div>
 
-                            <div class="mb-3">
+                            <div class="d-flex flex-column h-100">
                                 <label class="form-label text-muted small text-uppercase fw-bold">Deskripsi Keluhan</label>
-                                <p class="text-dark bg-light p-3 rounded border">
+                                <div class="text-dark bg-light p-3 rounded border" style="min-height: 240px;">
                                     {{ $complaint->description }}
-                                </p>
+                                    
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {{-- Tombol Aksi Khusus Admin/Manager --}}
-                @if (auth()->user()->role->role_name !== 'Resident' && auth()->user()->role->role_name !== 'Admin')
+                @if (auth()->user()->role->role_name !== 'Resident')
                     <div class="card-footer bg-white border-top-0 pb-4 px-4">
                         <div class="d-flex gap-2">
                             @if ($complaint->status->status_name !== 'Resolved')
-                                <form action="{{ route('pengelola.complaint.updateStatus', $complaint->id) }}" method="POST"
+                                <form action="{{ route('pengelola.updateStatus', $complaint->id) }}" method="POST"
                                     class="w-100">
                                     @csrf
                                     @method('PATCH')
                                     <input type="hidden" name="status_id" value="3"> {{-- 3 = Resolved --}}
                                     <button type="submit" class="btn btn-success w-100 py-2 fw-bold">
-                                        <i class="bi bi-check-circle-fill me-2"></i> Tandai Selesai (Resolve)
+                                        <i class="bi bi-check-circle-fill me-2"></i> Mark Resolved
                                     </button>
                                 </form>
+                            @else
+                                <button type="button" class="btn btn-success-border w-100 py-2 fw-bold disabled">
+                                    Closed
+                                </button>
                             @endif
                         </div>
                     </div>
                 @endif
+
             </div>
         </div>
     </div>

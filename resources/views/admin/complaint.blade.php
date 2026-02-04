@@ -44,6 +44,9 @@
                                         <th>Pelapor (Kamar)</th>
                                         <th>Foto</th>
                                         <th class="text-center">Status</th>
+                                        @if (auth()->user()->role->role_name == 'Manager')
+                                            <th class="text-center">Action</th>
+                                        @endif
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -51,13 +54,18 @@
                                         <tr>
                                             <td class="text-center">{{ $complaints->firstItem() + $index }}</td>
                                             <td>{{ $item->created_at->format('d-m-Y') }}</td>
+
                                             <td>
-                                                {{-- Pastikan nama rute show ini benar --}}
-                                                <a href="{{ route('admin.complaint.show', $item->id) }}"
-                                                    class="fw-bold text-primary">
+                                                @if (auth()->user()->role->role_name == 'Manager')
+                                                    <a href="{{ route('admin.complaint.show', $item->id) }}"
+                                                        class="fw-bold text-primary">
+                                                        {{ $item->location_item }}
+                                                    </a>
+                                                @else
                                                     {{ $item->location_item }}
-                                                </a>
+                                                @endif
                                             </td>
+
                                             <td>
                                                 <small class="text-muted">{{ Str::limit($item->description, 50) }}</small>
                                             </td>
@@ -83,9 +91,30 @@
                                                         default => 'secondary',
                                                     };
                                                 @endphp
-                                                <span
-                                                    class="badge bg-{{ $color }}">{{ $item->status->status_name }}</span>
+                                                <span class="badge bg-{{ $color }}">{{ $item->status->status_name }}
+                                                </span>
                                             </td>
+
+                                            @if (auth()->user()->role->role_name == 'Manager')
+                                                <td class="text-center">
+                                                    <form action="{{ route('pengelola.updateStatus', $item->id) }}"
+                                                        method="POST">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        @if ($item->status->status_name !== 'Resolved')
+                                                            <input type="hidden" name="status_id" value="3">
+                                                            {{-- Asumsi 3 = Resolved --}}
+                                                            <button type="submit"
+                                                                class="btn btn-sm btn-outline-success">Mark
+                                                                Resolved</button>
+                                                        @else
+                                                            <button type="button"
+                                                                class="btn btn-sm btn-success-border disabled">Closed
+                                                            </button>
+                                                        @endif
+                                                    </form>
+                                                </td>
+                                            @endif
                                         </tr>
                                     @endforeach
                                 </tbody>
