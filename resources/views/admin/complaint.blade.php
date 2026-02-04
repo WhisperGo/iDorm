@@ -105,11 +105,11 @@
                                                             <input type="hidden" name="status_id" value="3">
                                                             {{-- Asumsi 3 = Resolved --}}
                                                             <button type="submit"
-                                                                class="btn btn-sm btn-outline-success">Mark
+                                                                class="btn btn-sm btn-success">Mark
                                                                 Resolved</button>
                                                         @else
                                                             <button type="button"
-                                                                class="btn btn-sm btn-success-border disabled">Closed
+                                                                class="btn btn-sm btn-success-border disabled">Done
                                                             </button>
                                                         @endif
                                                     </form>
