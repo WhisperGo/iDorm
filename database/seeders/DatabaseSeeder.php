@@ -46,7 +46,7 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Mesin Cuci Female 4', 'type' => 'heavy'],
             ['name' => 'Mesin Cuci Female 5', 'type' => 'heavy'],
             ['name' => 'Theater Room', 'type' => 'light'],
-            ['name' => 'Co-Working Space A', 'type' => 'light'],
+            ['name' => 'Co-Working Space', 'type' => 'light'],
             ['name' => 'Serba Guna Hall', 'type' => 'light'],
         ];
         
