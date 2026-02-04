@@ -100,10 +100,6 @@
                                         <i class="bi bi-check-circle-fill me-2"></i> Mark Resolved
                                     </button>
                                 </form>
-                            @else
-                                <button type="button" class="btn btn-success-border w-100 py-2 fw-bold disabled">
-                                    Closed
-                                </button>
                             @endif
                         </div>
                     </div>
