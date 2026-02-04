@@ -5,7 +5,6 @@
         <div class="col-sm-12">
             <div class="card shadow-sm">
                 <div class="card-header">
-                    {{-- BARIS 1: Tombol Add --}}
                     <div class="mb-3">
                         <a href="{{ route('complaint.create') }}"
                             class="btn btn-primary d-inline-flex align-items-center px-4 py-2">
@@ -22,15 +21,12 @@
                         <div class="header-title">
                             <h4 class="card-title mb-0 fw-bold">Complaint</h4>
                         </div>
-
-                        {{-- WADAH LIVE FILTER (Agar Sejajar dengan Judul) --}}
                         <div id="filter-complaint-container"></div>
                     </div>
                 </div>
 
                 <div class="card-body">
                     @if ($complaints->isEmpty())
-                        {{-- Tampilan kalau GAK ADA DATA --}}
                         <div class="text-center py-5">
                             <i class="bi bi-chat-left-dots text-muted mb-3" style="font-size: 3rem; opacity: 0.5;"></i>
                             <h5 class="text-muted">Belum ada keluhan yang masuk.</h5>
@@ -38,7 +34,6 @@
                         </div>
                     @else
                         <div class="table-responsive">
-                            {{-- ID unik agar tidak bentrok dengan script otomatis HopeUI --}}
                             <table id="tabelComplaint" class="table table-bordered align-middle">
                                 <thead class="bg-light">
                                     <tr>
@@ -49,60 +44,16 @@
                                         <th>Pelapor (Kamar)</th>
                                         <th>Foto</th>
                                         <th class="text-center">Status</th>
-                                        <td>{{ $complaints->firstItem() + $index }}</td>
-
-                                        <td>{{ $item->created_at->format('d-m-Y') }}</td>
-
-                                        <td>
-                                            <a href="{{ route('admin.complaint.show', $item->id) }}" class="fw-bold text-primary">
-                                                {{ $item->location_item }}
-                                            </a>
-                                        </td>
-
-                                        <td>
-                                            <small class="text-muted">{{ Str::limit($item->description, 50) }}</small>
-                                        </td>
-
-                                        <td>
-                                            <div>{{ $item->resident->residentDetails->full_name }}</div>
-                                            <small class="badge bg-soft-primary text-primary">Kamar:
-                                                {{ $item->resident->residentDetails->room_number }}</small>
-                                        </td>
-
-                                        <td>
-                                            @if ($item->photo_path)
-                                                <img src="{{ asset('storage/' . $item->photo_path) }}" class="rounded"
-                                                    style="width: 50px; height: 50px; object-fit: cover;">
-                                            @else
-                                                <span class="text-muted small">No Photo</span>
-                                            @endif
-                                        </td>
-
-                                        <td class="text-center">
-                                            @php
-                                                $color = match ($item->status->status_name) {
-                                                    'Submitted' => 'warning',
-                                                    'On Progress' => 'info',
-                                                    'Resolved' => 'success',
-                                                    default => 'secondary',
-                                                };
-                                            @endphp
-                                            <span
-                                                class="badge bg-{{ $color }}">{{ $item->status->status_name }}</span>
-                                        </td>
-
-                                        {{-- @if ($item->)
-                                            
-                                        @endif --}}
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse($complaints as $index => $item)
+                                    @foreach ($complaints as $index => $item)
                                         <tr>
                                             <td class="text-center">{{ $complaints->firstItem() + $index }}</td>
                                             <td>{{ $item->created_at->format('d-m-Y') }}</td>
                                             <td>
-                                                <a href="{{ route('admin.complaint.showAdminOnly', $item->id) }}"
+                                                {{-- Pastikan nama rute show ini benar --}}
+                                                <a href="{{ route('admin.complaint.show', $item->id) }}"
                                                     class="fw-bold text-primary">
                                                     {{ $item->location_item }}
                                                 </a>
@@ -117,7 +68,7 @@
                                             </td>
                                             <td>
                                                 @if ($item->photo_path)
-                                                    <img src="{{ asset('storage/' . $item->photo_path) }}"
+                                                    <img src="{{ asset('storage/' . $item->photo_path) }}" class="rounded"
                                                         style="width: 50px; height: 50px; object-fit: cover;">
                                                 @else
                                                     <span class="text-muted small">No Photo</span>
@@ -136,14 +87,7 @@
                                                     class="badge bg-{{ $color }}">{{ $item->status->status_name }}</span>
                                             </td>
                                         </tr>
-                                        {{-- Ganti bagian @empty di dalam <tbody> kamu --}}
-                                    @empty
-                                        {{-- <tr>
-                                            <td colspan="7" class="text-center py-4 text-muted">
-                                                <i class="bi bi-info-circle me-1"></i> Belum ada keluhan yang masuk.
-                                            </td>
-                                        </tr> --}}
-                                    @endforelse
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
