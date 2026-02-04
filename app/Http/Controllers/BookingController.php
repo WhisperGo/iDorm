@@ -15,6 +15,7 @@ class BookingController extends Controller
 {
     public function create(Request $request) 
 {
+
     $kategori = $request->get('kategori_fasilitas');
     $user = Auth::user();
     $gender = $user->residentDetails->gender ?? null; 
