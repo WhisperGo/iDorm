@@ -17,7 +17,7 @@ class ComplaintController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->role->role_name === 'Resident') {
+        if ($user->role->role_name === 'Resident' or $user->role->role_name === 'Admin') {
             $userRoom = $user->residentDetails->room_number;
 
             // Logika Sekamar: Bisa lihat keluhan dari kamar yang sama
@@ -27,13 +27,6 @@ class ComplaintController extends Controller
 
             // DIUBAH: Arahkan ke view khusus penghuni
             return view('admin.complaint', compact('complaints'));
-            $complaints = BuildingComplaint::whereHas(
-                'resident.residentDetails',
-                function ($q) use ($userRoom) {
-                    $q->where('room_number', $userRoom);
-            })
-            ->latest()
-            ->paginate(10);
         } else {
             //Pengelola bisa lihat semua
             $complaints = BuildingComplaint::with(['resident.residentDetails', 'status'])
