@@ -7,6 +7,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResidentController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PredictionController;
 use App\Http\Controllers\AdminBookingController;
 use App\Http\Controllers\AnnouncementController;
 
@@ -35,6 +36,9 @@ Route::middleware(['auth'])->group(function () {
 
     // 4. ANNOUNCEMENT SHOW (Parameter ditaruh paling bawah)
     Route::get('/announcements/{id}', [AnnouncementController::class, 'show'])->name('announcements.show');
+
+    Route::get('/prediction', [PredictionController::class, 'index'])->name('prediction.index');
+    Route::post('/prediction', [PredictionController::class, 'store'])->name('prediction.store');
 
     // 5. ROLE: RESIDENT ONLY
     Route::prefix('user')->group(function () {
