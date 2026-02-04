@@ -221,6 +221,23 @@
                     </a>
                 </li>
 
+                {{-- TAMBAHKAN MENU KOS PREDICTION DISINI --}}
+                <li class="nav-item static-item">
+                    <a class="nav-link static-item disabled" href="#">
+                        <span class="default-icon">Boarding House Prediction</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {{ Route::is('prediction.index') ? 'active' : '' }}"
+                        href="{{ route('prediction.index') }}">
+                        <i class="icon">
+                            <i class="bi bi-magic"></i> {{-- Ikon tongkat sihir agar terasa seperti 'Smart/AI' --}}
+                        </i>
+                        <span class="item-name">Smart Prediction</span>
+                    </a>
+                </li>
+
                 {{-- REPORT: Hanya untuk Pengelola --}}
                 @if ($role === 'Manager')
                     <li>
