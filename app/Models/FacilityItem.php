@@ -15,4 +15,6 @@ class FacilityItem extends Model
     public function partFacility(): BelongsTo{
         return $this->belongsTo(Facility::class);
     }
+
+    
 }

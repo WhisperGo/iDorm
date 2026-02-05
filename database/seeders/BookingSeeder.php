@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Booking;
 use App\Models\Facility;
 use App\Models\TimeSlot;
+use App\Models\FacilityItem;
 use Faker\Factory as Faker;
 use App\Models\BookingStatus;
 use Illuminate\Database\Seeder;
@@ -18,7 +19,9 @@ class BookingSeeder extends Seeder
         $faker = Faker::create('id_ID'); // Pakai locale Indonesia biar lebih pas
 
         // 1. Ambil data pendukung
-        $residents = User::whereHas('role', fn($q) => $q->where('role_name', 'Resident'))->get();
+        $residents = User::whereHas('role', fn($q) =>
+                            $q->where('role_name',
+                            ['Resident', 'Admin']))->get();
         $statuses = BookingStatus::all();
         $slots = TimeSlot::all();
         $facilities = Facility::all();
@@ -36,7 +39,7 @@ class BookingSeeder extends Seeder
             $resident = $residents->random();
             $gender = $resident->residentDetails->gender; // 'Male' atau 'Female'
             
-            // B. Cari fasilitas yang cocok: 
+            // B. Cari fasilitas yang cocok:
             // Jika Mesin Cuci, cari yang namanya mengandung gender si resident.
             // Jika bukan Mesin Cuci, ambil bebas (random).
             $filteredFacilities = $facilities->filter(function($f) use ($gender) {
@@ -71,6 +74,21 @@ class BookingSeeder extends Seeder
                 $cleanStatus = 'pending';
             }
 
+            // --- LOGIKA AMBIL ITEM (Dinamis & Efisien) ---
+            $itemsQuery = FacilityItem::where('facility_id', $facility->id);
+
+            // Jika Mesin Cuci, filter item sesuai gender penghuni
+            if (str_contains($fname, 'mesin cuci')) {
+                $itemsQuery->where('name', 'like', "%{$gender}%");
+            }
+
+            $facilityItem = $itemsQuery->inRandomOrder()->first();
+
+            // Proteksi: Jika fasilitas tidak punya item, lewati loop ini
+            if (!$facilityItem) {
+                continue;
+            }
+
             $data = [
                 'user_id'       => $resident->id,
                 'facility_id'   => $facility->id,
@@ -87,12 +105,21 @@ class BookingSeeder extends Seeder
                 $data['slot_id']    = $slot->id;
                 $data['start_time'] = $slot->start_time;
                 $data['end_time']   = $slot->end_time;
-            } 
-            elseif (str_contains($fname, 'dapur')) {
+            }
+            elseif (str_contains(strtolower($fname), 'dapur')) {
                 $start = rand(10, 21);
                 $data['start_time'] = sprintf("%02d:00:00", $start);
                 $data['end_time']   = sprintf("%02d:30:00", $start + 1);
-                $data['item_dapur'] = $faker->randomElement(['kompor', 'rice_cooker_kecil', 'rice_cooker_besar', 'airfryer_halal', 'airfryer_non_halal']);
+
+                // LOGIKA DINAMIS: Ambil ID dari tabel facility_items
+                $facility = \App\Models\Facility::where('name', 'Dapur')->first();
+
+                if ($facility) {
+                    // Ambil satu ID secara acak dari item yang terhubung dengan Dapur
+                    $data['facility_item_id'] = \App\Models\FacilityItem::where('facility_id', $facility->id)
+                        ->pluck('id')
+                        ->random();
+                }
             }
             elseif (str_contains($fname, 'theater')) {
                 $data['start_time'] = '19:00:00';
@@ -104,10 +131,19 @@ class BookingSeeder extends Seeder
                 $data['end_time']   = '17:00:00';
                 $data['jumlah_orang'] = rand(1, 10);
             }
-            elseif (str_contains($fname, 'sergun') || str_contains($fname, 'serba guna')) {
+            elseif (str_contains(strtolower($fname), 'sergun') || str_contains(strtolower($fname), 'serba guna')) {
                 $data['start_time'] = '14:00:00';
                 $data['end_time']   = '16:00:00';
-                $data['item_sergun'] = rand(0, 1) ? 'area_sergun_A' : 'area_sergun_B';
+
+                // Cari fasilitas Serba Guna Hall secara dinamis
+                $facility = \App\Models\Facility::where('name', 'Serba Guna Hall')->first();
+
+                if ($facility) {
+                    // Ambil ID acak dari items (Serba Guna A / B) yang terhubung
+                    $data['facility_item_id'] = \App\Models\FacilityItem::where('facility_id', $facility->id)
+                        ->pluck('id')
+                        ->random();
+                }
             }
 
             Booking::create($data);
