@@ -17,6 +17,7 @@ class Booking extends Model
     protected $fillable = [
     'user_id',
     'facility_id',
+    'facility_item_id',
     'item_dapur',
     'item_sergun',
     'status_id',
@@ -47,6 +48,10 @@ class Booking extends Model
     {
         return $this->belongsTo(Facility::class);
     }
+
+    // public function facilityItem(){
+    //     return $this->belongsTo(FacilityItem::class,'facility_item_id');
+    // }
 
     // Relasi ke Status Booking
     public function status()
@@ -83,4 +88,4 @@ class Booking extends Model
         
             return $this->status->status_name; // Default: Booked
         }
-}   
+}

@@ -21,7 +21,6 @@ return new class extends Migration
                     ->onDelete('cascade');
             
             $table->foreignId('facility_id')
-                    ->unique()
                     ->constrained('facilities')
                     ->onUpdate('cascade')
                     ->onDelete('cascade');

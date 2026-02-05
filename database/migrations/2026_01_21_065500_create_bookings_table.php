@@ -15,18 +15,33 @@ return new class extends Migration
             $table->id();
 
             // Relasi
-            $table->foreignId('user_id')->constrained('users')->onUpdate('cascade')->onDelete('restrict');
-            $table->foreignId('facility_id')->constrained('facilities')->onUpdate('cascade')->onDelete('restrict');
+            $table->foreignId('user_id')
+                    ->constrained('users')
+                    ->onUpdate('cascade')
+                    ->onDelete('restrict');
+
+            $table->foreignId('facility_id')
+                    ->constrained('facilities')
+                    ->onUpdate('cascade')
+                    ->onDelete('restrict');
+            
+            $table->foreignId('facility_item_id')
+                    ->nullable() // Berikan nullable jika ada fasilitas yang tidak punya item spesifik
+                    ->constrained('facility_items')
+                    ->onDelete('set null');
 
             // HAPUS ->after('facility_id') di sini!
-            $table->string('item_dapur')->nullable();
-            $table->string('item_sergun')->nullable();
+            // $table->string('item_dapur')->nullable();
+            // $table->string('item_sergun')->nullable();
 
-            $table->foreignId('status_id')->constrained('booking_statuses')->onUpdate('cascade')->onDelete('restrict');
+            $table->foreignId('status_id')
+                    ->constrained('booking_statuses')
+                    ->onUpdate('cascade')
+                    ->onDelete('restrict');
 
             // Slot ID
             $table->foreignId('slot_id')
-                    ->nullable() 
+                    ->nullable()
                     ->constrained('time_slots')
                     ->onDelete('set null');
 

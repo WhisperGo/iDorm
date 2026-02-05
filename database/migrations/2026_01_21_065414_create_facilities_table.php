@@ -11,15 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('facility_items', function (Blueprint $table) {
+        Schema::create('facilities', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('facility_id')
-                    ->unique()
-                    ->constrained('facilities')
-                    ->onUpdate('cascade')
-                    ->onDelete('cascade');
-            $table->string('name');
+            $table->string('name', 50);
+            $table->enum('type', ['heavy', 'light']);
+            $table->text('description')->nullable();
+            
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('facility_items');
+        Schema::dropIfExists('facilities');
     }
 };
