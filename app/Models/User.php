@@ -59,8 +59,12 @@ class User extends Authenticatable
         return $this->hasOne(ResidentDetail::class, 'user_id');
     }
 
-    public function managerDetails() {
+    public function managerDetails(): HasOne {
         return $this->hasOne(ManagerDetail::class, 'user_id');
+    }
+
+    public function adminDetails(): HasOne{
+        return $this->hasOne(AdminDetail::class,'user_id');
     }
 
     // File: app/Models/ResidentDetail.php
