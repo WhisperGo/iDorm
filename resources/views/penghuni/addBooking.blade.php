@@ -170,17 +170,21 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Pilih Nomor Mesin: <span
-                                            class="text-danger">*</span></label>
-                                    <div class="row g-2 text-center">
-                                        @foreach ($facilities as $f)
+                                    <label class="form-label fw-bold">
+                                        Pilih Nomor Mesin:
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="row g-2 text-center" id="washing-machine-group">
+                                        @foreach ($facilities->take(5) as $f)
+                                            {{-- Memastikan hanya 5 opsi --}}
                                             <div class="col">
-                                                <input type="checkbox" class="btn-check" name="facility_id[]"
-                                                    id="mesin{{ $f->id }}" value="{{ $f->id }}"
-                                                    autocomplete="off">
+                                                <input type="checkbox" class="btn-check machine-checkbox"
+                                                    name="facility_id[]" id="mesin{{ $f->id }}"
+                                                    value="{{ $f->id }}" autocomplete="off">
                                                 <label class="btn btn-outline-primary w-100"
                                                     for="mesin{{ $f->id }}">
-                                                    M-{{ substr($f->name, -1) }}
+                                                    {{-- Mengambil digit terakhir dari nama (Misal: Mesin 1 -> M-1) --}}
+                                                    M-{{ substr($f->facility_name, -1) }}
                                                 </label>
                                             </div>
                                         @endforeach
