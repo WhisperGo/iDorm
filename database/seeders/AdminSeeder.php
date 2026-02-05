@@ -46,7 +46,7 @@ class AdminSeeder extends Seeder
                 'gender' => $data['gender'],
                 'room_number' => $data['room'],
                 'class_name' => $data['class'],
-                'facility_id' => $dapurId
+                'facility_id' => $data['facility_id']
             ]);
         }
     }
