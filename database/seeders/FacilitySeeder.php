@@ -34,6 +34,8 @@ class FacilitySeeder extends Seeder
                 'Mesin Cuci Male 1', 'Mesin Cuci Male 2', 'Mesin Cuci Male 3', 'Mesin Cuci Male 4', 'Mesin Cuci Male 5',
                 'Mesin Cuci Female 1', 'Mesin Cuci Female 2', 'Mesin Cuci Female 3', 'Mesin Cuci Female 4', 'Mesin Cuci Female 5'
             ],
+            'Theater Room' => ['Theater Room'],
+            'Co-Working Space' => ['Co-Working Space'],
             'Serba Guna Hall' => ['Serba Guna A', 'Serba Guna B'],
         ];
 
