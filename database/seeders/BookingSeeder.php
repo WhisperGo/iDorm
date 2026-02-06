@@ -88,24 +88,24 @@ class BookingSeeder extends Seeder
             ];
 
             // --- LOGIKA WAKTU (Sekarang If-nya pasti tembus karena lowercase) ---
-            if (str_contains($fname, 'Mesin Cuci')) {
+            if (str_contains($fname, 'mesin cuci')) {
                 $slot = $slots->random();
                 $data['slot_id'] = $slot->id;
                 $data['start_time'] = $slot->start_time;
                 $data['end_time'] = $slot->end_time;
-            } elseif (str_contains($fname, 'Dapur')) {
+            } elseif (str_contains($fname, 'dapur')) {
                 $start = rand(10, 21);
                 $data['start_time'] = sprintf("%02d:00:00", $start);
                 $data['end_time'] = sprintf("%02d:30:00", $start + 1);
-            } elseif (str_contains($fname, 'Theater Room')) {
+            } elseif (str_contains($fname, 'theater room')) {
                 $data['start_time'] = '19:00:00';
                 $data['end_time'] = '21:00:00';
                 $data['description'] = 'Nobar: ' . $faker->sentence(2);
-            } elseif (str_contains($fname, 'Co-Working Space') || str_contains($fname, 'cws')) {
+            } elseif (str_contains($fname, 'co-working space') || str_contains($fname, 'cws')) {
                 $data['start_time'] = '09:00:00';
                 $data['end_time'] = '17:00:00';
                 $data['jumlah_orang'] = rand(1, 10);
-            } elseif (str_contains($fname, 'Serba Guna Hall') || str_contains($fname, 'serba guna')) {
+            } elseif (str_contains($fname, 'serba guna hall') || str_contains($fname, 'serba guna')) {
                 $data['start_time'] = '14:00:00';
                 $data['end_time'] = '16:00:00';
             } else {
