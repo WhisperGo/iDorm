@@ -151,26 +151,24 @@
                                     </div>
                                 </div>
 
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">Pilih Nomor Mesin:</label>
-                                    <div class="row g-2 text-center">
-                                        @foreach ($facilities as $f)
-                                            <div class="col">
-                                                <input type="checkbox" class="btn-check" name="facility_id[]"
-                                                    id="mesin{{ $f->id }}" value="{{ $f->id }}"
-                                                    autocomplete="off">
-                                                <label class="btn btn-outline-primary w-100"
-                                                    for="mesin{{ $f->id }}">
-                                                    M-{{ substr($f->name, -1) }}
-                                                </label>
-                                            </div>
-                                        @endforeach
+                                <div class="row g-2 text-center" id="washing-machine-group">
+                                @forelse ($items as $item)
+                                    <div class="col-md-2 col-4">
+                                        <input type="checkbox" class="btn-check machine-checkbox"
+                                            name="facility_item_id[]" id="mesin{{ $item->id }}"
+                                            value="{{ $item->id }}" autocomplete="off">
+                                        <label class="btn btn-outline-primary w-100" for="mesin{{ $item->id }}">
+                                            {{-- Mengambil angka paling belakang (Misal: "Mesin Cuci Male 1" -> M-1) --}}
+                                            M-{{ substr($item->name, -1) }}
+                                        </label>
                                     </div>
-                                </div>
-
-                                <button type="submit" class="btn btn-primary w-100">Booking Mesin Cuci Sekarang</button>
-                            </form>
-                        </div>
+                                @empty
+                                    <div class="col-12">
+                                        <p class="text-danger small">Data mesin tidak ditemukan untuk gender {{ $gender }}.</p>
+                                    </div>
+                                @endforelse
+                            </div>
+                            </div>
 
                         {{-- --- FORM THEATER --- --}}
                     @elseif(request('kategori_fasilitas') == 'theater')
