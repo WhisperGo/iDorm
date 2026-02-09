@@ -15,63 +15,50 @@ class BookingController extends Controller
 {
     public function create(Request $request)
     {
-        // Ambil kategori dari request URL
         $kategori = $request->get('kategori_fasilitas');
-
         $user = Auth::user();
-        $gender = $user->residentDetails->gender ?? null;
+        $gender = trim($user->residentDetails->gender ?? '');
 
-        // 1. Ambil data fasilitas berdasarkan kategori & gender
-        $facilities = Facility::query()
-            ->when($kategori, function ($query) use ($kategori, $gender) {
-
-                if ($kategori == 'mesin_cuci') {
-                    return $gender
-                        ? $query->where('name', 'LIKE', "%Mesin Cuci $gender%")
-                        : $query->where('name', 'LIKE', "%Mesin Cuci%");
-                }
-
-                if ($kategori == 'cws') {
-                    return $query->where('name', 'LIKE', "%Co-Working Space%");
-                }
-
-                if ($kategori == 'sergun') {
-                    return $query->where('name', 'LIKE', '%Serba%');
-                    // return $query->where('name', 'LIKE', "%Serbaguna%");
-                }
-
-                if ($kategori == 'theater') {
-                    // Mencari kata Theater atau Theatre (RE vs ER)
-                    return $query->where('name', 'LIKE', '%Theat%');
-                }
-                if ($kategori == 'dapur') {
-                    return $query->where('name', 'LIKE', '%Dapur%');
-                }
-
-                // Jika kategori tidak dikenali, buat query yang pasti kosong
-                return $query->where('id', 0);
-            })
-            ->get();
-            
+        $facilities = collect(); 
         $items = collect();
-        if ($facilities->isNotEmpty()) {
-            $items = \App\Models\FacilityItem::where('facility_id', $facilities->first()->id)->get();
+
+        $parentFacility = Facility::query()
+            ->when($kategori, function ($query) use ($kategori) {
+                $cat = strtolower($kategori);
+                if ($cat == 'mesin_cuci') return $query->where('name', 'LIKE', '%Mesin Cuci%');
+                if ($cat == 'dapur') return $query->where('name', 'LIKE', '%Dapur%');
+                if ($cat == 'sergun') return $query->where('name', 'LIKE', '%Serba%');
+                if ($cat == 'cws') return $query->where('name', 'LIKE', '%Co-Working%');
+                if ($cat == 'theater') return $query->where('name', 'LIKE', '%Theater%');
+                return $query->where('id', 0);
+            })->first();
+
+        if ($parentFacility) {
+            $facilities = collect([$parentFacility]); 
+            $allItems = \App\Models\FacilityItem::where('facility_id', $parentFacility->id)->get();
+
+            if (strtolower($kategori) == 'mesin_cuci' && !empty($gender)) {
+                $cleanGender = strtolower($gender);
+                $items = $allItems->filter(function($item) use ($cleanGender) {
+                    $itemName = strtolower($item->name);
+                    if ($cleanGender === 'male') {
+                        return str_contains($itemName, 'male') && !str_contains($itemName, 'female');
+                    }
+                    return str_contains($itemName, $cleanGender);
+                });
+            } else {
+                $items = $allItems;
+            }
         }
-        // if($facilities == 'theater' || $facilities == 'sergun'){
-        //     dd($facilities);
+
+        // --- BAGIAN DEBUG (Hanya jalankan jika $kategori adalah mesin_cuci) ---
+        // if (strtolower($kategori) == 'mesin_cuci') {
+        //     dd($gender, $allItems->toArray(), $items->toArray()); 
         // }
 
-        // 2. Ambil data slot waktu (TAMBAHKAN BARIS INI)
-        // Ini untuk mengisi dropdown per 2 jam kalau user pilih Mesin Cuci/Theatre
         $timeSlots = TimeSlot::where('facilities', 'heavy')->get();
+        $myBookings = Booking::where('user_id', $user->id)->with(['facility', 'status', 'slot'])->latest()->get();
 
-        // 3. Ambil riwayat booking user
-        $myBookings = Booking::where('user_id', $user->id)
-            ->with(['facility', 'status', 'slot'])
-            ->latest()
-            ->get();
-
-        // 4. Kirim 'timeSlots' ke View (TAMBAHKAN 'timeSlots' di compact)
         return view('penghuni.addBooking', compact('facilities', 'user', 'kategori', 'myBookings', 'timeSlots', 'items'));
     }
 

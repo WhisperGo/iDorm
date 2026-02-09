@@ -175,24 +175,28 @@
                                         Pilih Nomor Mesin:
                                         <span class="text-danger">*</span>
                                     </label>
-                                    <div class="row g-2 text-center" id="washing-machine-group">
-                                        @foreach ($facilities->take(5) as $f)
-                                            {{-- Memastikan hanya 5 opsi --}}
-                                            <div class="col">
+                                    <div class="row g-2 text-center mb-3 justify-content-between" id="washing-machine-group">
+                                        @forelse ($items as $item)
+                                            <div class="col-md-2 col-4">
                                                 <input type="checkbox" class="btn-check machine-checkbox"
-                                                    name="facility_id[]" id="mesin{{ $f->id }}"
-                                                    value="{{ $f->id }}" autocomplete="off">
+                                                    name="facility_item_id[]" id="mesin{{ $item->id }}"
+                                                    value="{{ $item->id }}" autocomplete="off">
                                                 <label class="btn btn-outline-primary w-100"
-                                                    for="mesin{{ $f->id }}">
-                                                    {{-- Mengambil digit terakhir dari nama (Misal: Mesin 1 -> M-1) --}}
-                                                    M-{{ substr($f->facility_name, -1) }}
+                                                    for="mesin{{ $item->id }}">
+                                                    {{-- Mengambil angka paling belakang (Misal: "Mesin Cuci Male 1" -> M-1) --}}
+                                                    M-{{ substr($item->name, -1) }}
                                                 </label>
                                             </div>
-                                        @endforeach
+                                        @empty
+                                            <div class="col-12">
+                                                <p class="text-danger small">Data mesin tidak ditemukan untuk gender
+                                                    {{ $gender }}.</p>
+                                            </div>
+                                        @endforelse
                                     </div>
-                                </div>
 
-                                <button type="submit" class="btn btn-primary w-100">Booking Mesin Cuci Sekarang</button>
+                                    <button type="submit" class="btn btn-primary w-100">Booking Mesin Cuci
+                                        Sekarang</button>
                             </form>
                         </div>
 
