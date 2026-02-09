@@ -84,8 +84,7 @@
                             <h5 class="text-primary mb-3">Formulir Peminjaman Co-Working Space</h5>
                             @if ($facilities->isEmpty())
                                 <div class="alert alert-danger">
-                                    ⚠️ Fasilitas Theater tidak ditemukan! Pastikan nama di database mengandung kata
-                                    "Theater" atau "Theatre".
+                                    ⚠️ Fasilitas CWS tidak ditemukan!
                                 </div>
                             @else
                                 <div class="alert alert-info py-2">
@@ -216,7 +215,7 @@
                             <h5 class="text-primary mb-3">Formulir Peminjaman Serba Guna</h5>
                             @if ($facilities->isEmpty())
                                 <div class="alert alert-danger">
-                                    ⚠️ Fasilitas Theater tidak ditemukan! Pastikan nama di database mengandung kata
+                                    ⚠️ Fasilitas Sergun tidak ditemukan! Pastikan nama di database mengandung kata
                                     "Theater" atau "Theatre".
                                 </div>
                             @else
