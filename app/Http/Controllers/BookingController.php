@@ -17,6 +17,7 @@ class BookingController extends Controller
     {
         // Ambil kategori dari request URL
         $kategori = $request->get('kategori_fasilitas');
+
         $user = Auth::user();
         $gender = $user->residentDetails->gender ?? null;
 
@@ -52,6 +53,10 @@ class BookingController extends Controller
             })
             ->get();
             
+        $items = collect();
+        if ($facilities->isNotEmpty()) {
+            $items = \App\Models\FacilityItem::where('facility_id', $facilities->first()->id)->get();
+        }
         // if($facilities == 'theater' || $facilities == 'sergun'){
         //     dd($facilities);
         // }
@@ -67,7 +72,7 @@ class BookingController extends Controller
             ->get();
 
         // 4. Kirim 'timeSlots' ke View (TAMBAHKAN 'timeSlots' di compact)
-        return view('penghuni.addBooking', compact('facilities', 'user', 'kategori', 'myBookings', 'timeSlots'));
+        return view('penghuni.addBooking', compact('facilities', 'user', 'kategori', 'myBookings', 'timeSlots', 'items'));
     }
 
     public function store(Request $request)
