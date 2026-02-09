@@ -15,35 +15,35 @@ class BookingController extends Controller
 {
     public function create(Request $request)
     {
-        $kategori = Facility::select('name')->get();
+        // Ambil kategori dari request URL
+        $kategori = $request->get('kategori_fasilitas');
         $user = Auth::user();
         $gender = $user->residentDetails->gender ?? null;
 
         // 1. Ambil data fasilitas berdasarkan kategori & gender
         $facilities = Facility::query()
             ->when($kategori, function ($query) use ($kategori, $gender) {
-                if ($kategori == 'Mesin Cuci') {
+
+                if ($kategori == 'mesin_cuci') {
                     return $gender
                         ? $query->where('name', 'LIKE', "%Mesin Cuci $gender%")
                         : $query->where('name', 'LIKE', "%Mesin Cuci%");
                 }
 
-                if ($kategori == 'Co-Working Space') {
+                if ($kategori == 'cws') {
                     return $query->where('name', 'LIKE', "%Co-Working Space%");
                 }
 
-                if ($kategori == 'Serba Guna Hall') {
-                    return $query->where('name', 'LIKE', "%Serba Guna%");
+                if ($kategori == 'sergun') {
+                    return $query->where('name', 'LIKE', '%Serba%');
+                    // return $query->where('name', 'LIKE', "%Serbaguna%");
                 }
 
-                if ($kategori == 'Theater Room') {
+                if ($kategori == 'theater') {
                     // Mencari kata Theater atau Theatre (RE vs ER)
-                    return $query->where(function ($q) {
-                        $q->where('name', 'LIKE', '%Theater%')
-                            ->orWhere('name', 'LIKE', '%Theatre%');
-                    });
+                    return $query->where('name', 'LIKE', '%Theat%');
                 }
-                if ($kategori == 'Dapur') {
+                if ($kategori == 'dapur') {
                     return $query->where('name', 'LIKE', '%Dapur%');
                 }
 
@@ -51,6 +51,10 @@ class BookingController extends Controller
                 return $query->where('id', 0);
             })
             ->get();
+            
+        // if($facilities == 'theater' || $facilities == 'sergun'){
+        //     dd($facilities);
+        // }
 
         // 2. Ambil data slot waktu (TAMBAHKAN BARIS INI)
         // Ini untuk mengisi dropdown per 2 jam kalau user pilih Mesin Cuci/Theatre
@@ -137,9 +141,10 @@ class BookingController extends Controller
                     'booking_date' => $request->booking_date,
                     'status_id' => 1,
                     'cleanliness_status' => 'pending',
-                    'description' => $request->description ?? $request->keterangan ?? null,
-                    'item_dapur' => $request->item_dapur,
-                    'item_sergun' => $request->item_sergun,
+                    // GABUNGKAN info alat/area ke dalam description karena kolom item_dapur/sergun sudah dihapus
+                    'description' => ($request->description ?? '') . 
+                         ($request->item_dapur ? " (Alat: " . $request->item_dapur . ")" : "") . 
+                         ($request->item_sergun ? " (Area: " . $request->item_sergun . ")" : ""),
                 ];
 
                 // Logic Sesi Waktu (Sama untuk semua mesin dalam satu booking)
@@ -157,17 +162,10 @@ class BookingController extends Controller
                 // 3. Cek Tabrakan PER MESIN/ALAT
                 $cekTabrakan = \App\Models\Booking::where('facility_id', $fId)
                     ->where('booking_date', $request->booking_date)
-                    ->whereIn('status_id', [1, 4])
-                    ->where(function ($query) use ($data) {
-                        if (!empty($data['item_dapur'])) {
-                            $query->where('item_dapur', $data['item_dapur']);
-                        } elseif (!empty($data['item_sergun'])) {
-                            $query->where('item_sergun', $data['item_sergun']);
-                        }
-                    })
+                    ->whereIn('status_id', [1, 2, 4])
                     ->where(function ($query) use ($data) {
                         $query->where('start_time', '<', $data['end_time'])
-                            ->where('end_time', '>', $data['start_time']);
+                              ->where('end_time', '>', $data['start_time']);
                     })->exists();
 
                 if ($cekTabrakan) {
