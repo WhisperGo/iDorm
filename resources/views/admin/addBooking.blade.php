@@ -57,13 +57,18 @@
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Alat yang dibutuhkan</label>
-                                    <select class="form-select" name="item_dapur">
-                                        <option value="">-- Pilih peralatan yang dibutuhkan --</option>
-                                        <option value="kompor">Kompor</option>
+                                    <select class="form-select" name="facility_item_id">
+                                        <option value="" selected disabled>-- Pilih peralatan yang dibutuhkan --</option>
+                                        @foreach ($items as $item)
+                                            <option value="{{ $item->id }}" {{ old('facility_item_id') == $item->id ? 'selected' : '' }}>
+                                                {{ $item->name }}
+                                            </option>
+                                        @endforeach
+                                        {{-- <option value="kompor">Kompor</option>
                                         <option value="rice_cooker">Rice Cooker Kecil</option>
                                         <option value="rice_cooker">Rice Cooker Besar</option>
                                         <option value="airfryer">Airfryer Halal</option>
-                                        <option value="airfryer">Airfryer Non Halal</option>
+                                        <option value="airfryer">Airfryer Non Halal</option> --}}
                                     </select>
                                 </div>
                                 <div class="row">
@@ -232,12 +237,16 @@
                                     <input type="date" class="form-control" name="booking_date" required
                                         min="{{ date('Y-m-d') }}">
                                 </div>
+                                {{-- Ganti bagian select di FORM SERGUN --}}
                                 <div class="mb-3">
                                     <label class="form-label">Bagian Sergun yang akan di booking</label>
-                                    <select class="form-select" name="item_sergun">
-                                        <option value="">-- Pilih bagian sergun --</option>
-                                        <option value="area_sergun_A">Area Sergun A</option>
-                                        <option value="area_sergun_B">Area Sergun B</option>
+                                    <select class="form-select" name="facility_item_id" required>
+                                        <option value="" selected disabled>-- Pilih bagian sergun --</option>
+                                        @foreach ($items as $item)
+                                            <option value="{{ $item->id }}" {{ old('facility_item_id') == $item->id ? 'selected' : '' }}>
+                                                {{ $item->name }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                 </div>
                                 <div class="row">
