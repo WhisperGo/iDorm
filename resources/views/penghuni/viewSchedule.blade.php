@@ -88,17 +88,34 @@
                                                 {{ $b->user->residentDetails->room_number }}</small>
                                         </td>
                                         <td>
-                                            @if (Str::contains(strtolower($b->facility->name), 'mesin cuci'))
+                                            @php
+                                                $facilityName = strtolower($b->facility->name);
+                                            @endphp
+
+                                            @if (str_contains($facilityName, 'mesin cuci'))
+                                                {{-- Kasus 1: Mesin Cuci (Tampilkan No. Mesin) --}}
                                                 <div class="fw-bold">Mesin Cuci</div>
                                                 <small class="text-success fw-bold">
                                                     No: @foreach ($group as $g)
                                                         M-{{ substr($g->facilityItem->name, -1) }}{{ !$loop->last ? ',' : '' }}
                                                     @endforeach
                                                 </small>
+                                            @elseif (str_contains($facilityName, 'dapur'))
+                                                {{-- Kasus 2: Dapur (Tampilkan Alat) --}}
+                                                <div class="fw-bold">Dapur</div>
+                                                <small class="text-danger fw-bold">
+                                                    Alat: {{ $b->facilityItem->name ?? 'Umum' }}
+                                                </small>
+                                            @elseif (str_contains($facilityName, 'serba guna') || str_contains($facilityName, 'sergun'))
+                                                {{-- Kasus 3: Serba Guna (Tampilkan Area) --}}
+                                                <div class="fw-bold">Serba Guna</div>
+                                                <small class="text-primary fw-bold">
+                                                    Area: {{ $b->facilityItem->name ?? 'Umum' }}
+                                                </small>
                                             @else
+                                                {{-- Kasus 4: Sisanya (Theater, CWS, dll) --}}
                                                 <div class="fw-bold">{{ $b->facility->name }}</div>
-                                                <small
-                                                    class="text-primary fw-bold">{{ $b->facilityItem->name ?? '' }}</small>
+                                                {{-- Bagian bawahnya dikosongkan sesuai request --}}
                                             @endif
                                         </td>
                                         <td class="text-center">

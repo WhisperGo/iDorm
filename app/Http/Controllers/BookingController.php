@@ -173,7 +173,10 @@ public function showSchedule(Request $request, $category)
                 if ($role === 'Manager') {
                     $q->where('name', 'LIKE', "%Mesin Cuci%");
                 } else {
-                    $q->where('name', 'LIKE', "Mesin Cuci $userGender%");
+                    $cleanGender = trim($userGender); 
+        
+                    $q->where('name', 'LIKE', "%Mesin Cuci%")
+                    ->where('name', 'LIKE', "%$cleanGender%");
                 }
             } 
             // --- PERBAIKAN DI SINI ---
