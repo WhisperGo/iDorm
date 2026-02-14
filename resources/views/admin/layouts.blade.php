@@ -15,7 +15,7 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-    
+
     <style>
         /* 1. SIDEBAR PALING DEPAN */
         /* Kita paksa Sidebar punya z-index tertinggi */
@@ -36,6 +36,7 @@
             backdrop-filter: blur(10px);
             border-bottom: 1px solid #eee;
         }
+
         ::-ms-reveal {
             display: none;
         }

@@ -13,9 +13,6 @@
     <link rel="stylesheet" href="{{ asset('hopeui/css/customizer.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('hopeui/css/rtl.min.css') }}" />
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-
     <style>
         /* 1. SIDEBAR PALING DEPAN */
         /* Kita paksa Sidebar punya z-index tertinggi */
@@ -36,15 +33,6 @@
             backdrop-filter: blur(10px);
             border-bottom: 1px solid #eee;
         }
-
-        ::-ms-reveal {
-            display: none;
-        }
-
-        /* Opsional: Menyembunyikan tombol 'clear' bawaan (tanda silang) */
-        ::-ms-clear {
-            display: none;
-        }
     </style>
 
     <script>
@@ -58,28 +46,32 @@
 </head>
 
 <body class="">
-    {{-- <div id="loading">
+    <div id="loading">
         <div class="loader simple-loader">
             <div class="loader-body"></div>
         </div>
-    </div> --}}
+    </div>
 
-    @include('layouts.partials.sidebar')
+    @include('template.sidebar')
+
+    <main>
+        @yield('content')
+    </main>
 
     <main class="main-content">
 
-        @include('layouts.partials.navbar')
+        @include('template.navbar')
 
         <div class="position-relative">
             <div class="iq-banner">
-                @include('layouts.partials.banner')
+                @include('penghuni.banner')
             </div>
 
             <div class="container-fluid content-inner mt-5 py-0">
                 @yield('content')
             </div>
 
-            @include('layouts.partials.footer')
+            @include('template.footer')
         </div>
 
     </main>
@@ -95,38 +87,6 @@
     <script src="{{ asset('hopeui/js/plugins/form-wizard.js') }}"></script>
     <script src="{{ asset('hopeui/vendor/aos/dist/aos.js') }}"></script>
     <script src="{{ asset('hopeui/js/hope-ui.js') }}" defer></script>
-
-    @stack('scripts')
 </body>
 
-<script>
-    document.querySelectorAll('.btn-freeze').forEach(button => {
-        button.addEventListener('click', function(e) {
-            const form = this.closest('.freeze-form');
-            const status = this.getAttribute('title'); // Mengambil teks dari title
-
-            Swal.fire({
-                title: 'Konfirmasi Perubahan',
-                text: `Apakah Anda yakin ingin melakukan "${status}"?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Ya, Lanjutkan!',
-                cancelButtonText: 'Batal',
-                background: '#fff',
-                customClass: {
-                    popup: 'format-swal'
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    form.submit(); // Submit form jika user klik 'Ya'
-                }
-            });
-        });
-    });
-</script>
-
 </html>
-<!doctype html>
-<html lang="en" dir="ltr" data-bs-theme="light" data-bs-theme-color="theme-color-default">
