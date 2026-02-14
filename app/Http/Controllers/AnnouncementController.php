@@ -27,7 +27,7 @@ class AnnouncementController extends Controller
         if (Auth::user()->role->role_name === 'Resident') {
             abort(403, 'Penghuni tidak diizinkan membuat pengumuman.');
         }
-        return view('admin.addAnnouncement', compact('title', 'subtitle')); // Pisahkan view form tambah
+        return view('admin.add_announcement', compact('title', 'subtitle')); // Pisahkan view form tambah
     }
 
     public function show($id)
@@ -69,7 +69,7 @@ class AnnouncementController extends Controller
         if (Auth::user()->role->role_name === 'Resident') {
             abort(403);
         }
-        return view('admin.editAnnouncement', compact('announcement', 'title', 'subtitle'));
+        return view('admin.edit_announcement', compact('announcement', 'title', 'subtitle'));
     }
 
     // 5. Update Data (Hanya Admin/Pengelola)

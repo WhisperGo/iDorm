@@ -21,7 +21,7 @@ class BookingController extends Controller
         $user = Auth::user();
         $gender = trim($user->residentDetails->gender ?? '');
 
-        $facilities = collect(); 
+        $facilities = collect();
         $items = collect();
 
         $parentFacility = Facility::query()
@@ -56,7 +56,7 @@ class BookingController extends Controller
         $timeSlots = TimeSlot::where('facilities', 'heavy')->get();
         $myBookings = Booking::where('user_id', $user->id)->with(['facility', 'status', 'slot'])->latest()->get();
 
-        return view('penghuni.addBooking', compact('facilities', 'user', 'kategori', 'myBookings', 'timeSlots', 'items'));
+        return view('penghuni.add_booking', compact('facilities', 'user', 'kategori', 'myBookings', 'timeSlots', 'items'));
     }
 
     public function store(Request $request)
@@ -132,7 +132,7 @@ class BookingController extends Controller
                     ->whereIn('status_id', [1, 2, 4])
                     ->where(function ($query) use ($data) {
                         $query->where('start_time', '<', $data['end_time'])
-                              ->where('end_time', '>', $data['start_time']);
+                                ->where('end_time', '>', $data['start_time']);
                     })->exists();
 
                 if ($cekTabrakan) {
@@ -145,7 +145,7 @@ class BookingController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('booking.myBookings')->with('success', 'Booking berhasil!');
+            return redirect()->route('booking.my_bookings')->with('success', 'Booking berhasil!');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -207,7 +207,7 @@ class BookingController extends Controller
 
         $bookings = $query->latest()->paginate(10);
 
-        return view('penghuni.viewSchedule', compact('bookings', 'category', 'title'));
+        return view('penghuni.view_schedule', compact('bookings', 'category', 'title'));
     }
 
     // Fungsi bantu biar kodingan rapi
@@ -247,7 +247,7 @@ class BookingController extends Controller
             ->latest()
             ->get();
 
-        return view('penghuni.myBookings', compact('myBookings'));
+        return view('penghuni.my_bookings', compact('myBookings'));
     }
 
     public function adminAction(Booking $booking, $action)
