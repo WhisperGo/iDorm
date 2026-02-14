@@ -16,5 +16,10 @@ class FacilityItem extends Model
         return $this->belongsTo(Facility::class);
     }
 
+    public function facility(): BelongsTo
+    {
+        return $this->belongsTo(Facility::class, 'facility_id');
+    }
+
     
 }
