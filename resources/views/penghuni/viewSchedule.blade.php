@@ -25,10 +25,18 @@
                                 <select name="item" class="form-select form-select-sm" onchange="this.form.submit()">
                                     <option value="">-- Semua Unit --</option>
                                     @php
+                                        // Kita tentukan keyword pencarian yang pas buat database
+                                        $dbKeyword = match ($category) {
+                                            'sergun' => 'Serba Guna',
+                                            'dapur' => 'Dapur',
+                                            'cws' => 'Co-Working',
+                                            default => str_replace('-', ' ', $category),
+                                        };
+
                                         $filterItems = \App\Models\FacilityItem::whereHas('facility', function (
                                             $q,
-                                        ) use ($category) {
-                                            $q->where('name', 'LIKE', '%' . str_replace('-', ' ', $category) . '%');
+                                        ) use ($dbKeyword) {
+                                            $q->where('name', 'LIKE', '%' . $dbKeyword . '%');
                                         })->get();
                                     @endphp
                                     @foreach ($filterItems as $fi)
