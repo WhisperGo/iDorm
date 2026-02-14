@@ -79,7 +79,7 @@
                             </thead>
                             <tbody>
                                 {{-- PERBAIKAN: Gunakan foreach biasa --}}
-                                @foreach ($bookings->groupBy(fn($item) => $item->user_id . $item->booking_date . $item->start_time . $item->end_time) as $group)
+                                @foreach ($bookings->groupBy(fn($item) => $item->user_id . $item->facility_id . $item->booking_date . $item->start_time . $item->end_time) as $group)
                                     @php $b = $group->first(); @endphp
                                     <tr>
                                         <td class="text-center">{{ $loop->iteration }}</td>
@@ -152,7 +152,12 @@
                                 @endforeach
                             </tbody>
                         </table>
-                        {{  }}
+                        {{-- TAMBAHKAN INI DI SINI BOS --}}
+                        <div class="d-flex justify-content-between align-items-center mt-3 px-3">
+                            <div>
+                                {{ $bookings->appends(request()->query())->links() }}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
