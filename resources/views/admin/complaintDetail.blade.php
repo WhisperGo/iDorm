@@ -1,4 +1,4 @@
-@extends('penghuni.layouts') {{-- Sesuaikan dengan layout utama Anda --}}
+@extends('layouts.app')
 
 @section('content')
     <div class="row">

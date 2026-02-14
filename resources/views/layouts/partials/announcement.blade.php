@@ -1,4 +1,4 @@
-@extends(auth()->user()->role->role_name === 'Resident' ? 'penghuni.layouts' : (auth()->user()->role->role_name === 'Admin' ? 'admin.layouts' : 'pengelola.layouts'))
+@extends('layouts.app')
 
 @section('content')
     <div class="row justify-content-center">

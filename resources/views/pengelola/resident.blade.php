@@ -1,4 +1,4 @@
-@extends('pengelola.layouts')
+@extends('layouts.app')
 
 @section('content')
     <div class="row">

@@ -1,4 +1,4 @@
-@extends('penghuni.layouts') {{-- Sesuaikan jika penghuni menggunakan layout berbeda --}}
+@extends('layouts.app')
 
 @section('content')
     <div class="row justify-content-center">

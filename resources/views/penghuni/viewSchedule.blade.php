@@ -1,4 +1,4 @@
-@extends('penghuni.layouts')
+@extends('layouts.app')
 
 @section('content')
     @php
