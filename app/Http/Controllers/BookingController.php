@@ -153,67 +153,50 @@ class BookingController extends Controller
         }
     }
 
-public function showSchedule(Request $request, $category)
+    public function showSchedule(Request $request, $category)
     {
         $user = Auth::user();
         $role = $user->role->role_name;
-        $userGender = $user->residentDetails->gender ?? null;
-
+        $userGender = strtolower($user->residentDetails->gender ?? ''); 
+    
         $normalizedCategory = str_replace('-', '_', strtolower($category));
-        $search = $request->get('search');
         $itemFilter = $request->get('item');
         $title = ucwords(str_replace(['-', '_'], ' ', $category));
-        
-        // 1. Eager Load semua yang dibutuhkan
+    
         $query = \App\Models\Booking::with(['user.residentDetails', 'facility', 'facilityItem', 'status', 'slot']);
-
-        // 2. Filter Kategori (Dibuat lebih fleksibel)
-        $query->whereHas('facility', function ($q) use ($normalizedCategory, $userGender, $role) {
+    
+        // 1. Filter Kategori Fasilitas (Sesuai ID/Nama di DB kamu)
+        $query->whereHas('facility', function ($q) use ($normalizedCategory) {
             if (str_contains($normalizedCategory, 'mesin')) {
-                if ($role === 'Manager') {
-                    $q->where('name', 'LIKE', "%Mesin Cuci%");
-                } else {
-                    $cleanGender = trim($userGender); 
-        
-                    $q->where('name', 'LIKE', "%Mesin Cuci%")
-                    ->where('name', 'LIKE', "%$cleanGender%");
-                }
-            } 
-            // --- PERBAIKAN DI SINI ---
-            elseif ($normalizedCategory == 'cws') {
-                // Cari yang namanya CWS ATAU Co-Working ATAU Co Working
-                $q->where(function($sub) {
-                    $sub->where('name', 'LIKE', '%CWS%')
-                        ->orWhere('name', 'LIKE', '%Co-Working%')
-                        ->orWhere('name', 'LIKE', '%Co Working%');
-                });
-            } 
-            elseif ($normalizedCategory == 'theater') {
-                $q->where('name', 'LIKE', "%Theater%")->orWhere('name', 'LIKE', "%Theatre%");
-            } 
-            elseif ($normalizedCategory == 'sergun') {
-                $q->where('name', 'LIKE', "%Serba Guna%")->orWhere('name', 'LIKE', "%Sergun%");
-            } 
-            else {
-                $q->where('name', 'LIKE', "%" . str_replace('_', ' ', $normalizedCategory) . "%");
+                $q->where('name', 'LIKE', '%Mesin Cuci%');
+            } elseif ($normalizedCategory == 'cws') {
+                $q->where('name', 'LIKE', '%Co-Working%');
+            } elseif ($normalizedCategory == 'theater') {
+                $q->where('name', 'LIKE', '%Theater%');
+            } elseif ($normalizedCategory == 'sergun') {
+                $q->where('name', 'LIKE', '%Serba Guna%');
+            } else {
+                $q->where('name', 'LIKE', '%' . str_replace('_', ' ', $normalizedCategory) . '%');
             }
         });
-
-        // 3. Filter Berdasarkan Item (Alat/Area) - PENTING: Gunakan facility_item_id
+    
+        // 2. FILTER GENDER (Pindahkan ke level ITEM)
+        if ($role !== 'Manager' && str_contains($normalizedCategory, 'mesin')) {
+            $query->whereHas('facilityItem', function($q) use ($userGender) {
+                // Kita cari kata "Male" atau "Female" di nama ITEM-nya (M-1 Male, dst)
+                $q->where('name', 'LIKE', "%$userGender%");
+            });
+        }
+    
+        // 3. Filter dropdown item (jika ada)
         if ($itemFilter) {
             $query->where('facility_item_id', $itemFilter);
         }
-
-        if ($search) {
-            $query->whereHas('user.residentDetails', function ($q) use ($search) {
-                $q->where('full_name', 'LIKE', "%$search%");
-            });
-        }
-
+    
         $bookings = $query->orderBy('booking_date', 'desc')
             ->orderBy('start_time', 'asc')
             ->paginate(10);
-
+    
         return view('penghuni.viewSchedule', compact('bookings', 'title', 'category'));
     }
 
