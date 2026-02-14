@@ -157,38 +157,47 @@ class BookingController extends Controller
     {
         $user = Auth::user();
         $role = $user->role->role_name;
-        $userGender = strtolower($user->residentDetails->gender ?? ''); 
+    
+        // Ambil gender (male/female)
+        $rawGender = $user->residentDetails->gender ?? $user->adminDetails->gender ?? null;
+        $userGender = $rawGender ? strtolower(trim($rawGender)) : null;
     
         $normalizedCategory = str_replace('-', '_', strtolower($category));
         $itemFilter = $request->get('item');
         $title = ucwords(str_replace(['-', '_'], ' ', $category));
     
-        $query = \App\Models\Booking::with(['user.residentDetails', 'facility', 'facilityItem', 'status', 'slot']);
+        $query = \App\Models\Booking::with(['user.residentDetails', 'user.adminDetails', 'facility', 'facilityItem', 'status']);
     
-        // 1. Filter Kategori Fasilitas (Sesuai ID/Nama di DB kamu)
+        // 1. Filter Kategori
         $query->whereHas('facility', function ($q) use ($normalizedCategory) {
-            if (str_contains($normalizedCategory, 'mesin')) {
-                $q->where('name', 'LIKE', '%Mesin Cuci%');
-            } elseif ($normalizedCategory == 'cws') {
-                $q->where('name', 'LIKE', '%Co-Working%');
-            } elseif ($normalizedCategory == 'theater') {
-                $q->where('name', 'LIKE', '%Theater%');
-            } elseif ($normalizedCategory == 'sergun') {
-                $q->where('name', 'LIKE', '%Serba Guna%');
-            } else {
-                $q->where('name', 'LIKE', '%' . str_replace('_', ' ', $normalizedCategory) . '%');
-            }
+            $keyword = str_contains($normalizedCategory, 'mesin') ? 'Mesin Cuci' : str_replace('_', ' ', $normalizedCategory);
+            $q->where('name', 'LIKE', "%$keyword%");
         });
     
-        // 2. FILTER GENDER (Pindahkan ke level ITEM)
+        // 2. PROTEKSI GENDER (TRIPLE LOCK)
         if ($role !== 'Manager' && str_contains($normalizedCategory, 'mesin')) {
-            $query->whereHas('facilityItem', function($q) use ($userGender) {
-                // Kita cari kata "Male" atau "Female" di nama ITEM-nya (M-1 Male, dst)
-                $q->where('name', 'LIKE', "%$userGender%");
-            });
+            if ($userGender) {
+                // LOCK 1: Filter Item berdasarkan Gender (Cegah substring male vs female)
+                $query->whereHas('facilityItem', function($q) use ($userGender) {
+                    if ($userGender === 'male') {
+                        // Jika male, cari yang 'male' tapi TIDAK ADA kata 'female'-nya
+                        $q->whereRaw('LOWER(name) LIKE ?', ['%male%'])
+                          ->whereRaw('LOWER(name) NOT LIKE ?', ['%female%']);
+                    } else {
+                        // Jika female, cari yang 'female'
+                        $q->whereRaw('LOWER(name) LIKE ?', ['%female%']);
+                    }
+                });
+    
+                // LOCK 2: Filter User berdasarkan Gender (Cegah user beda gender nyelip)
+                $query->whereHas('user.residentDetails', function($q) use ($rawGender) {
+                    $q->where('gender', $rawGender);
+                });
+            } else {
+                $query->whereRaw('1 = 0'); // Rem Darurat
+            }
         }
     
-        // 3. Filter dropdown item (jika ada)
         if ($itemFilter) {
             $query->where('facility_item_id', $itemFilter);
         }
@@ -198,6 +207,13 @@ class BookingController extends Controller
             ->paginate(10);
     
         return view('penghuni.viewSchedule', compact('bookings', 'title', 'category'));
+    }
+
+    // Fungsi bantu biar kodingan rapi
+    private function applyGenderFilter($query, $gender) {
+        $query->whereHas('facilityItem', function($q) use ($gender) {
+            $q->whereRaw('LOWER(name) LIKE ?', ["%{$gender}%"]);
+        });
     }
 
     // app/Http/Controllers/BookingController.php
