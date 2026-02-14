@@ -36,7 +36,7 @@ class BookingController extends Controller
             })->first();
 
         if ($parentFacility) {
-            $facilities = collect([$parentFacility]); 
+            $facilities = collect([$parentFacility]);
             $allItems = \App\Models\FacilityItem::where('facility_id', $parentFacility->id)->get();
 
             if (strtolower($kategori) == 'mesin_cuci' && !empty($gender)) {
@@ -162,8 +162,8 @@ class BookingController extends Controller
         $userGender = $rawGender ? strtolower(trim($rawGender)) : null;
         $normalizedCategory = str_replace('-', '_', strtolower($category));
         $itemFilter = $request->get('item');
-        $query = \App\Models\Booking::with(['user.residentDetails', 'user.adminDetails', 'facility', 'facilityItem', 'status']);
-        $totalRaw = \App\Models\Booking::where('facility_id', 2)->count(); // Total semua (non-deleted)
+        $query = Booking::with(['user.residentDetails', 'user.adminDetails', 'facility', 'facilityItem', 'status']);
+        $totalRaw = Booking::where('facility_id', 2)->count(); // Total semua (non-deleted)
         $totalFiltered = $query->count(); // Total setelah filter gender
         
         // 2. Tentukan ID Fasilitas secara Hardcode berdasarkan kategori (Lebih Aman)
@@ -178,7 +178,7 @@ class BookingController extends Controller
         };
 
         // Inisialisasi Query langsung kunci di Facility ID
-        $query = \App\Models\Booking::query()
+        $query = Booking::query()
             ->where('facility_id', $facilityId) // KUNCI UTAMA: Biar gak bocor ke fasilitas lain
             ->with(['user.residentDetails', 'user.adminDetails', 'facility', 'facilityItem', 'status']);
 
@@ -207,7 +207,7 @@ class BookingController extends Controller
 
         $bookings = $query->latest()->paginate(10);
 
-        return view('penghuni.view_schedule', compact('bookings', 'category', 'title'));
+        return view('view_schedule', compact('bookings', 'category', 'title'));
     }
 
     // Fungsi bantu biar kodingan rapi
