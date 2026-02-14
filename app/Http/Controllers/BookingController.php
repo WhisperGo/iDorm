@@ -64,13 +64,13 @@ class BookingController extends Controller
 
     public function store(Request $request)
     {
-        // dd($request->all());
         // 1. Validasi Dasar
         $rules = [
             'facility_id' => 'required|exists:facilities,id',
             'facility_id.*' => 'exists:facilities,id',
             'booking_date' => 'required|date|after_or_equal:today',
             'item_dapur' => 'nullable|string',
+            'facility_item_id' => 'required',
         ];
 
         if ($request->kategori == 'cws') {

@@ -146,6 +146,7 @@
                             <h5 class="text-primary mb-3">Formulir Booking Mesin Cuci</h5>
                             <form action="{{ route('booking.store') }}" method="POST">
                                 @csrf
+                                <input type="hidden" name="facility_id" value="{{ $facilities->first()->id }}">
                                 <input type="hidden" name="kategori" value="mesin_cuci">
 
                                 <div class="row mb-3">
@@ -175,7 +176,8 @@
                                         Pilih Nomor Mesin:
                                         <span class="text-danger">*</span>
                                     </label>
-                                    <div class="row g-2 text-center mb-3 justify-content-between" id="washing-machine-group">
+                                    <div class="row g-2 text-center mb-3 justify-content-between"
+                                        id="washing-machine-group">
                                         @forelse ($items as $item)
                                             <div class="col-md-2 col-4">
                                                 <input type="checkbox" class="btn-check machine-checkbox"
@@ -282,10 +284,7 @@
                                         <select class="form-select" name="facility_item_id" required>
                                             <option value="" selected disabled>-- Pilih bagian sergun --</option>
                                             @foreach ($items as $item)
-                                                <option value="{{ $item->id }}"
-                                                    {{ old('facility_item_id') == $item->id ? 'selected' : '' }}>
-                                                    {{ $item->name }}
-                                                </option>
+                                                <option value="{{ $item->id }}">{{ $item->name }}</option>
                                             @endforeach
                                         </select>
                                     </div>
