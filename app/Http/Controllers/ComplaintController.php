@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Complaint;
+// use App\Models\Complaint;
 use App\Models\BuildingComplaint;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -91,13 +91,13 @@ class ComplaintController extends Controller
             'description' => 'required|string',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
-    
+
         try {
             $path = null;
             if ($request->hasFile('photo')) {
                 $path = $request->file('photo')->store('complaints/building', 'public');
             }
-    
+
             BuildingComplaint::create([
                 'resident_id' => Auth::id(), // Ini ID user yang login (Admin/Resident)
                 'location_item' => $request->location_item,
@@ -105,7 +105,7 @@ class ComplaintController extends Controller
                 'photo_path' => $path,
                 'status_id' => 1,
             ]);
-    
+
             return redirect()->route('complaint.index')->with('success', 'Keluhan berhasil dikirim!');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Gagal mengirim keluhan: ' . $e->getMessage())->withInput();
