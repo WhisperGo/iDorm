@@ -15,7 +15,7 @@ class AnnouncementController extends Controller
         $announcements = Announcement::with('author')->latest()->paginate(10);
         
         // Kirim ke SATU file yang sama
-        return view('template.announcement', compact('announcements'));
+        return view('layouts.partials.announcement', compact('announcements'));
     }
 
     // 2. Form Tambah (Hanya Admin/Pengelola)
