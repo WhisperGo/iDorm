@@ -50,18 +50,25 @@
                                                         <i class="bi bi-person-circle me-1"></i>
                                                         Posted by
                                                         @php
-                                                            $role = $announcement->author->role->role_name ?? 'Admin';
+                                                            $role = $announcement->author->role->role_name ?? '';
+
+                                                            // 1. Tentukan Warna Badge
                                                             $bgClass = match ($role) {
                                                                 'Admin' => 'bg-primary',
                                                                 'Manager', 'Pengelola' => 'bg-success',
                                                                 default => 'bg-secondary',
                                                             };
+
+                                                            // 2. Tentukan Nama (Biar nggak dobel)
+                                                            $authorName =
+                                                                $announcement->author->managerDetails->full_name ??
+                                                                ($announcement->author->adminDetails->full_name ??
+                                                                    'Staff');
                                                         @endphp
 
-                                                        {{-- Hanya bagian nama ini yang diberi latar warna --}}
                                                         <span
                                                             class="badge {{ $bgClass }} rounded-pill text-white fw-bold shadow-sm px-2">
-                                                            {{ $announcement->author->managerDetails->full_name ?? 'Admin' }}
+                                                            {{ $authorName }}
                                                         </span>
                                                     </small>
                                                 </div>
