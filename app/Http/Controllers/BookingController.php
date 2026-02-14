@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use App\Models\Facility;
+use App\Models\FacilityItem;
 use App\Models\TimeSlot;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 
 class BookingController extends Controller
@@ -51,11 +53,6 @@ class BookingController extends Controller
             }
         }
 
-        // --- BAGIAN DEBUG (Hanya jalankan jika $kategori adalah mesin_cuci) ---
-        // if (strtolower($kategori) == 'mesin_cuci') {
-        //     dd($gender, $allItems->toArray(), $items->toArray()); 
-        // }
-
         $timeSlots = TimeSlot::where('facilities', 'heavy')->get();
         $myBookings = Booking::where('user_id', $user->id)->with(['facility', 'status', 'slot'])->latest()->get();
 
@@ -67,14 +64,24 @@ class BookingController extends Controller
         // 1. Validasi Dasar
         $rules = [
             'facility_id' => 'required|exists:facilities,id',
-            'facility_id.*' => 'exists:facilities,id',
-            'booking_date' => 'required|date|after_or_equal:today',
-            'item_dapur' => 'nullable|string',
             'facility_item_id' => 'required',
+            'booking_date' => 'required|date|after_or_equal:today',
+            'kategori' => 'required',
+            // 'facility_id.*' => 'exists:facilities,id',
         ];
 
         if ($request->kategori == 'cws') {
             $rules['jumlah_orang'] = 'required|numeric|min:20';
+        } elseif ($request->kategori == 'theater') {
+            $rules['description'] = 'required|max:255';
+            $rules['jumlah_orang'] = 'required|numeric|min:1|max:50';
+        }
+
+        if ($request->has('slot_id') && $request->slot_id != null) {
+            $rules['slot_id'] = 'required|exists:time_slots,id';
+        } else {
+            $rules['start_time'] = 'required';
+            $rules['end_time'] = 'required|after:start_time';
         }
 
         $validated = $request->validate($rules);
@@ -82,77 +89,45 @@ class BookingController extends Controller
         if ($request->kategori == 'cws') {
             $date = \Carbon\Carbon::parse($request->booking_date);
 
-            // A. Cek hari Kamis
-            if ($date->isThursday()) {
-                return redirect()->back()->with('error', 'Booking Co-Working Space tidak bisa dilakukan pada hari Kamis. Silakan pilih hari lain.')->withInput();
-            }
-
-            if ($request->jumlah_orang < 20) {
-                return redirect()->back()->with('error', 'Jumlah orang untuk booking Co-Working Space minimal 20 orang.')->withInput();
+            if ($request->kategori == 'cws' && Carbon::parse($request->booking_date)->isThursday()) {
+                return redirect()->back()->with('error', 'CWS tutup setiap hari Kamis.')->withInput();
             }
         }
-
-        if ($request->kategori == 'theater' || $request->kategori == 'theatre') {
-            $rules['description'] = 'required|max:255';
-            $rules['jumlah_orang'] = 'required|numeric|min:1|max:50';
-
-            if ($request->jumlah_orang > 50) {
-                return redirect()->back()->with('error', 'Jumlah orang untuk booking Theater maksimal 50 orang.')->withInput();
-            }
-        }
-
-        // 2. Logic Validasi Khusus
-        // Jika ada slot_id (Mesin Cuci/Theatre), maka start/end time diambil dari tabel time_slots
-        if ($request->has('slot_id') && $request->slot_id != null) {
-            $rules['slot_id'] = 'required|exists:time_slots,id';
-        } else {
-            // Jika manual (Dapur/Sergun/CWS), start dan end time wajib diisi manual
-            $rules['start_time'] = 'required';
-            $rules['end_time'] = 'required|after:start_time';
-        }
-
-        $validated = $request->validate($rules);
 
         try {
             DB::beginTransaction();
 
             // 1. Ambil semua ID fasilitas (bisa satu ID atau array ID mesin cuci)
-            $facilityIds = is_array($request->facility_id) ? $request->facility_id : [$request->facility_id];
+            $itemIds = is_array($request->facility_item_id) ? $request->facility_item_id : [$request->facility_item_id];
 
             if (empty($facilityIds) || !$facilityIds[0]) {
                 return redirect()->back()->with('error', 'Silakan pilih fasilitas/mesin!');
             }
 
-            // 2. Looping untuk setiap fasilitas yang dipilih
-            foreach ($facilityIds as $fId) {
-
-                // Siapkan data dasar
+            foreach ($itemIds as $itemId) {
                 $data = [
                     'user_id' => Auth::id(),
-                    'facility_id' => $fId,
+                    'facility_id' => $request->facility_id,
+                    'facility_item_id' => $itemId,
                     'booking_date' => $request->booking_date,
                     'status_id' => 1,
                     'cleanliness_status' => 'pending',
-                    // GABUNGKAN info alat/area ke dalam description karena kolom item_dapur/sergun sudah dihapus
-                    'description' => ($request->description ?? '') . 
-                         ($request->item_dapur ? " (Alat: " . $request->item_dapur . ")" : "") . 
-                         ($request->item_sergun ? " (Area: " . $request->item_sergun . ")" : ""),
+                    'description' => $request->description,
+                    'jumlah_orang' => $request->jumlah_orang
                 ];
 
-                // Logic Sesi Waktu (Sama untuk semua mesin dalam satu booking)
                 if ($request->slot_id) {
-                    $slot = \App\Models\TimeSlot::find($request->slot_id);
+                    $slot = TimeSlot::find($request->slot_id);
                     $data['slot_id'] = $slot->id;
                     $data['start_time'] = $slot->start_time;
                     $data['end_time'] = $slot->end_time;
                 } else {
-                    $data['slot_id'] = null;
                     $data['start_time'] = $request->start_time;
                     $data['end_time'] = $request->end_time;
                 }
 
-                // 3. Cek Tabrakan PER MESIN/ALAT
-                $cekTabrakan = \App\Models\Booking::where('facility_id', $fId)
+                // 3. Cek Tabrakan berdasarkan ITEM SPESIFIK
+                $cekTabrakan = Booking::where('facility_item_id', $itemId)
                     ->where('booking_date', $request->booking_date)
                     ->whereIn('status_id', [1, 2, 4])
                     ->where(function ($query) use ($data) {
@@ -161,91 +136,69 @@ class BookingController extends Controller
                     })->exists();
 
                 if ($cekTabrakan) {
-                    $namaFasilitas = \App\Models\Facility::find($fId)->name;
-                    $jamMulai = substr($data['start_time'], 0, 5);
-                    $jamSelesai = substr($data['end_time'], 0, 5);
-
-                    DB::rollBack(); // Batalkan semua jika ada satu yang tabrakan
-                    return redirect()->route('booking.create', ['kategori_fasilitas' => $request->kategori])
-                        ->with('error', "Waduh! $namaFasilitas jam $jamMulai-$jamSelesai sudah dibooking. Pilih mesin/waktu lain!")
-                        ->withInput();
+                    $namaItem = FacilityItem::find($itemId)->name;
+                    DB::rollBack();
+                    return redirect()->back()->with('error', "Waduh! $namaItem sudah dibooking pada jam tersebut.")->withInput();
                 }
 
-                // 4. Simpan ke Database (Akan dijalankan sebanyak jumlah mesin yang dicentang)
-                \App\Models\Booking::create($data);
+                Booking::create($data);
             }
 
             DB::commit();
-            return redirect()->route('booking.myBookings')->with('success', 'Booking berhasil dibuat! Silakan cek jadwal kamu di sini.');
+            return redirect()->route('booking.myBookings')->with('success', 'Booking berhasil!');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            // Ini biar datanya gak "hilang" misterius, tapi muncul errornya apa
-            dd($e->getMessage());
-            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal: ' . $e->getMessage());
         }
     }
 
-    public function showSchedule(Request $request, $category)
+public function showSchedule(Request $request, $category)
     {
-
         $user = Auth::user();
         $role = $user->role->role_name;
         $userGender = $user->residentDetails->gender ?? null;
-        $adminCategory = $user->assigned_category;
 
-        // 1. Normalisasi kategori untuk pengecekan (mesin-cuci -> mesin_cuci)
         $normalizedCategory = str_replace('-', '_', strtolower($category));
-        // 2. Proteksi Akses Admin: Jangan sampai Admin Dapur bisa buka URL Mesin Cuci
-        // if ($role === 'Admin' && $normalizedCategory !== strtolower($adminCategory)) {
-        //     return redirect()->route('booking.schedule', ['category' => str_replace('_', '-', $adminCategory)])
-        //     ->with('error', 'Akses ditolak! Anda hanya admin ' . $adminCategory);
-        //     }
-
         $search = $request->get('search');
         $itemFilter = $request->get('item');
         $title = ucwords(str_replace(['-', '_'], ' ', $category));
+        
+        // 1. Eager Load semua yang dibutuhkan
+        $query = \App\Models\Booking::with(['user.residentDetails', 'facility', 'facilityItem', 'status', 'slot']);
 
-        // Ambil data booking untuk fasilitas terkait
-        $query = \App\Models\Booking::with(['user.residentDetails', 'facility', 'status', 'slot']);
-        // if ($user->role->role_name === 'Resident') {
-        // $query->where('user_id', $user->id); 
-        // }
-        // Mapping Filter agar Schedule menampilkan data yang benar
-        // 3. Filter Query Utama
+        // 2. Filter Kategori (Dibuat lebih fleksibel)
         $query->whereHas('facility', function ($q) use ($normalizedCategory, $userGender, $role) {
-
-            // Logika KHUSUS Mesin Cuci
             if (str_contains($normalizedCategory, 'mesin')) {
                 if ($role === 'Manager') {
                     $q->where('name', 'LIKE', "%Mesin Cuci%");
                 } else {
-                    // KUNCI GENDER: Hanya tarik yang mengandung "Mesin Cuci [Gender]"
-                    // Gunakan $userGender yang didapat dari database (Male/Female)
                     $q->where('name', 'LIKE', "Mesin Cuci $userGender%");
                 }
-            }
-            // Logika Fasilitas Lainnya
+            } 
+            // --- PERBAIKAN DI SINI ---
             elseif ($normalizedCategory == 'cws') {
-                $q->where('name', 'LIKE', "%Co-Working%");
-            } elseif ($normalizedCategory == 'theater') {
-                $q->where('name', 'LIKE', "%Theater%");
-            } elseif ($normalizedCategory == 'sergun') {
-                $q->where('name', 'LIKE', "%Serba Guna%");
-            } else {
-                // Dapur atau kategori lain: filter berdasarkan nama kategori
+                // Cari yang namanya CWS ATAU Co-Working ATAU Co Working
+                $q->where(function($sub) {
+                    $sub->where('name', 'LIKE', '%CWS%')
+                        ->orWhere('name', 'LIKE', '%Co-Working%')
+                        ->orWhere('name', 'LIKE', '%Co Working%');
+                });
+            } 
+            elseif ($normalizedCategory == 'theater') {
+                $q->where('name', 'LIKE', "%Theater%")->orWhere('name', 'LIKE', "%Theatre%");
+            } 
+            elseif ($normalizedCategory == 'sergun') {
+                $q->where('name', 'LIKE', "%Serba Guna%")->orWhere('name', 'LIKE', "%Sergun%");
+            } 
+            else {
                 $q->where('name', 'LIKE', "%" . str_replace('_', ' ', $normalizedCategory) . "%");
             }
         });
 
-        // --- TAMBAHKAN LOGIKA FILTER ALAT DI SINI ---
-        if ($category == 'dapur' && $itemFilter) {
-            $query->where('item_dapur', $itemFilter);
-        }
-
-        // Filter Area Sergun (Opsional, sekalian biar konsisten)
-        if ($category == 'sergun' && $itemFilter) {
-            $query->where('item_sergun', $itemFilter);
+        // 3. Filter Berdasarkan Item (Alat/Area) - PENTING: Gunakan facility_item_id
+        if ($itemFilter) {
+            $query->where('facility_item_id', $itemFilter);
         }
 
         if ($search) {
@@ -254,7 +207,6 @@ class BookingController extends Controller
             });
         }
 
-        // dd($role, $userGender, $query->toSql(), $query->getBindings());
         $bookings = $query->orderBy('booking_date', 'desc')
             ->orderBy('start_time', 'asc')
             ->paginate(10);

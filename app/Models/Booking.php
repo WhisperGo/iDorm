@@ -49,9 +49,9 @@ class Booking extends Model
         return $this->belongsTo(Facility::class);
     }
 
-    // public function facilityItem(){
-    //     return $this->belongsTo(FacilityItem::class,'facility_item_id');
-    // }
+    public function facilityItem(){
+        return $this->belongsTo(FacilityItem::class,'facility_item_id');
+    }
 
     // Relasi ke Status Booking
     public function status()

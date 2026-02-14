@@ -28,4 +28,9 @@ class Facility extends Model
     public function facilityItems(): HasMany {
         return $this->hasMany(FacilityItem::class);
     }
+
+    public function items()
+{
+    return $this->hasMany(FacilityItem::class, 'facility_id');
+}
 }
