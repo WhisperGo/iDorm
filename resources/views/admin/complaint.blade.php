@@ -70,9 +70,9 @@
                                                 <small class="text-muted">{{ Str::limit($item->description, 50) }}</small>
                                             </td>
                                             <td>
-                                                <div>{{ $item->resident->residentDetails->full_name }}</div>
+                                                <div>{{ $item->resident->residentDetails->full_name ?? $item->resident->adminDetails->full_name}}</div>
                                                 <small class="badge bg-soft-primary text-primary">Kamar:
-                                                    {{ $item->resident->residentDetails->room_number }}</small>
+                                                    {{ $item->resident->residentDetails->room_number ?? $item->resident->adminDetails->room_number}}</small>
                                             </td>
                                             <td>
                                                 @if ($item->photo_path)
