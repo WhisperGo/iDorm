@@ -69,7 +69,7 @@ class ComplaintController extends Controller
         $complaint = BuildingComplaint::with(['resident.residentDetails', 'status'])
                                                 ->findOrFail($id);
 
-        return view('admin.complaintDetail', compact('complaint'));
+        return view('admin.complaint_detail', compact('complaint'));
     }
 
     /**
@@ -78,7 +78,7 @@ class ComplaintController extends Controller
     public function create()
     {
         // Pastikan path view-nya sesuai dengan folder penghuni jika ada
-        return view('admin.addComplaint');
+        return view('admin.add_complaint');
     }
 
     /**

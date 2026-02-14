@@ -24,7 +24,7 @@ class AdminBookingController extends Controller
         if (Str::contains($path, 'dapur')) {
             $query->whereHas('facility', fn($q) => $q->where('name', 'LIKE', '%Dapur%'));
             $title = "Manajemen Dapur";
-        } elseif (Str::contains($path, 'mesin-cuci')) {
+        } elseif (Str::contains($path, 'mesin_cuci')) {
             $query->whereHas('facility', fn($q) => $q->where('name', 'LIKE', '%Mesin Cuci%'));
             $title = "Manajemen Mesin Cuci";
         } elseif (Str::contains($path, 'teater')) {
