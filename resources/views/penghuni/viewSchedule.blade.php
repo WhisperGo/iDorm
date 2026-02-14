@@ -51,10 +51,10 @@
                     <div class="table-responsive">
                         {{-- PERBAIKAN: ID BARU & TANPA CLASS dataTable --}}
                         {{-- Hapus baris ini kalau sudah muncul datanya --}}
-                        <div class="alert alert-info">
+                        {{-- <div class="alert alert-info">
                             DEBUG: Jumlah data ditemukan = {{ $bookings->count() }}
                             (Kategori: {{ $category }}, Item Filter: {{ request('item') ?? 'Kosong' }})
-                        </div>
+                        </div> --}}
                         <table id="schedule-final-table" class="table table-bordered align-middle">
                             <thead class="bg-light">
                                 <tr>
@@ -83,9 +83,13 @@
                                             </span>
                                         </td>
                                         <td>
-                                            <div class="fw-bold">{{ $b->user->residentDetails->full_name }}</div>
+                                            {{-- Pakai ?-> untuk mencegah crash jika data null --}}
+                                            <div class="fw-bold">
+                                                {{ $b->user->residentDetails->full_name ?? ($b->user->name ?? 'User Tidak Ditemukan') }}
+                                            </div>
                                             <small class="text-muted">Room:
-                                                {{ $b->user->residentDetails->room_number }}</small>
+                                                {{ $b->user->residentDetails->room_number ?? '-' }}
+                                            </small>
                                         </td>
                                         <td>
                                             @php
