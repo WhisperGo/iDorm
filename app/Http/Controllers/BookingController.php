@@ -156,57 +156,58 @@ class BookingController extends Controller
     public function showSchedule(Request $request, $category)
     {
         $user = Auth::user();
+        $title = ucwords(str_replace(['-', '_'], ' ', $category));
         $role = $user->role->role_name;
-    
-        // Ambil gender (male/female)
         $rawGender = $user->residentDetails->gender ?? $user->adminDetails->gender ?? null;
         $userGender = $rawGender ? strtolower(trim($rawGender)) : null;
-    
         $normalizedCategory = str_replace('-', '_', strtolower($category));
         $itemFilter = $request->get('item');
-        $title = ucwords(str_replace(['-', '_'], ' ', $category));
-    
         $query = \App\Models\Booking::with(['user.residentDetails', 'user.adminDetails', 'facility', 'facilityItem', 'status']);
-    
-        // 1. Filter Kategori
-        $query->whereHas('facility', function ($q) use ($normalizedCategory) {
-            $keyword = str_contains($normalizedCategory, 'mesin') ? 'Mesin Cuci' : str_replace('_', ' ', $normalizedCategory);
-            $q->where('name', 'LIKE', "%$keyword%");
-        });
-    
-        // 2. PROTEKSI GENDER (TRIPLE LOCK)
-        if ($role !== 'Manager' && str_contains($normalizedCategory, 'mesin')) {
+        $totalRaw = \App\Models\Booking::where('facility_id', 2)->count(); // Total semua (non-deleted)
+        $totalFiltered = $query->count(); // Total setelah filter gender
+        
+        // 2. Tentukan ID Fasilitas secara Hardcode berdasarkan kategori (Lebih Aman)
+        // Sesuai dd kamu: 1=Dapur, 2=Mesin Cuci, 3=Theater, 4=CWS, 5=Sergun
+        $facilityId = match($normalizedCategory) {
+            'dapur' => 1,
+            'mesin_cuci', 'laundry' => 2,
+            'theater' => 3,
+            'cws' => 4,
+            'sergun' => 5,
+            default => null
+        };
+
+        // Inisialisasi Query langsung kunci di Facility ID
+        $query = \App\Models\Booking::query()
+            ->where('facility_id', $facilityId) // KUNCI UTAMA: Biar gak bocor ke fasilitas lain
+            ->with(['user.residentDetails', 'user.adminDetails', 'facility', 'facilityItem', 'status']);
+
+        // 3. FILTER GENDER (Hanya untuk Mesin Cuci & Bukan Manager)
+        if ($role !== 'Manager' && $facilityId == 2) {
             if ($userGender) {
-                // LOCK 1: Filter Item berdasarkan Gender (Cegah substring male vs female)
                 $query->whereHas('facilityItem', function($q) use ($userGender) {
-                    if ($userGender === 'male') {
-                        // Jika male, cari yang 'male' tapi TIDAK ADA kata 'female'-nya
-                        $q->whereRaw('LOWER(name) LIKE ?', ['%male%'])
-                          ->whereRaw('LOWER(name) NOT LIKE ?', ['%female%']);
-                    } else {
-                        // Jika female, cari yang 'female'
-                        $q->whereRaw('LOWER(name) LIKE ?', ['%female%']);
-                    }
+                    // Pakai '=' atau 'LIKE' yang sangat spesifik
+                    // Pastikan item mengandung kata Male saja atau Female saja
+                    $q->where('name', 'LIKE', "%$userGender%");
                 });
-    
-                // LOCK 2: Filter User berdasarkan Gender (Cegah user beda gender nyelip)
-                $query->whereHas('user.residentDetails', function($q) use ($rawGender) {
-                    $q->where('gender', $rawGender);
+
+                // Tambahan: Pastikan user yang booking juga gendernya sama (Double Lock)
+                $query->whereHas('user.residentDetails', function($q) use ($userGender) {
+                    $q->where('gender', $userGender);
                 });
             } else {
-                $query->whereRaw('1 = 0'); // Rem Darurat
+                $query->whereRaw('1 = 0'); // Jika gender tidak jelas, kosongkan
             }
         }
-    
+
+        // 4. Filter Dropdown Item
         if ($itemFilter) {
             $query->where('facility_item_id', $itemFilter);
         }
-    
-        $bookings = $query->orderBy('booking_date', 'desc')
-            ->orderBy('start_time', 'asc')
-            ->paginate(10);
-    
-        return view('penghuni.viewSchedule', compact('bookings', 'title', 'category'));
+
+        $bookings = $query->latest()->paginate(10);
+
+        return view('penghuni.viewSchedule', compact('bookings', 'category', 'title'));
     }
 
     // Fungsi bantu biar kodingan rapi
