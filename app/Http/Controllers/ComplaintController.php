@@ -16,26 +16,34 @@ class ComplaintController extends Controller
     public function index()
     {
         $user = Auth::user();
+        $role = $user->role->role_name;
 
-        if ($user->role->role_name === 'Resident' or $user->role->role_name === 'Admin') {
-            $userRoom = $user->residentDetails->room_number;
+        // Ambil nomor kamar (bisa dari resident atau admin)
+        $userRoom = $user->residentDetails->room_number ?? $user->adminDetails->room_number ?? null;
 
-            // Logika Sekamar: Bisa lihat keluhan dari kamar yang sama
-            $complaints = BuildingComplaint::whereHas('resident.residentDetails', function ($q) use ($userRoom) {
-                $q->where('room_number', $userRoom);
-            })->latest()->paginate(10);
+        if ($role === 'Resident' || $role === 'Admin') {
+            // Jika tidak ada nomor kamar, jangan kasih lihat apa-apa atau kasih list kosong
+            if (!$userRoom) {
+                $complaints = collect()->paginate(10);
+            } else {
+                // PERBAIKAN: Cek ke residentDetails ATAU adminDetails supaya keluhan Admin muncul
+                $complaints = BuildingComplaint::where(function($query) use ($userRoom) {
+                    $query->whereHas('resident.residentDetails', function ($q) use ($userRoom) {
+                        $q->where('room_number', $userRoom);
+                    })->orWhereHas('resident.adminDetails', function ($q) use ($userRoom) {
+                        $q->where('room_number', $userRoom);
+                    });
+                })->latest()->paginate(10);
+            }
 
-            // DIUBAH: Arahkan ke view khusus penghuni
             return view('admin.complaint', compact('complaints'));
-        } else {
-            //Pengelola bisa lihat semua
-            $complaints = BuildingComplaint::with(['resident.residentDetails', 'status'])
-                                            ->latest()
-                                            ->paginate(10);
-        }
+        } 
 
-        // Admin/Pengelola bisa lihat semua
-        $complaints = BuildingComplaint::latest()->paginate(10);
+        // Pengelola (Manager) bisa lihat semua
+        $complaints = BuildingComplaint::with(['resident.residentDetails', 'resident.adminDetails', 'status'])
+            ->latest()
+            ->paginate(10);
+
         return view('admin.complaint', compact('complaints'));
     }
 
@@ -83,24 +91,25 @@ class ComplaintController extends Controller
             'description' => 'required|string',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
-
-        $path = null;
-        if ($request->hasFile('photo')) {
-            $path = $request->file('photo')->store('complaints/building', 'public');
+    
+        try {
+            $path = null;
+            if ($request->hasFile('photo')) {
+                $path = $request->file('photo')->store('complaints/building', 'public');
+            }
+    
+            BuildingComplaint::create([
+                'resident_id' => Auth::id(), // Ini ID user yang login (Admin/Resident)
+                'location_item' => $request->location_item,
+                'description' => $request->description,
+                'photo_path' => $path,
+                'status_id' => 1,
+            ]);
+    
+            return redirect()->route('complaint.index')->with('success', 'Keluhan berhasil dikirim!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mengirim keluhan: ' . $e->getMessage())->withInput();
         }
-
-        BuildingComplaint::create([
-            'resident_id' => Auth::id(),
-            'location_item' => $request->location_item,
-            'description' => $request->description,
-            'photo_path' => $path,
-            'status_id' => 1, // Default: Submitted
-        ]);
-
-        // DIUBAH: Redirect ke index milik penghuni
-        return redirect()->route('complaint.index')->with('success', 'Keluhan berhasil dikirim!');
-        return redirect()->route('admin.complaint')
-                        ->with('success', 'Keluhan berhasil dikirim dan akan segera diproses.');
     }
 
     /**
