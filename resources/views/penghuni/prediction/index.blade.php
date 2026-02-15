@@ -64,6 +64,25 @@
             color: #3a57e8;
             margin-right: 10px;
         }
+
+        #pac-input {
+            background-color: #fff;
+            font-family: Roboto;
+            font-size: 15px;
+            font-weight: 300;
+            margin-left: 12px;
+            padding: 0 11px 0 13px;
+            text-overflow: ellipsis;
+            width: 400px;
+            position: absolute;
+            /* Melayang */
+            top: 10px;
+            left: 150px;
+            z-index: 5;
+            height: 40px;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
     </style>
 
     <div class="container-fluid py-4">
@@ -143,6 +162,23 @@
                                                 class="form-control border-primary shadow-none" placeholder="Contoh: 12"
                                                 required>
                                             <span class="input-group-text bg-white border-primary">m²</span>
+                                        </div>
+                                    </div>
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h4 class="fw-bold">Cari Lokasi Kost</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <input id="pac-input" class="form-control" type="text"
+                                                    placeholder="Masukkan alamat atau nama tempat...">
+                                            </div>
+
+                                            <div id="map" style="height: 500px; width: 100%; border-radius: 10px;">
+                                            </div>
+
+                                            <input type="hidden" name="latitude" id="lat">
+                                            <input type="hidden" name="longitude" id="lng">
                                         </div>
                                     </div>
 
@@ -255,6 +291,82 @@
             </div>
         </div>
     </div>
+
+    @push('scripts')
+        <script async
+            src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.api_key') }}&libraries=places&callback=initMap">
+        </script>
+
+        <script>
+            let map, marker, autocomplete; // Definisikan di luar biar gak "gaib"
+
+            function initMap() {
+                const defaultLocation = {
+                    lat: -6.200000,
+                    lng: 106.816666
+                };
+
+                map = new google.maps.Map(document.getElementById("map"), {
+                    center: defaultLocation,
+                    zoom: 13,
+                });
+
+                // 1. Inisialisasi Marker di awal
+                marker = new google.maps.Marker({
+                    position: defaultLocation,
+                    map: map,
+                    draggable: true
+                });
+
+                const input = document.getElementById("pac-input");
+                autocomplete = new google.maps.places.Autocomplete(input);
+
+                autocomplete.addListener("place_changed", () => {
+                    const place = autocomplete.getPlace();
+
+                    if (!place.geometry || !place.geometry.location) {
+                        alert("Lokasi tidak ditemukan!");
+                        return;
+                    }
+
+                    // 2. GESER PETA (Snap)
+                    if (place.geometry.viewport) {
+                        map.fitBounds(place.geometry.viewport);
+                    } else {
+                        map.setCenter(place.geometry.location);
+                        map.setZoom(17);
+                    }
+
+                    // 3. FORCE PINPOINT (Ini kuncinya!)
+                    marker.setMap(null); // Cabut paku lama
+                    marker = new google.maps.Marker({
+                        position: place.geometry.location, // Pasang di titik baru hasil search
+                        map: map, // Tancep ke peta
+                        animation: google.maps.Animation.DROP, // Kasih efek jatuh biar keren
+                        draggable: true
+                    });
+
+                    // Simpan koordinat ke input Laravel
+                    document.getElementById('lat').value = place.geometry.location.lat();
+                    document.getElementById('lng').value = place.geometry.location.lng();
+
+                    // Re-bind event geser buat paku baru
+                    addMarkerListener();
+                });
+
+                addMarkerListener();
+            }
+
+            // Fungsi biar paku bisa digeser manual
+            function addMarkerListener() {
+                marker.addListener("dragend", () => {
+                    const pos = marker.getPosition();
+                    document.getElementById('lat').value = pos.lat();
+                    document.getElementById('lng').value = pos.lng();
+                });
+            }
+        </script>
+    @endpush
 
     <script>
         // JS Logic tetap sama, saya hanya rapikan variabelnya
