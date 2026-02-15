@@ -74,7 +74,7 @@ class BookingController extends Controller
             ->latest()
             ->get();
 
-        return view('penghuni.add_booking', compact('facilities', 'items', 'timeSlots', 'kategori', 'user', 'myBookings'));
+        return view('feature.bookings.add_booking', compact('facilities', 'items', 'timeSlots', 'kategori', 'user', 'myBookings'));
     }
 
     public function store(Request $request)
@@ -301,7 +301,7 @@ class BookingController extends Controller
 
         $bookings = $query->latest()->paginate(10);
 
-        return view('view_schedule', compact('bookings', 'category', 'title'));
+        return view('feature.view_schedule', compact('bookings', 'category', 'title'));
     }
 
     // Fungsi bantu biar kodingan rapi
@@ -350,7 +350,7 @@ class BookingController extends Controller
             return $item->booking_date . '_' . $item->start_time . '_' . $item->end_time . '_' . $item->facility_id;
         });
 
-        return view('penghuni.my_bookings', compact('groupedBookings'));
+        return view('feature.bookings.my_bookings', compact('groupedBookings'));
     }
 
     public function adminAction(Booking $booking, $action)
