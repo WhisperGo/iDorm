@@ -30,7 +30,7 @@ class Facility extends Model
     }
 
     public function items()
-{
-    return $this->hasMany(FacilityItem::class, 'facility_id');
-}
+    {
+        return $this->hasMany(FacilityItem::class, 'facility_id');
+    }
 }

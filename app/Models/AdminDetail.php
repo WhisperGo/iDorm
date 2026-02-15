@@ -26,8 +26,8 @@ class AdminDetail extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function facilites(): BelongsTo
+    public function facilities(): BelongsTo
     {
-        return $this->belongsTo(Facility::class);
+        return $this->belongsTo(Facility::class, 'facility_id', );
     }
 }
