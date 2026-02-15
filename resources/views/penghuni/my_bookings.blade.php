@@ -32,7 +32,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($myBookings->groupBy(fn($item) => $item->booking_date . $item->start_time . $item->end_time) as $group)
+                                @forelse($groupedBookings as $groupKey => $group)
                                     @php
                                         $b = $group->first();
                                         // Mengambil status real-time dari Accessor Model
@@ -53,22 +53,21 @@
                                     <tr>
                                         <td class="text-center">{{ $loop->iteration }}</td>
                                         <td>
-                                            @if (Str::contains(strtolower($b->facility->name), 'mesin cuci'))
-                                                <div class="fw-bold text-dark">Layanan Laundry</div>
-                                                <small class="text-primary fw-semibold">
-                                                    Mesin:
+                                            <div class="fw-bold text-dark">{{ $b->facility->name }}</div>
+                                            <div class="small text-muted mt-1">
+                                                {{-- Loop item dalam grup (contoh: Mesin Cuci 1, Mesin Cuci 2) --}}
+                                                @if ($b->facility->name === "Mesin Cuci" or $b->facility->name === "Dapur")
                                                     @foreach ($group as $item)
-                                                        M-{{ substr($item->facility->name, -1) }}{{ !$loop->last ? ',' : '' }}
+                                                        @if ($item->facilityItem)
+                                                            <span class="badge bg-light text-dark border me-1">
+                                                                {{ $item->facilityItem->name }}
+                                                            </span>
+                                                        @else
+                                                            
+                                                        @endif
                                                     @endforeach
-                                                </small>
-                                            @else
-                                                <div class="fw-bold text-dark">{{ $b->facility->name }}</div>
-                                                @if ($b->item_dapur || $b->item_sergun)
-                                                    <small class="badge bg-soft-secondary text-secondary">
-                                                        {{ ucwords(str_replace('_', ' ', $b->item_dapur ?? $b->item_sergun)) }}
-                                                    </small>
                                                 @endif
-                                            @endif
+                                            </div>
                                         </td>
                                         <td class="text-center">
                                             <div class="small fw-bold">

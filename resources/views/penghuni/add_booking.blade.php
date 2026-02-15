@@ -72,7 +72,8 @@
                                 <div class="mb-3">
                                     <label class="form-label">Alat yang dibutuhkan</label>
                                     <select class="form-select" name="facility_item_id" required>
-                                        <option value="" selected disabled>-- Pilih peralatan yang dibutuhkan --
+                                        <option value="" selected disabled>
+                                            -- Pilih peralatan yang dibutuhkan --
                                         </option>
                                         @foreach ($items as $item)
                                             <option value="{{ $item->id }}"
@@ -94,7 +95,7 @@
                             </form>
                         </div>
 
-                        {{-- --- FORM CWS --- --}}
+                    {{-- --- FORM CWS --- --}}
                     @elseif(request('kategori_fasilitas') == 'cws')
                         <div class="animate-fade-in">
                             <h5 class="text-primary mb-3">Formulir Peminjaman Co-Working Space</h5>
@@ -112,6 +113,13 @@
                                     @csrf
                                     <input type="hidden" name="facility_id" value="{{ $facilities->first()->id ?? '' }}">
                                     <input type="hidden" name="kategori" value="cws">
+
+                                    @if ($items->isNotEmpty())
+                                        <input type="hidden" name="facility_item_id" value="{{ $items->first()->id }}">
+                                    @else
+                                        <div class="alert alert-danger">Error: Admin belum setup item ruangan CWS!</div>
+                                    @endif
+
                                     <div class="mb-3">
                                         <label class="form-label">Tanggal Peminjaman <span
                                                 class="text-danger">*</span></label>
@@ -140,7 +148,7 @@
                             @endif
                         </div>
 
-                        {{-- --- FORM MESIN CUCI (SESI 2 JAM) --- --}}
+                    {{-- --- FORM MESIN CUCI (SESI 2 JAM) --- --}}
                     @elseif(request('kategori_fasilitas') == 'mesin_cuci')
                         <div class="animate-fade-in">
                             <h5 class="text-primary mb-3">Formulir Booking Mesin Cuci</h5>
@@ -176,29 +184,38 @@
                                         Pilih Nomor Mesin:
                                         <span class="text-danger">*</span>
                                     </label>
-                                    <div class="row g-2 text-center mb-3 justify-content-between"
-                                        id="washing-machine-group">
+                                    <div class="row g-2 text-center mb-3 justify-content-between" id="washing-machine-group" data-max="2">
                                         @forelse ($items as $item)
                                             <div class="col-md-2 col-4">
-                                                <input type="checkbox" class="btn-check machine-checkbox"
-                                                    name="facility_item_id[]" id="mesin{{ $item->id }}"
-                                                    value="{{ $item->id }}" autocomplete="off">
-                                                <label class="btn btn-outline-primary w-100"
+                                                {{-- Checkbox Input --}}
+                                                <input type="checkbox"
+                                                    class="btn-check machine-checkbox"
+                                                    name="facility_item_id[]"
+                                                    id="mesin{{ $item->id }}"
+                                                    value="{{ $item->id }}"
+                                                    autocomplete="off">
+
+                                                {{-- Label sebagai Tombol --}}
+                                                <label class="btn btn-outline-primary w-100 d-flex flex-column align-items-center justify-content-center py-3" 
                                                     for="mesin{{ $item->id }}">
-                                                    {{-- Mengambil angka paling belakang (Misal: "Mesin Cuci Male 1" -> M-1) --}}
-                                                    M-{{ substr($item->name, -1) }}
+                                                    <span class="small fw-bold">M-{{ substr($item->name, -1) }}</span>
                                                 </label>
                                             </div>
                                         @empty
                                             <div class="col-12">
-                                                <p class="text-danger small">Data mesin tidak ditemukan untuk gender
-                                                    {{ $gender }}.</p>
+                                                <p class="text-danger small">Data mesin tidak ditemukan untuk gender {{ $gender }}.</p>
                                             </div>
                                         @endforelse
                                     </div>
 
-                                    <button type="submit" class="btn btn-primary w-100">Booking Mesin Cuci
-                                        Sekarang</button>
+                                    {{-- Pesan Error jika memilih lebih dari 2 --}}
+                                    <div id="max-selection-alert" class="alert alert-warning d-none">
+                                        <small><i class="bi bi-exclamation-triangle"></i> Maksimal hanya boleh memilih <strong>2 mesin cuci</strong> sekaligus.</small>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        Booking Mesin Cuci Sekarang
+                                    </button>
                             </form>
                         </div>
 
@@ -221,6 +238,14 @@
                                     <input type="hidden" name="facility_id"
                                         value="{{ $facilities->first()->id ?? '' }}">
                                     <input type="hidden" name="kategori" value="theater">
+
+                                    @if ($items->isNotEmpty())
+                                        <input type="hidden" name="facility_item_id" value="{{ $items->first()->id }}">
+                                    @else
+                                        <div class="alert alert-danger">Error: Admin belum setup item ruangan Theater!
+                                        </div>
+                                    @endif
+
                                     <div class="mb-3">
                                         <label class="form-label">Tanggal Nonton <span
                                                 class="text-danger">*</span></label>
@@ -259,7 +284,7 @@
                             <h5 class="text-primary mb-3">Formulir Peminjaman Serba Guna</h5>
                             @if ($facilities->isEmpty())
                                 <div class="alert alert-danger">
-                                    ⚠️ Fasilitas Theater tidak ditemukan! Pastikan nama di database mengandung kata
+                                    ⚠️ Fasilitas Serba Guna tidak ditemukan! Pastikan nama di database mengandung kata
                                     "Theater" atau "Theatre".
                                 </div>
                             @else
@@ -272,12 +297,14 @@
                                     <input type="hidden" name="facility_id"
                                         value="{{ $facilities->first()->id ?? '' }}">
                                     <input type="hidden" name="kategori" value="sergun">
+
                                     <div class="mb-3">
                                         <label class="form-label">Tanggal Peminjaman <span
                                                 class="text-danger">*</span></label>
                                         <input type="date" class="form-control" name="booking_date" required
                                             min="{{ date('Y-m-d') }}">
                                     </div>
+
                                     {{-- Ganti bagian select di FORM SERGUN --}}
                                     <div class="mb-3">
                                         <label class="form-label">Bagian Sergun yang akan di booking</label>
@@ -288,6 +315,7 @@
                                             @endforeach
                                         </select>
                                     </div>
+
                                     <div class="row">
                                         <div class="col-md-6">
                                             <x-time-dropdown name="start_time" label="Jam Mulai *" required="true" />
@@ -296,6 +324,7 @@
                                             <x-time-dropdown name="end_time" label="Jam Selesai *" required="true" />
                                         </div>
                                     </div>
+
                                     <button type="submit" class="btn btn-primary w-100">Booking Sergun</button>
                                 </form>
                             @endif

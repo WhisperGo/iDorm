@@ -57,6 +57,8 @@
     </script>
 </head>
 
+@push('scripts')
+
 <body class="">
     {{-- <div id="loading">
         <div class="loader simple-loader">
@@ -124,6 +126,75 @@
                 }
             });
         });
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const maxLimit = 2; // Batas maksimal
+        const checkboxes = document.querySelectorAll('.machine-checkbox');
+        const alertBox = document.getElementById('max-selection-alert');
+
+        // Fungsi untuk update tampilan (Solid vs Outline)
+        function updateVisuals() {
+            checkboxes.forEach(box => {
+                // Cari label temannya
+                const label = document.querySelector(`label[for="${box.id}"]`);
+                
+                // Logika Ganti Warna (FORCE SWAP CLASS)
+                if (box.checked) {
+                    // Kalau dicentang: Jadi Solid Biru
+                    label.classList.remove('btn-outline-primary');
+                    label.classList.add('btn-primary');
+                } else {
+                    // Kalau tidak dicentang: Jadi Garis Biru (Outline)
+                    label.classList.remove('btn-primary');
+                    label.classList.add('btn-outline-primary');
+                }
+            });
+            
+            // Logika Disable jika sudah 2
+            const checkedCount = document.querySelectorAll('.machine-checkbox:checked').length;
+            
+            if (checkedCount >= maxLimit) {
+                checkboxes.forEach(box => {
+                    if (!box.checked) {
+                        box.disabled = true;
+                        // Bikin labelnya agak transparan biar kelihatan disabled
+                        const label = document.querySelector(`label[for="${box.id}"]`);
+                        label.classList.add('opacity-50'); 
+                    }
+                });
+            } else {
+                checkboxes.forEach(box => {
+                    box.disabled = false;
+                    const label = document.querySelector(`label[for="${box.id}"]`);
+                    label.classList.remove('opacity-50');
+                });
+            }
+        }
+
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function () {
+                // 1. Cek Limit dulu sebelum update visual
+                const checkedCount = document.querySelectorAll('.machine-checkbox:checked').length;
+
+                if (checkedCount > maxLimit) {
+                    this.checked = false; // Batalkan centangan terakhir
+                    
+                    // Tampilkan alert
+                    alertBox.classList.remove('d-none');
+                    setTimeout(() => { alertBox.classList.add('d-none'); }, 3000);
+                }
+                
+                // 2. Update Tampilan (Warna & Disable state)
+                updateVisuals();
+                
+                // 3. Hilangkan focus agar outline biru bawaan browser hilang
+                this.blur(); 
+            });
+        });
+
+        // Jalankan sekali saat load (untuk handle old input kalau ada error validasi sebelumnya)
+        updateVisuals();
     });
 </script>
 

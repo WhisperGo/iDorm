@@ -24,7 +24,7 @@ Route::middleware(['auth'])->group(function () {
     // 2. SHARED ROUTES (Semua Role: Resident, Admin, Manager)
     Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements');
     Route::get('/facility-schedule/{category}', [BookingController::class, 'showSchedule'])->name('facility.schedule');
-    Route::get('/my-bookings', [BookingController::class, 'myPersonalHistory'])->name('booking.myBookings');
+    Route::get('/my-bookings', [BookingController::class, 'myPersonalHistory'])->name('booking.my_bookings');
 
     // 3. ANNOUNCEMENT MANAGEMENT (Hanya Admin & Manager)
     // Ditaruh di ATAS rute {id} agar tidak 404
