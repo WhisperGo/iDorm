@@ -197,8 +197,8 @@
 
                     {{-- MENU BARU: My Bookings --}}
                     <li class="nav-item">
-                        <a class="nav-link {{ Route::is('booking.myBookings') ? 'active' : '' }}"
-                            href="{{ route('booking.myBookings') }}">
+                        <a class="nav-link {{ Route::is('booking.my_bookings') ? 'active' : '' }}"
+                            href="{{ route('booking.my_bookings') }}">
                             <i class="bi bi-clock-history"></i>
                             <span class="item-name">My Bookings</span>
                         </a>
