@@ -3,12 +3,47 @@
 @section('content')
     @php
         $user = Auth::user();
-        $role = $user->role->role_name;
-        $normalizedURL = str_replace(['-', '_'], '', strtolower($category));
-        $normalizedAdmin = str_replace(['-', '_'], '', strtolower($user->assigned_category ?? ''));
+        // Gunakan null coalescing operator (??) untuk mencegah error jika relasi null
+        $role = $user->role->role_name ?? '';
 
-        // Cek akses sekali saja
-        $canAccess = $role === 'Manager' || ($role === 'Admin' && $normalizedURL === $normalizedAdmin);
+        // 1. Ambil ID Admin (gunakan safe navigation operator ?-> untuk PHP 8+)
+        // Jika user bukan admin (misal Manager), ini akan null dan tidak error.
+        $adminFacilityId = $user->adminDetails?->facility_id;
+
+        if ($category === 'cws'){
+            $longName = 'Co-Working Space';
+        } else if ($category === 'sergun'){
+            $longName = 'Serba Guna Hall';
+        } else if ($category === 'mesin cuci'){
+            $longName = 'Mesin Cuci';
+        } else if ($category === 'dapur'){
+            $longName = 'Dapur';
+        } else if ($category === 'theater'){
+            $longName = 'Theater Room';
+        } else if ($category === 'mesin-cuci'){
+            $longName = 'Mesin Cuci';
+        }
+
+        // dd($category);
+
+        // 2. Cari Facility berdasarkan category/slug yang ada di URL
+        // Sesuaikan 'slug' dengan nama kolom di tabel facilities kamu (bisa 'slug', 'code', atau 'name')
+        $currentFacility = \App\Models\Facility::where('name', $longName)->first();
+
+        // dd($currentFacility);
+
+        // 3. Logika Akses
+        $canAccess = false;
+
+        if ($role === 'Manager') {
+            // Manager bisa akses semua
+            $canAccess = true;
+        } elseif ($role === 'Admin') {
+            // Admin hanya bisa akses jika facility ditemukan DAN ID-nya cocok
+            if ($currentFacility && $currentFacility->id == $adminFacilityId) {
+                $canAccess = true;
+            }
+        }
     @endphp
 
     <div class="row">
