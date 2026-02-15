@@ -16,7 +16,7 @@ class ProfileController extends Controller
     {
         $user = User::with('residentDetails')->findOrFail(Auth::id());
         
-        return view('admin.edit_profile', compact('user'));
+        return view('feature.edit_profile', compact('user'));
     }
 
     public function update(Request $request, $id)

@@ -15,7 +15,7 @@ class AnnouncementController extends Controller
         $announcements = Announcement::with('author')->latest()->paginate(10);
         
         // Kirim ke SATU file yang sama
-        return view('layouts.partials.announcement', compact('announcements'));
+        return view('feature.announcements.announcement', compact('announcements'));
     }
 
     // 2. Form Tambah (Hanya Admin/Pengelola)
@@ -27,7 +27,7 @@ class AnnouncementController extends Controller
         if (Auth::user()->role->role_name === 'Resident') {
             abort(403, 'Penghuni tidak diizinkan membuat pengumuman.');
         }
-        return view('admin.add_announcement', compact('title', 'subtitle')); // Pisahkan view form tambah
+        return view('feature.announcements.add_announcement', compact('title', 'subtitle')); // Pisahkan view form tambah
     }
 
     public function show($id)
@@ -36,7 +36,7 @@ class AnnouncementController extends Controller
         $announcement = Announcement::findOrFail($id);
     
         // Tampilkan ke view detail (buat file ini jika belum ada)
-        return view('penghuni.announcement_detail', compact('announcement'));
+        return view('feature.announcements.announcement_detail', compact('announcement'));
     }
 
     // 3. Simpan ke Database (Hanya Admin/Pengelola)
@@ -69,7 +69,7 @@ class AnnouncementController extends Controller
         if (Auth::user()->role->role_name === 'Resident') {
             abort(403);
         }
-        return view('admin.edit_announcement', compact('announcement', 'title', 'subtitle'));
+        return view('feature.announcements.edit_announcement', compact('announcement', 'title', 'subtitle'));
     }
 
     // 5. Update Data (Hanya Admin/Pengelola)

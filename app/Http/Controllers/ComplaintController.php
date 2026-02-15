@@ -36,15 +36,15 @@ class ComplaintController extends Controller
                 })->latest()->paginate(10);
             }
 
-            return view('admin.complaint', compact('complaints'));
-        } 
+            return view('feature.complaints.complaint', compact('complaints'));
+        }
 
         // Pengelola (Manager) bisa lihat semua
         $complaints = BuildingComplaint::with(['resident.residentDetails', 'resident.adminDetails', 'status'])
             ->latest()
             ->paginate(10);
 
-        return view('admin.complaint', compact('complaints'));
+        return view('feature.complaints.complaint', compact('complaints'));
     }
 
     /**
@@ -69,7 +69,7 @@ class ComplaintController extends Controller
         $complaint = BuildingComplaint::with(['resident.residentDetails', 'status'])
                                                 ->findOrFail($id);
 
-        return view('admin.complaint_detail', compact('complaint'));
+        return view('feature.complaints.complaint_detail', compact('complaint'));
     }
 
     /**
@@ -78,7 +78,7 @@ class ComplaintController extends Controller
     public function create()
     {
         // Pastikan path view-nya sesuai dengan folder penghuni jika ada
-        return view('admin.add_complaint');
+        return view('feature.complaints.add_complaint');
     }
 
     /**
@@ -129,7 +129,7 @@ class ComplaintController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view('admin.complaint', compact('complaints'));
+        return view('feature.complaints.complaint', compact('complaints'));
     }
 
     /**

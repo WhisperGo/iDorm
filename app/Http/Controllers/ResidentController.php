@@ -28,7 +28,7 @@ class ResidentController extends Controller
             abort(403); // Penghuni biasa tidak boleh buka list penghuni lain
         }
 
-        return view('admin.resident', compact('residents'));
+        return view('resident', compact('residents'));
     }
 
     public function toggleFreeze(User $user)
