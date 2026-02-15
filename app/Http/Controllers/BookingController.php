@@ -21,33 +21,37 @@ class BookingController extends Controller
         $user = Auth::user();
         $gender = trim($user->residentDetails->gender ?? '');
 
-        $facilities = collect();
+        // 1. Ambil Fasilitas Utama berdasarkan Kategori
+        $parentFacility = null;
+        if ($kategori) {
+            $cat = strtolower($kategori);
+            $query = Facility::query();
+
+            // Mapping nama kategori ke nama di database (sesuaikan dengan DB anda)
+            $map = [
+                'mesin_cuci' => 'Mesin Cuci',
+                'dapur' => 'Dapur',
+                'sergun' => 'Serba', // Asumsi 'Serba Guna'
+                'cws' => 'Co-Working',
+                'theater' => 'Theater'
+            ];
+
+            if (isset($map[$cat])) {
+                $parentFacility = $query->where('name', 'LIKE', '%' . $map[$cat] . '%')->first();
+            }
+        }
+
+        // 2. Ambil Items (Mesin Cuci, Bagian Sergun, dll)
         $items = collect();
-
-        $parentFacility = Facility::query()
-            ->when($kategori, function ($query) use ($kategori) {
-                $cat = strtolower($kategori);
-                if ($cat == 'mesin_cuci')
-                    return $query->where('name', 'LIKE', '%Mesin Cuci%');
-                if ($cat == 'dapur')
-                    return $query->where('name', 'LIKE', '%Dapur%');
-                if ($cat == 'sergun')
-                    return $query->where('name', 'LIKE', '%Serba%');
-                if ($cat == 'cws')
-                    return $query->where('name', 'LIKE', '%Co-Working%');
-                if ($cat == 'theater')
-                    return $query->where('name', 'LIKE', '%Theater%');
-                return $query->where('id', 0);
-            })->first();
-
         if ($parentFacility) {
-            $facilities = collect([$parentFacility]);
             $allItems = FacilityItem::where('facility_id', $parentFacility->id)->get();
 
+            // Filter khusus Mesin Cuci berdasarkan Gender
             if (strtolower($kategori) == 'mesin_cuci' && !empty($gender)) {
                 $cleanGender = strtolower($gender);
                 $items = $allItems->filter(function ($item) use ($cleanGender) {
                     $itemName = strtolower($item->name);
+                    // Logika filter gender
                     if ($cleanGender === 'male') {
                         return str_contains($itemName, 'male') && !str_contains($itemName, 'female');
                     }
@@ -58,119 +62,178 @@ class BookingController extends Controller
             }
         }
 
-        $timeSlots = TimeSlot::where('facilities', 'heavy')->get();
-        $myBookings = Booking::where('user_id', $user->id)->with(['facility', 'status', 'slot'])->latest()->get();
+        // 3. Data Pendukung Lainnya
+        $facilities = $parentFacility ? collect([$parentFacility]) : collect();
+        $timeSlots = TimeSlot::where('facilities', 'heavy')->get(); // Untuk Mesin Cuci
 
-        return view('penghuni.add_booking', compact('facilities', 'user', 'kategori', 'myBookings', 'timeSlots', 'items'));
+        // Ambil riwayat booking user (digunakan di view tabel bawah)
+        // Kita pakai logic grouping controller sebelumnya di method index/history, 
+        // tapi di sini kita kirim raw data saja karena view 'add_booking' butuh raw untuk tabel history singkat
+        $myBookings = Booking::where('user_id', $user->id)
+            ->with(['facility', 'facilityItem', 'status', 'slot']) // Eager load facilityItem
+            ->latest()
+            ->get();
+
+        return view('penghuni.add_booking', compact('facilities', 'items', 'timeSlots', 'kategori', 'user', 'myBookings'));
     }
 
     public function store(Request $request)
     {
-        // === 1. DEFINE BASE RULES ===
-        // Aturan dasar yang berlaku untuk semua booking
+        $user = Auth::user();
+        $kategori = $request->kategori;
+        $bookingDate = $request->booking_date;
+
+        // === 1. VALIDASI INPUT DASAR ===
         $rules = [
             'facility_id' => 'required|exists:facilities,id',
             'kategori' => 'required|in:dapur,cws,mesin_cuci,theater,sergun',
             'booking_date' => 'required|date|after_or_equal:today',
         ];
 
-        // === 2. CONDITIONAL RULES BERDASARKAN KATEGORI ===
-
-        // --> KASUS 1: MESIN CUCI (Pakai Slot Waktu & Multi Select)
-        if ($request->kategori == 'mesin_cuci') {
-            $rules['facility_item_id'] = 'required|array'; // Harus array karena checkbox
+        if ($kategori == 'mesin_cuci') {
+            $rules['facility_item_id'] = 'required|array|min:1|max:2'; // Max 2 mesin
             $rules['facility_item_id.*'] = 'exists:facility_items,id';
             $rules['slot_id'] = 'required|exists:time_slots,id';
-
-            // --> KASUS 2: FASILITAS LAIN (Pakai Jam Manual start/end)
         } else {
-            $rules['facility_item_id'] = 'required|exists:facility_items,id'; // Single select
+            $rules['facility_item_id'] = 'required|exists:facility_items,id';
             $rules['start_time'] = 'required|date_format:H:i';
-            $rules['end_time'] = 'required|date_format:H:i|after:start_time';
+            $rules['end_time'] = 'required|date_format:H:i|after:start_time'; // Rule 4: End > Start
 
-            // Validasi tambahan spesifik
-            if ($request->kategori == 'cws') {
+            if ($kategori == 'cws')
                 $rules['jumlah_orang'] = 'required|numeric|min:20';
-            } elseif ($request->kategori == 'theater') {
+            if ($kategori == 'theater') {
                 $rules['description'] = 'required|max:255';
                 $rules['jumlah_orang'] = 'required|numeric|min:1|max:50';
-            } elseif ($request->kategori == 'sergun') {
-                // Sergun logicnya mirip CWS/Theater kalau ada input khusus, tambahkan di sini
             }
         }
 
-        // Eksekusi Validasi
-        $validated = $request->validate($rules);
+        $request->validate($rules);
 
-        // === 3. LOGIC CHECK TAMBAHAN (HARI KAMIS CWS) ===
-        if ($request->kategori == 'cws') {
-            $date = \Carbon\Carbon::parse($request->booking_date);
-            if ($date->isThursday()) {
-                return redirect()->back()->with('error', 'Mohon maaf, Co-Working Space tutup setiap hari Kamis.')->withInput();
+
+        // === 2. PERSIAPAN DATA WAKTU ===
+        $startTime = null;
+        $endTime = null;
+        $slotId = null;
+        $itemsToCheck = [];
+
+        if ($kategori == 'mesin_cuci') {
+            $slot = TimeSlot::findOrFail($request->slot_id);
+            $slotId = $slot->id;
+            $startTime = $slot->start_time;
+            $endTime = $slot->end_time;
+            $itemsToCheck = $request->facility_item_id; // Array ID
+        } else {
+            $startTime = $request->start_time;
+            $endTime = $request->end_time;
+            $itemsToCheck = [$request->facility_item_id]; // Bungkus jadi array
+        }
+
+        // Konversi ke Carbon untuk validasi tanggal/jam yang lebih mudah
+        $carbonDate = Carbon::parse($bookingDate);
+        $carbonNow = Carbon::now();
+        $bookingStartDateTime = Carbon::parse("$bookingDate $startTime");
+        $bookingEndDateTime = Carbon::parse("$bookingDate $endTime");
+
+        // === 3. VALIDASI ATURAN BISNIS KHUSUS ===
+
+        // RULE 8: Masa pakai semua fasilitas adalah 2 jam (Kecuali mesin cuci yg sudah ikut slot)
+        if ($kategori != 'mesin cuci') {
+            $durationInMinutes = $bookingStartDateTime->diffInMinutes($bookingEndDateTime);
+            // Toleransi +/- 1 menit jika perlu, tapi strict 120 menit (2 jam)
+            if ($durationInMinutes > 120) {
+                return back()->with('error', 'Durasi peminjaman tidak lebih dari 2 jam')->withInput();
             }
         }
+
+        // RULE 5 & 6 & 7: Batas Waktu Booking (H-1 dsb)
+        if ($kategori == 'dapur') {
+            // Rule 6: Minimal H-1 Jam
+            // Rule 7: Jam lewat tidak bisa booking
+            if ($bookingStartDateTime->isPast()) {
+                return back()->with('error', 'Waktu booking sudah lewat.')->withInput();
+            }
+            if ($bookingStartDateTime->diffInHours($carbonNow) < 1 && $bookingStartDateTime->isFuture()) {
+                // Logic H-1 jam: Waktu booking harus minimal 1 jam dari sekarang
+                // Opsional: sesuaikan jika H-1 jam maksudnya cutoff time
+            }
+        } else {
+            // Rule 5: H-1 (Besok baru bisa booking, kecuali hari ini masih H-1 nya besok? 
+            // Interpretasi: "H-1 artinya 1 hari sebelumnya masih bisa booking" -> Artinya booking minimal untuk besok?
+            // "walaupun saya booking pukul 23.59 hari ini, saya masih bisa booking fasilitas untuk pukul 07.00 hari besok"
+            // Artinya: Booking untuk HARI INI tidak boleh untuk kategori selain dapur.
+
+            if ($carbonDate->isToday()) {
+                return back()->with('error', 'Fasilitas ini harus dibooking minimal H-1 (1 hari sebelumnya).')->withInput();
+            }
+        }
+
+        // Rule CWS Kamis Libur
+        if ($kategori == 'cws' && $carbonDate->isThursday()) {
+            return back()->with('error', 'Mohon maaf, Co-Working Space tutup setiap hari Kamis.')->withInput();
+        }
+
+
+        // === 4. VALIDASI KONFLIK DATABASE (Conflict Check) ===
 
         try {
             DB::beginTransaction();
 
-            // Normalisasi itemIds (Pastikan jadi array biar loop-nya konsisten)
-            // Kalau mesin cuci, dia sudah array. Kalau yang lain, kita bungkus jadi array.
-            $itemIds = is_array($request->facility_item_id)
-                ? $request->facility_item_id
-                : [$request->facility_item_id];
+            // RULE 1: Mesin Cuci Max 2 & Cek Quota User di Jam Sama
+            if ($kategori == 'mesin_cuci') {
+                // Cek apakah user SUDAH punya booking mesin cuci LAIN di slot tanggal & jam yang SAMA?
+                $existingUserBookings = Booking::where('user_id', $user->id)
+                    ->where('booking_date', $bookingDate)
+                    ->where(function ($q) use ($startTime, $endTime) {
+                        $q->where('start_time', '<', $endTime)
+                            ->where('end_time', '>', $startTime);
+                    })
+                    ->whereHas('facility', function ($q) {
+                        $q->where('name', 'LIKE', '%Mesin Cuci%');
+                    })
+                    ->whereIn('status_id', [1, 2, 4]) // Aktif
+                    ->count();
 
-            // Tentukan Waktu Start/End
-            $startTime = null;
-            $endTime = null;
-            $slotId = null;
-
-            if ($request->kategori == 'mesin_cuci') {
-                // Ambil dari tabel time_slots
-                $slot = \App\Models\TimeSlot::findOrFail($request->slot_id);
-                $slotId = $slot->id;
-                $startTime = $slot->start_time;
-                $endTime = $slot->end_time;
-            } else {
-                // Ambil dari input manual
-                $startTime = $request->start_time;
-                $endTime = $request->end_time;
+                // $itemsToCheck adalah array yang mau dibooking sekarang (misal pilih 2)
+                // Total mesin = yg sudah dibooking + yg mau dibooking
+                if (($existingUserBookings + count($itemsToCheck)) > 2) {
+                    DB::rollBack();
+                    return back()->with('error', 'Anda hanya boleh menggunakan maksimal 2 mesin cuci di sesi waktu yang sama.')->withInput();
+                }
             }
 
-            // === 4. LOOPING SAVE & CONFLICT CHECK ===
-            foreach ($itemIds as $itemId) {
 
-                // Cek Tabrakan Waktu
-                // Logic: (Start A < End B) AND (End A > Start B)
-                $isConflict = \App\Models\Booking::where('facility_item_id', $itemId)
-                    ->where('booking_date', $request->booking_date)
-                    ->whereIn('status_id', [1, 2, 4]) // Status booked/approved/active
+            // RULE 2 & 3: Cek Tabrakan Jadwal (Room/Item Availability)
+            foreach ($itemsToCheck as $itemId) {
+                // Cek apakah Item ini sudah dibooking orang lain di jam segitu?
+                $isConflict = Booking::where('facility_item_id', $itemId)
+                    ->where('booking_date', $bookingDate)
+                    ->whereIn('status_id', [1, 2, 4]) // Booked/Approved/Active
                     ->where(function ($query) use ($startTime, $endTime) {
+                        // Logic Overlap: (Start A < End B) AND (End A > Start B)
                         $query->where('start_time', '<', $endTime)
                             ->where('end_time', '>', $startTime);
                     })
                     ->exists();
 
                 if ($isConflict) {
-                    $itemName = \App\Models\FacilityItem::find($itemId)->name ?? 'Item';
-                    DB::rollBack(); // Batalkan semua insert sebelumnya jika ada 1 yang error
-                    return redirect()->back()
-                        ->with('error', "Gagal! $itemName sudah dibooking pada jam tersebut.")
-                        ->withInput();
+                    $itemName = FacilityItem::find($itemId)->name ?? 'Item';
+                    DB::rollBack();
+                    return back()->with('error', "Gagal! $itemName sudah dibooking orang lain pada jam tersebut.")->withInput();
                 }
 
-                // Simpan Data
-                \App\Models\Booking::create([
-                    'user_id' => auth()->id(),
+                // SIMPAN
+                Booking::create([
+                    'user_id' => $user->id,
                     'facility_id' => $request->facility_id,
                     'facility_item_id' => $itemId,
-                    'booking_date' => $request->booking_date,
+                    'booking_date' => $bookingDate,
                     'start_time' => $startTime,
                     'end_time' => $endTime,
-                    'slot_id' => $slotId, // Nullable kalau bukan mesin cuci
-                    'status_id' => 1, // Default pending
+                    'slot_id' => $slotId,
+                    'status_id' => 1, // Pending
                     'cleanliness_status' => 'pending',
-                    'description' => $request->description, // Nullable
-                    'jumlah_orang' => $request->jumlah_orang, // Nullable
+                    'description' => $request->description,
+                    'jumlah_orang' => $request->jumlah_orang,
                 ]);
             }
 
@@ -179,9 +242,8 @@ class BookingController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            // Log error asli untuk debugging developer, tapi tampilkan pesan umum ke user
             \Log::error("Booking Error: " . $e->getMessage());
-            return redirect()->back()->with('error', 'Terjadi kesalahan sistem. Silakan coba lagi.')->withInput();
+            return back()->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage())->withInput();
         }
     }
 
