@@ -56,7 +56,9 @@
                                             <div class="fw-bold text-dark">{{ $b->facility->name }}</div>
                                             <div class="small text-muted mt-1">
                                                 {{-- Loop item dalam grup (contoh: Mesin Cuci 1, Mesin Cuci 2) --}}
-                                                @if ($b->facility->name === "Mesin Cuci" or $b->facility->name === "Dapur")
+                                                @if ($b->facility->name === "Mesin Cuci"
+                                                        or $b->facility->name === "Dapur"
+                                                        or $b->facility->name === "Serba Guna Hall")
                                                     @foreach ($group as $item)
                                                         @if ($item->facilityItem)
                                                             <span class="badge bg-light text-dark border me-1">
@@ -101,7 +103,7 @@
                                                         </button>
                                                     </form>
 
-                                                    {{-- 2. LOGIKA UPLOAD FOTO (Waktu Habis ATAU Selesai Awal, dan belum ada foto) --}}
+                                                {{-- 2. LOGIKA UPLOAD FOTO (Waktu Habis ATAU Selesai Awal, dan belum ada foto) --}}
                                                 @elseif(($status === 'Awaiting Cleanliness Photo' || $b->is_early_release) && !$b->photo_proof_path)
                                                     <div class="card p-2 bg-light border-dashed w-100">
                                                         <form action="{{ route('booking.upload', $b->id) }}" method="POST"
@@ -118,7 +120,7 @@
                                                         </form>
                                                     </div>
 
-                                                    {{-- 3. LOGIKA MENUNGGU VERIFIKASI ADMIN --}}
+                                                {{-- 3. LOGIKA MENUNGGU VERIFIKASI ADMIN --}}
                                                 @elseif($status === 'Verifying Cleanliness')
                                                     <div class="text-center">
                                                         <span class="text-muted small"><i
@@ -130,14 +132,14 @@
                                                             Foto Anda</a>
                                                     </div>
 
-                                                    {{-- 4. LOGIKA SELESAI (COMPLETED) --}}
+                                                {{-- 4. LOGIKA SELESAI (COMPLETED) --}}
                                                 @elseif($status === 'Completed')
                                                     <div class="text-success text-center">
                                                         <i class="bi bi-patch-check-fill fs-4"></i>
                                                         <div class="small fw-bold">Selesai & Bersih</div>
                                                     </div>
 
-                                                    {{-- 5. LOGIKA BOOKED (BELUM MULAI) --}}
+                                                {{-- 5. LOGIKA BOOKED (BELUM MULAI) --}}
                                                 @elseif($status === 'Booked')
                                                     <small class="text-muted italic">Menunggu persetujuan admin...</small>
                                                 @elseif($status === 'Accepted')
