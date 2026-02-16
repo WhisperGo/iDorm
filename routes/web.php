@@ -10,6 +10,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PredictionController;
 use App\Http\Controllers\AdminBookingController;
 use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\SuspendController;
 
 // 1. GUEST ROUTES
 Route::redirect('/', '/login');
@@ -87,6 +88,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/complaints/{id}', [ComplaintController::class, 'showManager'])->name('pengelola.complaint.showPengelolaOnly');
         Route::patch('/complaints/{id}/status', [ComplaintController::class, 'updateStatus'])->name('pengelola.updateStatus');
     });
+
+    Route::get('/suspensions', [SuspendController::class, 'index'])->name('suspensions.index');
+    Route::post('/suspensions', [SuspendController::class, 'store'])->name('suspensions.store');
+    Route::delete('/suspensions/{id}', [SuspendController::class, 'destroy'])->name('suspensions.destroy');
 });
 
 require __DIR__ . '/auth.php';

@@ -206,20 +206,22 @@
                 @endif
 
                 {{-- COMPLAINT: Link ke list keluhan (Filtered by Room for Residents) --}}
-                <li class="nav-item">
-                    @php
-                        // Tentukan nama rute berdasarkan role
-                        $complaintRoute =
-                            Auth::user()->role->role_name === 'Resident' ? 'complaint.index' : 'admin.complaint';
-                    @endphp
-                    <a class="nav-link {{ Route::is($complaintRoute) ? 'active' : '' }}"
-                        href="{{ route($complaintRoute) }}">
-                        <i class="icon">
-                            <i class="bi bi-exclamation-octagon"></i>
-                        </i>
-                        <span class="item-name">Complaints</span>
-                    </a>
-                </li>
+                @if(auth()->user()->role->role_name != 'Admin')
+                    <li class="nav-item">
+                        @php
+                            // Tentukan nama rute berdasarkan role
+                            $complaintRoute =
+                                Auth::user()->role->role_name === 'Resident' ? 'complaint.index' : 'admin.complaint';
+                        @endphp
+                        <a class="nav-link {{ Route::is($complaintRoute) ? 'active' : '' }}"
+                            href="{{ route($complaintRoute) }}">
+                            <i class="icon">
+                                <i class="bi bi-exclamation-octagon"></i>
+                            </i>
+                            <span class="item-name">Complaints</span>
+                        </a>
+                    </li>
+                @endif
 
                 {{-- TAMBAHKAN MENU KOS PREDICTION DISINI --}}
                 <li class="nav-item static-item">

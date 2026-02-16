@@ -21,40 +21,47 @@ class ProfileController extends Controller
 
     public function update(Request $request, $id)
     {
-        // dd($request->all());
         // 1. Validasi Data
         $request->validate([
-            'full_name' => 'required|string|max:255',
-            'class_name' => 'nullable|string|max:50',
-            'phone' => 'nullable|string|max:15',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'full_name'  => 'required|string|max:255',
+            'class_name' => 'required|string|max:50', // Wajib karena di form ada bintang merah
+            'phone'      => 'nullable|string|max:15',
+            'photo'      => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048', // Tambahkan webp jika perlu
         ]);
 
+        // Cari User
         $user = User::findOrFail($id);
 
-        // 2. Siapkan data yang akan diupdate
-        $dataDetails = [
-            'full_name' => $request->full_name,
-            'class_name' => $request->class_name,
-            'phone' => $request->phone,
-        ];
+        // 2. Siapkan data dasar yang akan diupdate/create
+        // Kita gunakan only() agar lebih bersih daripada menunjuk satu per satu
+        $dataDetails = $request->only(['full_name', 'class_name', 'phone']);
 
         // 3. Handle Foto Profile
         if ($request->hasFile('photo')) {
-            if ($user->residentDetails?->photo_path) {
-                Storage::disk('public')->delete($user->residentDetails->photo_path);
+            // A. Hapus foto lama jika ada (PENTING: Cek dulu apakah file fisik benar-benar ada)
+            if ($user->residentDetails && $user->residentDetails->photo_path) {
+                if (Storage::disk('public')->exists($user->residentDetails->photo_path)) {
+                    Storage::disk('public')->delete($user->residentDetails->photo_path);
+                }
             }
-            $dataDetails['photo_path'] = $request->file('photo')->store('profiles', 'public');
+
+            // B. Simpan foto baru dan masukkan path ke array dataDetails
+            $path = $request->file('photo')->store('profiles', 'public');
+            $dataDetails['photo_path'] = $path;
         }
 
-        // 4. Eksekusi Simpan (Gunakan updateOrCreate agar lebih aman)
-        // Mencari berdasarkan user_id, jika ada maka update, jika tidak ada maka create.
+        // 4. Eksekusi Simpan dengan updateOrCreate
+        // Ini akan mencari resident_details milik user_id tersebut.
+        // Jika ketemu -> Update. Jika tidak -> Buat baru.
         $user->residentDetails()->updateOrCreate(
-            ['user_id' => $user->id],
-            $dataDetails
+            ['user_id' => $user->id], // Kondisi pencarian (Kunci Unik)
+            $dataDetails              // Data yang disimpan/diupdate
         );
 
-        return redirect()->route('admin.resident')->with('success', 'Data penghuni berhasil diperbarui!');
+        // 5. Redirect kembali
+        // Pastikan nama route 'admin.resident.index' sesuai dengan route list Anda
+        return redirect()->route('admin.resident.index')
+            ->with('success', 'Profil penghuni berhasil diperbarui!');
     }
 
     // Hanya untuk update Password

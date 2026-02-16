@@ -5,17 +5,19 @@
         <div class="col-sm-12">
             <div class="card shadow-sm">
                 <div class="card-header">
-                    <div class="mb-3">
-                        <a href="{{ route('complaint.create') }}"
-                            class="btn btn-primary d-inline-flex align-items-center px-4 py-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-                                class="bi bi-plus-lg me-2" viewBox="0 0 16 16">
-                                <path fill-rule="evenodd"
-                                    d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2" />
-                            </svg>
-                            Add Complaint
-                        </a>
-                    </div>
+                    @if(auth()->user()->role->role_name != 'Manager')
+                        <div class="mb-3">
+                            <a href="{{ route('complaint.create') }}"
+                                class="btn btn-primary d-inline-flex align-items-center px-4 py-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+                                    class="bi bi-plus-lg me-2" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd"
+                                        d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2" />
+                                </svg>
+                                Add Complaint
+                            </a>
+                        </div>
+                    @endif
 
                     <div class="d-flex justify-content-between align-items-center flex-wrap">
                         <div class="header-title">
