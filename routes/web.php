@@ -20,6 +20,8 @@ Route::middleware(['auth'])->group(function () {
     // 1. DASHBOARD & PROFILE
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::get('/profile/edit/{id}', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile/update/{id}', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
 
     // 2. SHARED ROUTES (Semua Role: Resident, Admin, Manager)
@@ -58,8 +60,8 @@ Route::middleware(['auth'])->group(function () {
     // 6. ROLE: ADMIN
     // Route untuk nampilin form edit
     Route::prefix('admin')->group(function () {
-        Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('admin.profile.edit');
-        Route::put('/profile/update', [ProfileController::class, 'update'])->name('admin.profile.update');
+        // Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('admin.profile.edit');
+        // Route::put('/profile/update', [ProfileController::class, 'update'])->name('admin.profile.update');
 
         Route::get('/residents', [ResidentController::class, 'index'])->name('admin.resident'); // Satu rute cukup
         Route::post('/residents/{user}/toggle-freeze', [ResidentController::class, 'toggleFreeze'])->name('admin.resident.freeze');
@@ -80,7 +82,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/admin/residents', [ComplaintController::class, 'adminIndex'])->name('admin.resident.index');
 
         // Rute update yang kita buat tadi juga pastikan ada di sini
-        Route::put('/admin/resident/{id}/update', [ProfileController::class, 'update'])->name('admin.profile.update');
+        // Route::put('/profile/update/{id}', [ProfileController::class, 'update'])->name('admin.profile.update');
         Route::get('/reports', [ReportController::class, 'index'])->name('pengelola.report');
         Route::get('/resident-data', [ResidentController::class, 'index'])->name('pengelola.resident');
         Route::get('/loan-report', [ReportController::class, 'reportIndex'])->name('pengelola.loan_report');
@@ -88,6 +90,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/complaints/{id}', [ComplaintController::class, 'showManager'])->name('pengelola.complaint.showPengelolaOnly');
         Route::patch('/complaints/{id}/status', [ComplaintController::class, 'updateStatus'])->name('pengelola.updateStatus');
     });
+
+    // Route::put('/profile/update/{id}', [ProfileController::class, 'update'])->name('admin.profile.update');
 
     Route::get('/suspensions', [SuspendController::class, 'index'])->name('suspensions.index');
     Route::post('/suspensions', [SuspendController::class, 'store'])->name('suspensions.store');

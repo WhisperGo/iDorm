@@ -14,68 +14,99 @@ class ProfileController extends Controller
     // Menampilkan halaman profil
     public function edit()
     {
-        $user = User::with('residentDetails')->findOrFail(Auth::id());
+        $user = User::with(['residentDetails', 'adminDetails', 'managerDetails'])->findOrFail(Auth::id());
         
         return view('feature.edit_profile', compact('user'));
     }
 
     public function update(Request $request, $id)
     {
-        // 1. Validasi Data
-        $request->validate([
-            'full_name'  => 'required|string|max:255',
-            'class_name' => 'required|string|max:50', // Wajib karena di form ada bintang merah
-            'phone'      => 'nullable|string|max:15',
-            'photo'      => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048', // Tambahkan webp jika perlu
-        ]);
-
         // Cari User
-        $user = User::findOrFail($id);
+        $targetUser = User::findOrFail($id);
+        $currentUser = Auth::user();
+        $targetRole = $targetUser->role->role_name;
 
-        // 2. Siapkan data dasar yang akan diupdate/create
-        // Kita gunakan only() agar lebih bersih daripada menunjuk satu per satu
-        $dataDetails = $request->only(['full_name', 'class_name', 'phone']);
-
-        // 3. Handle Foto Profile
-        if ($request->hasFile('photo')) {
-            // A. Hapus foto lama jika ada (PENTING: Cek dulu apakah file fisik benar-benar ada)
-            if ($user->residentDetails && $user->residentDetails->photo_path) {
-                if (Storage::disk('public')->exists($user->residentDetails->photo_path)) {
-                    Storage::disk('public')->delete($user->residentDetails->photo_path);
-                }
-            }
-
-            // B. Simpan foto baru dan masukkan path ke array dataDetails
-            $path = $request->file('photo')->store('profiles', 'public');
-            $dataDetails['photo_path'] = $path;
+        // Tambahkan tanda tanya (?) setelah role untuk jaga-jaga kalau user gak punya role
+        if (($currentUser->role?->role_name !== 'Manager') && ($currentUser->id !== (int)$id)) {
+            abort(403, 'Anda tidak punya izin mengedit data orang lain.');
         }
 
-        // 4. Eksekusi Simpan dengan updateOrCreate
-        // Ini akan mencari resident_details milik user_id tersebut.
-        // Jika ketemu -> Update. Jika tidak -> Buat baru.
-        $user->residentDetails()->updateOrCreate(
-            ['user_id' => $user->id], // Kondisi pencarian (Kunci Unik)
-            $dataDetails              // Data yang disimpan/diupdate
-        );
+        // Cek yang login apakah merupakan admin atau user
+        $currentUserRole = $currentUser->role->role_name ?? '';
+        $isRestricted = in_array($currentUserRole, ['Resident', 'Admin']);
+        
+        $rules = [
+            'password' => 'nullable|min:8|confirmed', // Nullable = Opsional
+        ];
 
-        // 5. Redirect kembali
-        // Pastikan nama route 'admin.resident.index' sesuai dengan route list Anda
-        return redirect()->route('admin.resident.index')
-            ->with('success', 'Profil penghuni berhasil diperbarui!');
+        // Jika yang login MANAGER, dia bisa edit profil
+        if ($currentUser->role->role_name === 'Manager') {
+            $rules['full_name'] = 'required|string|max:255';
+            $rules['phone'] = 'nullable|string|max:15';
+
+            // HANYA wajibkan kelas jika yang DIEDIT adalah Resident
+            if ($targetRole === 'Resident') {
+                $rules['class_name'] = 'required|string|max:50';
+            }
+        }
+
+        // if (!$isRestricted) {
+        //     $rules['full_name']  = 'required|string|max:255';
+        //     $rules['class_name'] = 'required|string|max:50';
+        // }
+
+        $request->validate($rules);
+
+        // 2. Logika Update Password (Berlaku untuk SEMUA Role)
+        if ($request->filled('password')) {
+            $targetUser->update([
+                'password' => Hash::make($request->password),
+                ]);
+            }
+
+        // 4. Update Detail Berdasarkan Tabel Masing-masing
+        if ($currentUser->role->role_name === 'Manager') {
+            $data = $request->only(['full_name', 'phone']);
+
+            // Handle Foto
+            if ($request->hasFile('photo')) {
+                $path = $request->file('photo')->store('profiles', 'public');
+                $data['photo_path'] = $path;
+            }
+
+            // Simpan ke tabel yang sesuai
+            if ($targetRole === 'Resident') {
+                $data['class_name'] = $request->class_name;
+                $targetUser->residentDetails()->updateOrCreate(['user_id' => $id], $data);
+            } elseif ($targetRole === 'Admin') {
+                $targetUser->adminDetails()->updateOrCreate(['user_id' => $id], $data);
+            } elseif ($targetRole === 'Manager') {
+                $targetUser->managerDetails()->updateOrCreate(['user_id' => $id], $data);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Perubahan berhasil disimpan!');
     }
 
     // Hanya untuk update Password
-    public function updatePassword(Request $request)
+    public function updatePassword(Request $request, $id)
     {
-        $request->validate([
-            'current_password' => ['required', 'current_password'], // Validasi password lama
-            'password' => ['required', 'confirmed', Password::defaults()], // Minimal 8 karakter
-        ]);
+        $user = User::findOrFail($id);
+        $currentUser = Auth::user();
 
-        Auth::user()->update([
-            'password' => Hash::make($request->password),
-        ]);
+        // Jika yang login adalah Resident/Admin, mereka hanya boleh update password
+        if ($currentUser->hasRole(['resident', 'admin'])) {
+            $request->validate([
+                'password' => 'nullable|min:8|confirmed',
+            ]);
 
-        return back()->with('success', 'Password berhasil diubah!');
+            if ($request->filled('password')) {
+                $user->update(['password' => Hash::make($request->password)]);
+            }
+
+            return redirect()->back()->with('success', 'Password berhasil diperbarui!');
+        }
+
+        // Jika SuperAdmin/Pengelola, baru jalankan logika update semua field...
     }
 }

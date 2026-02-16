@@ -1,3 +1,9 @@
+@php
+    $roleName = Auth::user()->role->role_name ?? '';
+
+    $isRestricted = in_array($roleName, ['Resident', 'Admin']);
+@endphp
+
 @extends('layouts.app')
 
 @section('styles')
@@ -10,30 +16,43 @@
             height: 150px;
             margin: 0 auto;
         }
+
         .filepond--panel-root {
             background-color: transparent;
             border: 2px dashed #dbdbdb;
             border-radius: 50% !important;
         }
+
         .filepond--image-preview-wrapper {
             -webkit-mask-image: -webkit-radial-gradient(white, black);
             mask-image: radial-gradient(white, black);
             border-radius: 50% !important;
         }
-        .filepond--item-panel {
-            background-color: transparent !important;
+
+        .no-select {
+            user-select: none;
         }
     </style>
 @endsection
 
 @section('content')
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card shadow-sm border-0 mt-4">
-                <div class="card-header bg-white py-3">
+                <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
                     {{-- Judul Dinamis berdasarkan nama penghuni --}}
                     <h5 class="mb-0 fw-bold text-primary">
-                        Edit Profil {{ Auth::user()->residentDetails?->full_name ?? 'Penghuni' }}
+                        Edit Profil
+                        {{ Auth::user()->residentDetails?->full_name ?? (Auth::user()->adminDetails?->full_name ?? (Auth::user()->managerDetails?->full_name ?? 'User')) }}
                     </h5>
                 </div>
                 <div class="card-body p-4">
@@ -46,73 +65,97 @@
                     @endif
 
                     {{-- Form mengarah ke route update dengan ID user --}}
-                    <form action="{{ route('admin.profile.update', $user->id) }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('profile.update', $user->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
 
                         {{-- Section Foto Profil --}}
                         <div class="text-center mb-4">
-                            <input type="file" name="photo" id="photo" accept="image/*">
-                            <p class="text-muted small mt-2">Seret foto untuk mengganti foto profil {{ $user->name }}</p>
-                            @error('photo')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                        </div>
-
-                        {{-- Nama Lengkap (Menggunakan $user, bukan Auth::user) --}}
-                        <div class="mb-3">
-                            <label class="form-label fw-bold small">Nama Lengkap</label>
-                            <input type="text" name="full_name"
-                                class="form-control @error('full_name') is-invalid @enderror"
-                                value="{{ old('full_name', $user->residentDetails?->full_name) }}" required>
-                            @error('full_name')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <input type="file" name="photo" id="photo" accept="image/*"
+                                {{ $isRestricted ? 'disabled' : '' }}>
+                            @if ($isRestricted)
+                                <p class="text-muted small mt-2"><i class="bi bi-info-circle"></i> Foto profil hanya bisa
+                                    diubah oleh Pengelola.</p>
+                            @else
+                                <p class="text-muted small mt-2">Klik atau seret foto untuk mengganti profil</p>
+                            @endif
                         </div>
 
                         <div class="row">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small">Nama Lengkap</label>
+                                <input type="text" name="full_name"
+                                    class="form-control {{ $isRestricted ? 'bg-light text-muted' : '' }}"
+                                    value="{{ old('full_name', $user->residentDetails?->full_name ?? ($user->adminDetails?->full_name ?? $user->managerDetails?->full_name)) }}"
+                                    {{ $isRestricted ? 'readonly' : 'required' }}>
+
+                                @if ($isRestricted)
+                                    <div class="form-text text-danger" style="font-size: 11px;">
+                                        <i class="bi bi-lock-fill"></i> Data ini hanya bisa diubah oleh Pengelola.
+                                    </div>
+                                @endif
+                            </div>
+
+                            {{-- Email & Kamar selalu readonly untuk semua kecuali SuperAdmin --}}
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold small">Email (Login)</label>
-                                <input type="text" class="form-control bg-light" value="{{ $user->email }}" disabled>
+                                <input type="text" class="form-control bg-light" value="{{ $user->email }}" readonly>
                             </div>
+
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold small">Nomor Kamar</label>
                                 <input type="text" class="form-control bg-light"
-                                    value="{{ $user->residentDetails?->room_number ?? 'N/A' }}" disabled>
-                                <small class="text-muted" style="font-size: 10px;">Ganti di manajemen kamar untuk ubah nomor.</small>
+                                    value="{{ $user->residentDetails?->room_number ?? 'N/A' }}" readonly>
                             </div>
-                        </div>
 
-                        {{-- Kelas (Wajib) --}}
-                        <div class="mb-3">
-                            <label class="form-label fw-bold small text-danger">Kelas (Wajib untuk Otomasi) *</label>
-                            <input type="text" name="class_name"
-                                class="form-control @error('class_name') is-invalid @enderror"
-                                value="{{ old('class_name', $user->residentDetails?->class_name) }}"
-                                placeholder="Contoh: TI-2A" required>
-                            @error('class_name')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+                            {{-- Detail Tambahan - Readonly jika Restricted --}}
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold small">Kelas</label>
+                                <input type="text" name="class_name"
+                                    class="form-control {{ $isRestricted ? 'bg-light' : '' }}"
+                                    value="{{ old('class_name', $user->residentDetails?->class_name) }}"
+                                    {{ $isRestricted ? 'readonly' : '' }}>
+                            </div>
 
-                        {{-- Nomor WhatsApp --}}
-                        <div class="mb-4">
-                            <label class="form-label fw-bold small">Nomor WhatsApp/HP</label>
-                            <input type="text" name="phone"
-                                class="form-control @error('phone') is-invalid @enderror"
-                                value="{{ old('phone', $user->residentDetails?->phone) }}"
-                                placeholder="Contoh: 0812xxx">
-                            @error('phone')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label fw-bold small">Nomor WhatsApp</label>
+                                <input type="text" name="phone"
+                                    class="form-control {{ $isRestricted ? 'bg-light' : '' }}"
+                                    value="{{ old('phone', $user->residentDetails?->phone) }}"
+                                    {{ $isRestricted ? 'readonly' : '' }}>
+                            </div>
 
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary fw-bold py-2 shadow-sm">
-                                <i class="bi bi-save me-1"></i> Simpan Perubahan Profil
-                            </button>
-                            <a href="{{ route('admin.resident.index') }}" class="btn btn-link text-muted btn-sm">Kembali ke Daftar</a>
-                        </div>
+                            {{-- Section Password - SELALU TERBUKA UNTUK SIAPAPUN --}}
+                            <hr class="my-4">
+                            <h6 class="fw-bold mb-3 text-primary"><i class="bi bi-shield-lock me-2"></i>Keamanan & Reset
+                                Password</h6>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold small text-danger">Password Baru</label>
+                                    <input type="password" name="password" id="password"
+                                        class="form-control border-danger border-opacity-25" onpaste="return false;"
+                                        oncopy="return false;" placeholder="Isi hanya jika ingin ganti">
+                                    @error('password')
+                                        <div class="invalid-feedback">Password yang diberikan berbeda dengan password yang di
+                                            konfirmasi</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold small text-danger">Konfirmasi Password</label>
+                                    <input type="password" name="password_confirmation" id="password_confirmation"
+                                        class="form-control border-danger border-opacity-25" onpaste="return false;"
+                                        oncopy="return false;" placeholder="Ketik ulang password">
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary fw-bold py-2 shadow-sm">
+                                    <i class="bi bi-save me-1"></i> Simpan Perubahan Profil
+                                </button>
+                                <a href="{{ route('admin.resident.index') }}"
+                                    class="btn btn-link text-muted btn-sm">Kembali ke
+                                    Daftar</a>
+                            </div>
                     </form>
                 </div>
             </div>
@@ -128,25 +171,21 @@
     <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
 
     <script>
-        FilePond.registerPlugin(
-            FilePondPluginImagePreview, 
-            FilePondPluginFileValidateType,
-            FilePondPluginImageCrop
-        );
+        FilePond.registerPlugin(FilePondPluginImagePreview, FilePondPluginFileValidateType);
 
-        const inputElement = document.querySelector('#photo');
-        const pond = FilePond.create(inputElement, {
+        const pond = FilePond.create(document.querySelector('#photo'), {
             labelIdle: '<i class="bi bi-camera" style="font-size: 2rem;"></i>',
             imagePreviewHeight: 150,
-            imageCropAspectRatio: '1:1', // Memastikan hasil crop kotak agar pas di lingkaran
             stylePanelLayout: 'compact circle',
-            styleLoadIndicatorPosition: 'center bottom',
-            styleButtonRemoveItemPosition: 'center bottom',
             storeAsFile: true,
-            acceptedFileTypes: ['image/*'],
+            // LOGIKA DISABLE FILEPOND
+            disabled: {{ $isRestricted ? 'true' : 'false' }},
+            allowBrowse: {{ $isRestricted ? 'false' : 'true' }},
+            allowDrop: {{ $isRestricted ? 'false' : 'true' }},
+
             @if ($user->residentDetails?->photo_path)
                 files: [{
-                    source: "{{ asset('storage/' . $user->residentDetails->photo_path) }}",
+                    source: "{{ asset('storage/' . $user->residentDetails->photo_path) }}"
                 }],
             @endif
         });
