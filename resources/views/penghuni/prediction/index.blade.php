@@ -70,14 +70,14 @@
             font-family: Roboto;
             font-size: 15px;
             font-weight: 300;
-            margin-left: 12px;
+            /* margin-left: 5px; */
             padding: 0 11px 0 13px;
             text-overflow: ellipsis;
             width: 400px;
             position: absolute;
             /* Melayang */
-            top: 10px;
-            left: 150px;
+            top: 100px;
+            left: 43px;
             z-index: 5;
             height: 40px;
             border: 1px solid #ccc;
@@ -183,22 +183,31 @@
                                     </div>
 
                                     {{-- Geolokasi --}}
+                                    {{-- Ganti bagian Geolokasi kamu dengan ini --}}
                                     <div
                                         class="col-12 bg-soft-primary p-4 rounded-3 border border-primary border-opacity-25">
-                                        <label class="form-label fw-bold mb-1"><i
-                                                class="bi bi-geo-alt-fill text-primary"></i> Titik Lokasi Acuan</label>
-                                        <p class="text-muted small mb-3">Gunakan lokasi kamu saat ini untuk menghitung jarak
-                                            ke BCA atau tempat kerja.</p>
+                                        <label class="form-label fw-bold mb-1">
+                                            <i class="bi bi-geo-alt-fill text-primary"></i> Titik Lokasi Acuan
+                                        </label>
+                                        <p class="text-muted small mb-3">Geser pin di peta atau cari alamat untuk menentukan
+                                            lokasi.</p>
                                         <div class="row g-2">
-                                            <div class="col-md-5"><input type="text" id="lat" name="latitude"
-                                                    class="form-control border-0" placeholder="Latitude" readonly></div>
-                                            <div class="col-md-5"><input type="text" id="lng" name="longitude"
-                                                    class="form-control border-0" placeholder="Longitude" readonly></div>
-                                            <div class="col-md-2"><button type="button" onclick="getLocation()"
-                                                    class="btn btn-primary w-100 fw-bold">CEK</button></div>
+                                            <div class="col-md-5">
+                                                <input type="text" id="lat" name="latitude"
+                                                    class="form-control border-0" placeholder="Latitude" readonly
+                                                    required>
+                                            </div>
+                                            <div class="col-md-5">
+                                                <input type="text" id="lng" name="longitude"
+                                                    class="form-control border-0" placeholder="Longitude" readonly
+                                                    required>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <button type="button" onclick="getLocation()"
+                                                    class="btn btn-primary w-100 fw-bold">GPS</button>
+                                            </div>
                                         </div>
                                     </div>
-
                                     {{-- Checklist Fasilitas Bordered --}}
                                     <div class="col-12">
                                         <label class="form-label fw-bold text-dark h5 mb-3">Fasilitas & Layanan
@@ -298,7 +307,7 @@
         </script>
 
         <script>
-            let map, marker, autocomplete; // Definisikan di luar biar gak "gaib"
+            let map, marker, autocomplete;
 
             function initMap() {
                 const defaultLocation = {
@@ -311,25 +320,29 @@
                     zoom: 13,
                 });
 
-                // 1. Inisialisasi Marker di awal
                 marker = new google.maps.Marker({
                     position: defaultLocation,
                     map: map,
-                    draggable: true
+                    draggable: true,
+                    animation: google.maps.Animation.DROP
                 });
 
+                // Inisialisasi angka awal di input
+                updateInputs(defaultLocation.lat, defaultLocation.lng);
+
+                // 1. EVENT: PIN DIGESER
+                marker.addListener("dragend", () => {
+                    const pos = marker.getPosition();
+                    updateInputs(pos.lat(), pos.lng());
+                });
+
+                // 2. EVENT: CARI ALAMAT
                 const input = document.getElementById("pac-input");
                 autocomplete = new google.maps.places.Autocomplete(input);
-
                 autocomplete.addListener("place_changed", () => {
                     const place = autocomplete.getPlace();
+                    if (!place.geometry) return;
 
-                    if (!place.geometry || !place.geometry.location) {
-                        alert("Lokasi tidak ditemukan!");
-                        return;
-                    }
-
-                    // 2. GESER PETA (Snap)
                     if (place.geometry.viewport) {
                         map.fitBounds(place.geometry.viewport);
                     } else {
@@ -337,33 +350,34 @@
                         map.setZoom(17);
                     }
 
-                    // 3. FORCE PINPOINT (Ini kuncinya!)
-                    marker.setMap(null); // Cabut paku lama
-                    marker = new google.maps.Marker({
-                        position: place.geometry.location, // Pasang di titik baru hasil search
-                        map: map, // Tancep ke peta
-                        animation: google.maps.Animation.DROP, // Kasih efek jatuh biar keren
-                        draggable: true
-                    });
-
-                    // Simpan koordinat ke input Laravel
-                    document.getElementById('lat').value = place.geometry.location.lat();
-                    document.getElementById('lng').value = place.geometry.location.lng();
-
-                    // Re-bind event geser buat paku baru
-                    addMarkerListener();
+                    marker.setPosition(place.geometry.location);
+                    updateInputs(place.geometry.location.lat(), place.geometry.location.lng());
                 });
-
-                addMarkerListener();
             }
 
-            // Fungsi biar paku bisa digeser manual
-            function addMarkerListener() {
-                marker.addListener("dragend", () => {
-                    const pos = marker.getPosition();
-                    document.getElementById('lat').value = pos.lat();
-                    document.getElementById('lng').value = pos.lng();
-                });
+            // 3. EVENT: KLIK TOMBOL GPS
+            function getLocation() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(pos => {
+                        const myLoc = {
+                            lat: pos.coords.latitude,
+                            lng: pos.coords.longitude
+                        };
+
+                        map.setCenter(myLoc);
+                        map.setZoom(17);
+                        marker.setPosition(myLoc);
+                        updateInputs(myLoc.lat, myLoc.lng);
+                    }, () => {
+                        alert("Gagal ambil lokasi. Pastikan GPS aktif dan izin browser diberikan.");
+                    });
+                }
+            }
+
+            // FUNGSI UTAMA: Update value ke input Laravel
+            function updateInputs(lat, lng) {
+                document.getElementById('lat').value = lat;
+                document.getElementById('lng').value = lng;
             }
         </script>
     @endpush
