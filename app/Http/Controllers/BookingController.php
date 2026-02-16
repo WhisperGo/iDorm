@@ -6,6 +6,7 @@ use App\Models\Booking;
 use App\Models\Facility;
 use App\Models\FacilityItem;
 use App\Models\TimeSlot;
+use App\Models\Suspension;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Carbon;
@@ -38,6 +39,18 @@ class BookingController extends Controller
 
             if (isset($map[$cat])) {
                 $parentFacility = $query->where('name', 'LIKE', '%' . $map[$cat] . '%')->first();
+            }
+        }
+
+        if ($parentFacility) {
+            $suspend = $this->checkSuspension($user->id, $parentFacility->id);
+            
+            if ($suspend) {
+                $pesan = $suspend->facility_id 
+                    ? "Akses Ditolak: Anda disuspend dari fasilitas ini." 
+                    : "Akses Ditolak: Akun Anda sedang dibekukan Pengelola.";
+                    
+                return redirect()->route('dashboard')->with('error', $pesan);
             }
         }
 
@@ -80,6 +93,15 @@ class BookingController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
+
+        if ($request->has('facility_id')) {
+            $suspend = $this->checkSuspension($user->id, $request->facility_id);
+
+            if ($suspend) {
+                return back()->with('error', 'Gagal: Anda sedang dalam masa hukuman (Suspend).');
+            }
+        }
+
         $kategori = $request->kategori;
         $bookingDate = $request->booking_date;
 
@@ -430,5 +452,16 @@ class BookingController extends Controller
         ]);
 
         return back()->with('success', 'Peminjaman diakhiri lebih awal. Silakan upload foto kebersihan.');
+    }
+
+private function checkSuspension($userId, $facilityId)
+    {
+        return Suspension::where('user_id', $userId)
+            ->where(function ($query) use ($facilityId) {
+                $query->where('facility_id', $facilityId)   // Cek suspend spesifik fasilitas
+                      ->orWhereNull('facility_id');         // Cek suspend global (Pengelola)
+            })
+            ->active() // <--- INI DIA ACTIVE SCOPE-NYA (Pengganti logika tanggal yang ribet)
+            ->first();
     }
 }

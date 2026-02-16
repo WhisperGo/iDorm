@@ -81,4 +81,9 @@ class User extends Authenticatable
     public function facility(): BelongsTo {
         return $this->belongsTo(Facility::class);
     }
+
+    public function activeSuspensions(){
+        // Mengambil data suspend yang statusnya aktif (tanggal valid)
+        return $this->hasMany(Suspension::class)->active(); 
+    }
 }
