@@ -21,7 +21,7 @@ class AdminSeeder extends Seeder
             ['card_id' => '1006', 'name' => 'Ani Admin Dapur 2', 'facility_id' => '1', 'room' => 'A102', 'gender' => 'Female', 'class' => 'PPTI 21'],
             // MESIN CUCI
             ['card_id' => '1002', 'name' => 'Bambang Admin MC 1', 'facility_id' => '2', 'room' => 'B202', 'gender' => 'Male', 'class' => 'PPTI 22'],
-            ['card_id' => '1007', 'name' => 'Joko Admin MC 2', 'facility_id' => '2', 'room' => 'B203', 'gender' => 'Male', 'class' => 'PPTI 22'],
+            ['card_id' => '1007', 'name' => 'Dewi Admin MC 1', 'facility_id' => '2', 'room' => 'B203', 'gender' => 'Female', 'class' => 'PPTI 22'],
             // THEATER
             ['card_id' => '1003', 'name' => 'Rian Admin Theater 1', 'facility_id' => '3', 'room' => 'B301', 'gender' => 'Male', 'class' => 'PPTI 23'],
             ['card_id' => '1008', 'name' => 'Dimas Admin Theater 2', 'facility_id' => '3', 'room' => 'B302', 'gender' => 'Male', 'class' => 'PPTI 23'],
