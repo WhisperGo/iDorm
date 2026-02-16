@@ -310,6 +310,7 @@
             let map, marker, autocomplete;
 
             function initMap() {
+                // Koordinat default
                 const defaultLocation = {
                     lat: -6.200000,
                     lng: 106.816666
@@ -323,61 +324,65 @@
                 marker = new google.maps.Marker({
                     position: defaultLocation,
                     map: map,
-                    draggable: true,
+                    draggable: true, // Biar bisa digeser manual kalau GPS kurang akurat
                     animation: google.maps.Animation.DROP
                 });
 
-                // Inisialisasi angka awal di input
+                // Isi kotak pertama kali
                 updateInputs(defaultLocation.lat, defaultLocation.lng);
 
-                // 1. EVENT: PIN DIGESER
-                marker.addListener("dragend", () => {
+                // EVENT 1: Saat PIN digeser manual
+                marker.addListener("dragend", function() {
                     const pos = marker.getPosition();
                     updateInputs(pos.lat(), pos.lng());
                 });
 
-                // 2. EVENT: CARI ALAMAT
+                // EVENT 2: Saat Cari Alamat (Autocomplete)
                 const input = document.getElementById("pac-input");
                 autocomplete = new google.maps.places.Autocomplete(input);
                 autocomplete.addListener("place_changed", () => {
                     const place = autocomplete.getPlace();
                     if (!place.geometry) return;
 
-                    if (place.geometry.viewport) {
-                        map.fitBounds(place.geometry.viewport);
-                    } else {
-                        map.setCenter(place.geometry.location);
-                        map.setZoom(17);
-                    }
-
+                    map.setCenter(place.geometry.location);
+                    map.setZoom(17);
                     marker.setPosition(place.geometry.location);
                     updateInputs(place.geometry.location.lat(), place.geometry.location.lng());
                 });
             }
 
-            // 3. EVENT: KLIK TOMBOL GPS
+            // EVENT 3: Tombol GPS Klik
             function getLocation() {
                 if (navigator.geolocation) {
+                    // Tampilkan loading dikit biar user tau lagi nyari sinyal
+                    console.log("Mencari lokasi...");
+
                     navigator.geolocation.getCurrentPosition(pos => {
                         const myLoc = {
                             lat: pos.coords.latitude,
                             lng: pos.coords.longitude
                         };
 
+                        // Pindahkan Peta & Marker ke lokasi asli HP/Laptop
                         map.setCenter(myLoc);
                         map.setZoom(17);
                         marker.setPosition(myLoc);
+
+                        // ISI KOTAK INPUT!
                         updateInputs(myLoc.lat, myLoc.lng);
-                    }, () => {
-                        alert("Gagal ambil lokasi. Pastikan GPS aktif dan izin browser diberikan.");
+                    }, (error) => {
+                        alert("Gagal ambil GPS: " + error.message);
                     });
+                } else {
+                    alert("Browser kamu nggak support GPS bos!");
                 }
             }
 
-            // FUNGSI UTAMA: Update value ke input Laravel
+            // Fungsi Sakti buat ngisi kotak
             function updateInputs(lat, lng) {
                 document.getElementById('lat').value = lat;
                 document.getElementById('lng').value = lng;
+                console.log("Input terisi:", lat, lng);
             }
         </script>
     @endpush
