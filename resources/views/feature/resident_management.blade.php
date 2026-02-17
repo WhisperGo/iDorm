@@ -13,10 +13,12 @@
                         <div id="live-filter-container"></div>
                     </div>
 
+                    @if (Auth::user()->role->role_name === 'Manager')
                     {{-- Letakkan di dalam card-header atau area atas tabel --}}
                     <a href="{{ route('manager.residents.create') }}" class="btn btn-primary btn-sm shadow-sm">
                         <i class="bi bi-plus-circle me-1"></i> Add Resident
                     </a>
+                    @endif
                 </div>
 
                 <div class="card-body mt-0">
