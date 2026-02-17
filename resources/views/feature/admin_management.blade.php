@@ -10,10 +10,12 @@
                         <small class="text-muted">Mengelola data para pengelola fasilitas asrama</small>
                     </div>
 
+                    @if (Auth::user()->role->role_name === 'Manager')
                     {{-- Tombol Tambah Admin --}}
                     <a href="{{ route('manager.admins.create') }}" class="btn btn-primary btn-sm shadow-sm">
                         <i class="bi bi-person-plus-fill me-1"></i> Add Admin
                     </a>
+                    @endif
                 </div>
 
                 <div class="card-body mt-0">
