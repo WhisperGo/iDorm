@@ -5,7 +5,7 @@
                 <div class="col-md-12">
                     <div class="flex-wrap d-flex justify-content-between align-items-center">
                         <div>
-                            <h1>Dashboard</h1>
+                            <h1>iDorm</h1>
                             <p>Your all-in-one control center to monitor progress, manage information, and stay updated
                                 with
                                 everything that matters in real time.</p>
