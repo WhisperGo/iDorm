@@ -76,7 +76,7 @@
                                                     </a>
 
                                                     {{-- Delete Button (Soft Delete) --}}
-                                                    <form action="{{ route('manager.admins.destroy', $adm->id) }}"
+                                                    {{-- <form action="{{ route('manager.admins.destroy', $adm->id) }}"
                                                         method="POST"
                                                         onsubmit="return confirm('Apakah Anda yakin ingin menonaktifkan admin ini?')">
                                                         @csrf
@@ -85,7 +85,7 @@
                                                             class="btn btn-sm btn-icon btn-soft-danger btn-outline-danger">
                                                             <i class="bi bi-trash"></i>
                                                         </button>
-                                                    </form>
+                                                    </form> --}}
                                                 </div>
                                             </td>
                                         @endif
