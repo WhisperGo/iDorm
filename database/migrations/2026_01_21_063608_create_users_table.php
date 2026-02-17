@@ -16,6 +16,7 @@ return new class extends Migration
 
             // Perbaikan: Gunakan foreignId agar otomatis sinkron dengan tabel roles
             $table->foreignId('role_id')->constrained('roles')->onUpdate('cascade')->onDelete('restrict');
+            // $table->foreignId('facility_id')->nullable()->constrained('facilities')->onDelete('set null');
 
             $table->string('card_id', 4)->unique();
             $table->string('password');

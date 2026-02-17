@@ -1,16 +1,17 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ReportController;
+use App\Http\Controllers\AdminBookingController;
+use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\BookingController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ResidentController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PredictionController;
-use App\Http\Controllers\AdminBookingController;
-use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ResidentController;
 use App\Http\Controllers\SuspendController;
+use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Route;
 
 // 1. GUEST ROUTES
 Route::redirect('/', '/login');
@@ -79,12 +80,24 @@ Route::middleware(['auth'])->group(function () {
     // 7. ROLE: MANAGER ONLY (Reports)
     Route::prefix('manager')->group(function () {
         // Tambahkan baris ini!
-        Route::get('/admin/residents', [ComplaintController::class, 'adminIndex'])->name('admin.resident.index');
+        // Route::get('/admin/residents', [ComplaintController::class, 'adminIndex'])->name('admin.resident.index');
+        Route::get('/resident-data', [UserController::class, 'residentIndex'])->name('pengelola.resident');
+        
+        Route::get('/admins', [UserController::class, 'adminIndex'])->name('manager.admins.index');
+        
+        Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('admin.profile.edit');
+        Route::put('/users/{id}', [UserController::class, 'update'])->name('admin.users.update');
 
-        // Rute update yang kita buat tadi juga pastikan ada di sini
-        // Route::put('/profile/update/{id}', [ProfileController::class, 'update'])->name('admin.profile.update');
+        // Resident Data (role_id = 3)
+        // Route::get('/residents', [UserController::class, 'residentIndex'])->name('manager.residents.index');
+
+        // Admin Data (role_id = 2)
+
+        // Route Edit & Update tetap satu karena fungsinya sama (berdasarkan ID)
+
+        // SEBELUMNYA (Mungkin seperti ini atau mirip)
         Route::get('/reports', [ReportController::class, 'index'])->name('pengelola.report');
-        Route::get('/resident-data', [ResidentController::class, 'index'])->name('pengelola.resident');
+        // Route::get('/admins', [UserController::class, 'adminIndex'])->name('admin.resident');
         Route::get('/loan-report', [ReportController::class, 'reportIndex'])->name('pengelola.loan_report');
         Route::get('/complaints', [ComplaintController::class, 'adminIndex'])->name('pengelola.complaint');
         Route::get('/complaints/{id}', [ComplaintController::class, 'showManager'])->name('pengelola.complaint.showPengelolaOnly');
