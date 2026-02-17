@@ -3,11 +3,11 @@
 @section('content')
     @php
         $iconMap = [
-            'Dapur' => 'bi-fire',
-            'Mesin Cuci' => 'bi-droplet-fill',
-            'Theater Room' => 'bi-film',
-            'Serba Guna Hall' => 'bi-house-door',
-            'Co-Working Space' => 'bi-wifi',
+            'Dapur' => ['icon' => 'bi-fire', 'label' => 'Dapur'],
+            'Mesin Cuci' => ['icon' => 'bi-droplet-fill', 'label' => 'Mesin Cuci'],
+            'Theater Room' => ['icon' => 'bi-film', 'label' => 'Theater'],
+            'Serba Guna Hall' => ['icon' => 'bi-house-door', 'label' => 'Serba Guna'],
+            'Co-Working Space' => ['icon' => 'bi-wifi', 'label' => 'Co-Working Space'],
         ];
     @endphp
     <div class="row">
@@ -28,7 +28,7 @@
                                 <div
                                     class="card h-100 border text-center p-3 {{ request('facility_id') == 'all' ? 'bg-primary text-white' : 'bg-light text-dark' }} hover-shadow">
                                     <i class="bi bi-collection-fill fs-3 mb-2"></i>
-                                    <div class="small fw-bold">Semua</div>
+                                    <div class="small fw-bold">Seluruh Fasilitas</div>
                                 </div>
                             </a>
                         </div>
@@ -40,8 +40,8 @@
                                     <div
                                         class="card h-100 border text-center p-3 {{ request('facility_id') == $fac->id ? 'bg-primary text-white' : 'bg-light text-dark' }} hover-shadow">
                                         {{-- PEMANGGILAN IKON OTOMATIS --}}
-                                        <i class="bi {{ $iconMap[$fac->name] ?? 'bi-building' }} fs-3 mb-2"></i>
-                                        <div class="small fw-bold">{{ $fac->name }}</div>
+                                        <i class="bi {{ $iconMap[$fac->name]['icon'] ?? 'bi-building' }} fs-3 mb-2"></i>
+                                        <div class="small fw-bold">{{ $iconMap[$fac->name]['label'] }}</div>
                                     </div>
                                 </a>
                             </div>
