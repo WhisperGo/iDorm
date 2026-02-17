@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Facility;
+use App\Models\ResidentDetail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,6 +12,46 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
+    // 1. Menampilkan Form Tambah Resident
+    public function createResident()
+    {
+        return view('feature.create_resident'); 
+    }
+    
+    // 2. Memproses Simpan Data Resident
+    public function storeResident(Request $request)
+    {
+        // Validasi Input
+        $request->validate([
+            'card_id'      => 'required|string|size:4|unique:users,card_id',
+            'full_name'    => 'required|string|max:255',
+            'gender'       => 'required|in:Male,Female',
+            'room_number'  => 'required|string',
+            'class_name'   => 'required|string|max:100',
+            'phone_number' => 'nullable|string',
+            // 'password'     => 'required|min:8|confirmed',
+        ]);
+    
+        // A. Simpan ke Tabel Users (Akun Login)
+        $user = User::create([
+            'card_id' => $request->card_id,
+            'role_id' => 3, // Role ID 3 = Resident
+            'password' => Hash::make('password'),
+            'account_status' => 'active',
+        ]);
+    
+        // B. Simpan ke Tabel ResidentDetails (Profil)
+        $user->residentDetails()->create([
+            'full_name'    => $request->full_name,
+            'gender'       => $request->gender,
+            'room_number'  => $request->room_number,
+            'class_name'  => $request->class_name,
+            'phone_number' => $request->phone_number,
+        ]);
+    
+        // Kembali ke halaman daftar resident dengan pesan sukses
+        return redirect()->route('pengelola.resident')->with('success', 'Resident ' . $request->full_name . ' berhasil ditambahkan!');
+    }
     // List Semua User (Admin & Resident)
     public function index()
     {
@@ -95,6 +136,19 @@ class UserController extends Controller
         // 3. Redirect sesuai role_id
         $routeName = ($user->role_id == 2) ? 'manager.admins.index' : 'pengelola.resident';
         return redirect()->route($routeName)->with('success', 'Data ' . $request->full_name . ' berhasil diperbarui!');
+    }
+
+    public function destroyResident($id)
+    {
+        $user = User::findOrFail($id);
+
+        $user->delete();
+        
+        if ($user->residentDetails) {
+            $user->residentDetails()->delete();
+        }
+
+        return redirect()->route('pengelola.resident')->with('success', 'Data resident berhasil dihapus secara permanen.');
     }
 
     // List Data Penghuni (Resident - role_id 3)
