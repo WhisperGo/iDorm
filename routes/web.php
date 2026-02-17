@@ -88,6 +88,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('admin.profile.edit');
         Route::put('/users/{id}', [UserController::class, 'update'])->name('admin.users.update');
 
+        // Rute Tambah Resident
+        Route::get('/residents/create', [UserController::class, 'createResident'])->name('manager.residents.create');
+        Route::post('/residents/store', [UserController::class, 'storeResident'])->name('manager.residents.store');
+        Route::delete('/residents/{id}', [UserController::class, 'destroyResident'])->name('manager.residents.destroy');
         // Resident Data (role_id = 3)
         // Route::get('/residents', [UserController::class, 'residentIndex'])->name('manager.residents.index');
 
