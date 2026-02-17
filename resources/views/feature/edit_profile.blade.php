@@ -2,6 +2,10 @@
     $roleName = Auth::user()->role->role_name ?? '';
 
     $isRestricted = in_array($roleName, ['Resident', 'Admin']);
+
+    if (!isset($facilities)) {
+        $facilities = \App\Models\Facility::all();
+    }
 @endphp
 
 @extends('layouts.app')
@@ -178,9 +182,16 @@
                                 <button type="submit" class="btn btn-primary fw-bold py-2 shadow-sm">
                                     <i class="bi bi-save me-1"></i> Simpan Perubahan Profil
                                 </button>
-                                <a href="{{ route('admin.resident.index') }}"
-                                    class="btn btn-link text-muted btn-sm">Kembali ke
-                                    Daftar</a>
+
+                                @if (Auth::user()->role_name == 'Resident')
+                                    {{-- Jika Resident, arahkan ke Dashboard atau Home --}}
+                                    <a href="{{ url('/') }}" class="btn btn-link text-muted btn-sm">Kembali ke
+                                        Beranda</a>
+                                @else
+                                    {{-- Jika Admin/Manager, arahkan ke daftar, tapi pastikan routenya ada --}}
+                                    {{-- Ganti 'admin.resident.index' dengan nama route list penghuni kamu yang benar --}}
+                                    <a href="{{ url()->previous() }}" class="btn btn-link text-muted btn-sm">Kembali</a>
+                                @endif
                             </div>
                     </form>
                 </div>
