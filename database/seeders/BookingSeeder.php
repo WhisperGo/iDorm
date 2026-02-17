@@ -28,13 +28,6 @@ class BookingSeeder extends Seeder
         $facilities = Facility::all();
         $slots = TimeSlot::all();
 
-        if ($residents->isEmpty() || $facilities->isEmpty()) {
-            $this->command->warn("Eits! Pastikan tabel Users dan Facilities sudah ada datanya.");
-            return;
-        }
-
-        $this->command->info("Sedang mengisi 1000 data booking dummy...");
-
         for ($i = 0; $i < 1000; $i++) {
             $resident = $residents->random();
             $gender = $resident->residentDetails->gender ?? 'Male';
@@ -115,7 +108,5 @@ class BookingSeeder extends Seeder
 
             Booking::create($data);
         }
-
-        $this->command->info("Selesai! 1000 data berhasil masuk.");
     }
 }
