@@ -10,27 +10,22 @@
         // Jika user bukan admin (misal Manager), ini akan null dan tidak error.
         $adminFacilityId = $user->adminDetails?->facility_id;
 
-        if ($category === 'cws'){
+        if ($category === 'cws') {
             $longName = 'Co-Working Space';
-        } else if ($category === 'sergun'){
+        } elseif ($category === 'sergun') {
             $longName = 'Serba Guna Hall';
-        } else if ($category === 'mesin cuci'){
+        } elseif ($category === 'mesin cuci') {
             $longName = 'Mesin Cuci';
-        } else if ($category === 'dapur'){
+        } elseif ($category === 'dapur') {
             $longName = 'Dapur';
-        } else if ($category === 'theater'){
+        } elseif ($category === 'theater') {
             $longName = 'Theater Room';
-        } else if ($category === 'mesin-cuci'){
+        } elseif ($category === 'mesin-cuci') {
             $longName = 'Mesin Cuci';
         }
 
-        // dd($category);
-
         // 2. Cari Facility berdasarkan category/slug yang ada di URL
-        // Sesuaikan 'slug' dengan nama kolom di tabel facilities kamu (bisa 'slug', 'code', atau 'name')
         $currentFacility = \App\Models\Facility::where('name', $longName)->first();
-
-        // dd($currentFacility);
 
         // 3. Logika Akses
         $canAccess = false;
@@ -91,13 +86,21 @@
                 </div>
 
                 <div class="card-body">
+                    {{-- Pesan Sukses/Error --}}
+                    @if (session('success'))
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+                    @if (session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+
                     <div class="table-responsive">
-                        {{-- PERBAIKAN: ID BARU & TANPA CLASS dataTable --}}
-                        {{-- Hapus baris ini kalau sudah muncul datanya --}}
-                        {{-- <div class="alert alert-info">
-                            DEBUG: Jumlah data ditemukan = {{ $bookings->count() }}
-                            (Kategori: {{ $category }}, Item Filter: {{ request('item') ?? 'Kosong' }})
-                        </div> --}}
                         <table id="schedule-final-table" class="table table-bordered align-middle">
                             <thead class="bg-light">
                                 <tr>
@@ -106,14 +109,17 @@
                                     <th class="text-center">Time</th>
                                     <th class="text-center">Resident Name</th>
                                     <th class="text-center">Facility Item</th>
-                                    <th class="text-center">Status</th>
+                                    <th class="text-center">Booking Status</th>
                                     @if ($canAccess)
-                                        <th class="text-center">Admin Action</th>
+                                        <th class="text-center">Booking Action</th>
+                                        {{-- 3 KOLOM BARU (CLEANLINESS) --}}
+                                        <th class="text-center">Cleanliness Status</th>
+                                        <th class="text-center" width="10%">Facility Photos</th>
+                                        <th class="text-center">Cleanliness Action</th>
                                     @endif
                                 </tr>
                             </thead>
                             <tbody>
-                                {{-- PERBAIKAN: Gunakan foreach biasa --}}
                                 @foreach ($bookings->groupBy(fn($item) => $item->user_id . $item->facility_id . $item->booking_date . $item->start_time . $item->end_time) as $group)
                                     @php $b = $group->first(); @endphp
                                     <tr>
@@ -126,7 +132,6 @@
                                             </span>
                                         </td>
                                         <td>
-                                            {{-- Pakai ?-> untuk mencegah crash jika data null --}}
                                             <div class="fw-bold">
                                                 {{ $b->user->residentDetails->full_name ?? ($b->user->name ?? 'User Tidak Ditemukan') }}
                                             </div>
@@ -140,7 +145,6 @@
                                             @endphp
 
                                             @if (str_contains($facilityName, 'mesin cuci'))
-                                                {{-- Kasus 1: Mesin Cuci (Tampilkan No. Mesin) --}}
                                                 <div class="fw-bold">Mesin Cuci</div>
                                                 <small class="text-success fw-bold">
                                                     No: @foreach ($group as $g)
@@ -148,38 +152,130 @@
                                                     @endforeach
                                                 </small>
                                             @elseif (str_contains($facilityName, 'dapur'))
-                                                {{-- Kasus 2: Dapur (Tampilkan Alat) --}}
                                                 <div class="fw-bold">Dapur</div>
                                                 <small class="text-danger fw-bold">
                                                     Alat: {{ $b->facilityItem->name ?? 'Umum' }}
                                                 </small>
                                             @elseif (str_contains($facilityName, 'serba guna') || str_contains($facilityName, 'sergun'))
-                                                {{-- Kasus 3: Serba Guna (Tampilkan Area) --}}
                                                 <div class="fw-bold">Serba Guna</div>
                                                 <small class="text-primary fw-bold">
                                                     Area: {{ $b->facilityItem->name ?? 'Umum' }}
                                                 </small>
                                             @else
-                                                {{-- Kasus 4: Sisanya (Theater, CWS, dll) --}}
                                                 <div class="fw-bold">{{ $b->facility->name }}</div>
-                                                {{-- Bagian bawahnya dikosongkan sesuai request --}}
                                             @endif
                                         </td>
                                         <td class="text-center">
                                             <span
                                                 class="badge bg-info text-uppercase px-3 py-2">{{ $b->status->status_name }}</span>
                                         </td>
+
+                                        {{-- KOLOM KHUSUS ADMIN / MANAGER --}}
                                         @if ($canAccess)
+                                            {{-- 1. Booking Action (Approve/Reject Reservasi) --}}
                                             <td class="text-center">
                                                 @if ($b->status->status_name === 'Booked')
-                                                    <form action="{{ route('admin.booking.action', [$b->id, 'accept']) }}"
-                                                        method="POST">
-                                                        @csrf @method('PUT')
-                                                        <button type="submit" class="btn btn-success btn-sm p-1"><i
-                                                                class="bi bi-check-lg"></i></button>
-                                                    </form>
+                                                    <div class="d-flex justify-content-center align-items-center gap-2">
+                                                        {{-- Tombol Accept Booking --}}
+                                                        <form
+                                                            action="{{ route('admin.booking.action', [$b->id, 'accept']) }}"
+                                                            method="POST">
+                                                            @csrf @method('PUT')
+                                                            <button type="submit"
+                                                                class="btn btn-success btn-sm p-1 shadow-sm"
+                                                                title="Terima Booking">
+                                                                <i class="bi bi-check-lg"></i>
+                                                            </button>
+                                                        </form>
+
+                                                        {{-- Tombol Reject Booking --}}
+                                                        <form
+                                                            action="{{ route('admin.booking.action', [$b->id, 'reject']) }}"
+                                                            method="POST"
+                                                            onsubmit="return confirm('Apakah Anda yakin ingin menolak booking ini?');">
+                                                            @csrf @method('PUT')
+                                                            <button type="submit"
+                                                                class="btn btn-danger btn-sm p-1 shadow-sm"
+                                                                title="Tolak Booking">
+                                                                <i class="bi bi-x-lg"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
                                                 @else
-                                                    <small class="text-muted italic">Processed</small>
+                                                    {{-- Tampilan Status Booking Jika Bukan 'Booked' --}}
+                                                    @if ($b->status->status_name === 'Approved')
+                                                        <i class="bi bi-check-circle-fill text-success"
+                                                            title="Booking Approved"></i>
+                                                    @elseif($b->status->status_name === 'Rejected')
+                                                        <i class="bi bi-x-circle-fill text-danger"
+                                                            title="Booking Rejected"></i>
+                                                    @else
+                                                        -
+                                                    @endif
+                                                @endif
+                                            </td>
+
+                                            {{-- 2. Cleanliness Status (BARU) --}}
+                                            <td class="text-center">
+                                                @if ($b->cleanliness_status === 'approved')
+                                                    <span class="badge bg-success">Approved</span>
+                                                @elseif($b->cleanliness_status === 'rejected')
+                                                    <span class="badge bg-danger">Rejected</span>
+                                                @else
+                                                    <span class="badge bg-warning text-dark">Pending</span>
+                                                @endif
+                                            </td>
+
+                                            {{-- 3. Facility Photos (BARU) --}}
+                                            <td class="text-center">
+                                                @if ($b->photo_proof_path)
+                                                    {{-- Pastikan sudah run: php artisan storage:link --}}
+                                                    <a href="{{ asset('storage/' . $b->photo_proof_path) }}"
+                                                        target="_blank">
+                                                        <img src="{{ asset('storage/' . $b->photo_proof_path) }}"
+                                                            alt="Bukti Kebersihan" class="img-thumbnail"
+                                                            style="height: 50px; width: 50px; object-fit: cover;">
+                                                    </a>
+                                                @else
+                                                    <span class="text-muted small fst-italic">Belum upload</span>
+                                                @endif
+                                            </td>
+
+                                            {{-- 4. Cleanliness Action (BARU) --}}
+                                            <td class="text-center">
+                                                {{-- Tombol hanya muncul jika User SUDAH upload foto DAN status masih Pending --}}
+                                                @if ($b->photo_proof_path && $b->cleanliness_status === 'pending')
+                                                    <div class="d-flex justify-content-center align-items-center gap-2">
+
+                                                        {{-- Tombol Approve Kebersihan --}}
+                                                        {{-- Pastikan route 'booking.cleanliness.update' sudah dibuat di web.php --}}
+                                                        <form action="{{ route('booking.cleanliness.update', $b->id) }}"
+                                                            method="POST">
+                                                            @csrf @method('PUT')
+                                                            <input type="hidden" name="action" value="approved">
+                                                            <button type="submit" class="btn btn-outline-success btn-sm"
+                                                                title="Approve Kebersihan">
+                                                                <i class="bi bi-check-circle-fill"></i>
+                                                            </button>
+                                                        </form>
+
+                                                        {{-- Tombol Reject Kebersihan --}}
+                                                        <form action="{{ route('booking.cleanliness.update', $b->id) }}"
+                                                            method="POST"
+                                                            onsubmit="return confirm('Tolak bukti kebersihan ini? User harus upload ulang.');">
+                                                            @csrf @method('PUT')
+                                                            <input type="hidden" name="action" value="rejected">
+                                                            <button type="submit" class="btn btn-outline-danger btn-sm"
+                                                                title="Reject Kebersihan">
+                                                                <i class="bi bi-x-circle-fill"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                @elseif(!$b->photo_proof_path)
+                                                    <small class="text-muted">-</small>
+                                                @else
+                                                    {{-- Jika sudah diapprove/reject --}}
+                                                    <i class="bi bi-check-all text-primary fs-5" title="Selesai"></i>
                                                 @endif
                                             </td>
                                         @endif
@@ -187,7 +283,6 @@
                                 @endforeach
                             </tbody>
                         </table>
-                        {{-- TAMBAHKAN INI DI SINI BOS --}}
                         <div class="d-flex justify-content-between align-items-center mt-3 px-3">
                             <div>
                                 {{ $bookings->appends(request()->query())->links() }}
@@ -203,7 +298,6 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
-            // PERBAIKAN: Inisialisasi pada ID unik
             const table = $('#schedule-final-table').DataTable({
                 "paging": false,
                 "info": false,
@@ -213,7 +307,12 @@
                 "autoWidth": false,
                 "language": {
                     "emptyTable": "Belum ada jadwal yang terdaftar."
-                }
+                },
+                // Tambahkan ini agar kolom action tidak bisa disortir (opsional)
+                "columnDefs": [{
+                    "orderable": false,
+                    "targets": -1
+                }]
             });
 
             // Search manual
