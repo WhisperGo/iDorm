@@ -51,102 +51,109 @@
 
             {{-- SECTION 2: TABEL DATA (Hanya muncul jika $bookings ada) --}}
             @if ($bookings)
-                <div class="card shadow-sm border-0">
-                    <div class="card-header d-flex justify-content-between align-items-center bg-white py-3">
-                        <h4 class="card-title mb-0 fw-bold">Data Laporan</h4>
-                        <button onclick="window.print()" class="btn btn-danger btn-sm rounded-pill">
-                            <i class="bi bi-printer me-1"></i> Cetak PDF
-                        </button>
-                    </div>
+                {{-- Ganti tombol Cetak PDF lama dengan grup tombol ini --}}
+                <div class="d-flex gap-2 mb-3">
+                    <button onclick="window.print()" class="btn btn-outline-secondary btn-sm rounded-pill">
+                        <i class="bi bi-printer"></i> Print
+                    </button>
+                    <a href="{{ route('pengelola.loan_report.excel', request()->all()) }}"
+                        class="btn btn-success btn-sm rounded-pill">
+                        <i class="bi bi-file-earmark-excel"></i> Excel
+                    </a>
+                    <a href="{{ route('pengelola.loan_report.pdf', request()->all()) }}"
+                        class="btn btn-danger btn-sm rounded-pill">
+                        <i class="bi bi-file-earmark-pdf"></i> PDF
+                    </a>
+                </div>
 
-                    <div class="card-body">
-                        {{-- Form Filter Tanggal --}}
-                        <form action="{{ route('pengelola.loan_report') }}" method="GET" class="row g-2 mb-4">
-                            <input type="hidden" name="facility_id" value="{{ request('facility_id') }}">
-                            <div class="col-md-3">
-                                <input type="date" name="start_date" class="form-control form-control-sm"
-                                    value="{{ request('start_date') }}">
-                            </div>
-                            <div class="col-md-3">
-                                <input type="date" name="end_date" class="form-control form-control-sm"
-                                    value="{{ request('end_date') }}">
-                            </div>
-                            <div class="col-md-2">
-                                <button type="submit" class="btn btn-primary btn-sm w-100">Filter Tanggal</button>
-                            </div>
-                        </form>
+                <div class="card-body">
+                    {{-- Form Filter Tanggal --}}
+                    <form action="{{ route('pengelola.loan_report') }}" method="GET" class="row g-2 mb-4">
+                        <input type="hidden" name="facility_id" value="{{ request('facility_id') }}">
+                        <div class="col-md-3">
+                            <input type="date" name="start_date" class="form-control form-control-sm"
+                                value="{{ request('start_date') }}">
+                        </div>
+                        <div class="col-md-3">
+                            <input type="date" name="end_date" class="form-control form-control-sm"
+                                value="{{ request('end_date') }}">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary btn-sm w-100">Filter Tanggal</button>
+                        </div>
+                    </form>
 
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle border">
-                                <thead class="table-light">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle border">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Nama Penghuni</th>
+                                    <th>Fasilitas</th>
+                                    <th>Tanggal</th>
+                                    <th>Waktu</th>
+                                    <th>Status</th>
+                                    <th>Kebersihan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{-- PERBAIKAN: Gunakan $bookings, bukan $totalBookings --}}
+                                @forelse($bookings as $booking)
                                     <tr>
-                                        <th>No</th>
-                                        <th>Nama Penghuni</th>
-                                        <th>Fasilitas</th>
-                                        <th>Tanggal</th>
-                                        <th>Waktu</th>
-                                        <th>Status</th>
-                                        <th>Kebersihan</th>
+                                        <td>{{ ($bookings->currentPage() - 1) * $bookings->perPage() + $loop->iteration }}
+                                        </td>
+                                        <td>
+                                            <div class="fw-bold">
+                                                {{ $booking->user->residentDetails->full_name ?? $booking->user->name }}
+                                            </div>
+                                            <small class="text-muted">ID: {{ $booking->user->id }}</small>
+                                        </td>
+                                        <td>{{ $booking->facility->name }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($booking->booking_date)->format('d/m/Y') }}</td>
+                                        <td>{{ substr($booking->start_time, 0, 5) }} -
+                                            {{ substr($booking->end_time, 0, 5) }}</td>
+                                        <td>
+                                            @php
+                                                $statusColor = match ($booking->status->status_name) {
+                                                    'Accepted', 'Booked' => 'primary',
+                                                    'On Going' => 'info',
+                                                    'Completed' => 'success',
+                                                    'Canceled' => 'danger',
+                                                    default => 'secondary',
+                                                };
+                                            @endphp
+                                            <span
+                                                class="badge bg-{{ $statusColor }}">{{ $booking->status->status_name }}</span>
+                                        </td>
+                                        <td>
+                                            <span
+                                                class="badge bg-{{ $booking->cleanliness_status == 'approved' ? 'success' : 'warning' }}">
+                                                {{ ucfirst($booking->cleanliness_status) }}
+                                            </span>
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    {{-- PERBAIKAN: Gunakan $bookings, bukan $totalBookings --}}
-                                    @forelse($bookings as $booking)
-                                        <tr>
-                                            <td>{{ ($bookings->currentPage() - 1) * $bookings->perPage() + $loop->iteration }}
-                                            </td>
-                                            <td>
-                                                <div class="fw-bold">
-                                                    {{ $booking->user->residentDetails->full_name ?? $booking->user->name }}
-                                                </div>
-                                                <small class="text-muted">ID: {{ $booking->user->id }}</small>
-                                            </td>
-                                            <td>{{ $booking->facility->name }}</td>
-                                            <td>{{ \Carbon\Carbon::parse($booking->booking_date)->format('d/m/Y') }}</td>
-                                            <td>{{ substr($booking->start_time, 0, 5) }} -
-                                                {{ substr($booking->end_time, 0, 5) }}</td>
-                                            <td>
-                                                @php
-                                                    $statusColor = match ($booking->status->status_name) {
-                                                        'Accepted', 'Booked' => 'primary',
-                                                        'On Going' => 'info',
-                                                        'Completed' => 'success',
-                                                        'Canceled' => 'danger',
-                                                        default => 'secondary',
-                                                    };
-                                                @endphp
-                                                <span
-                                                    class="badge bg-{{ $statusColor }}">{{ $booking->status->status_name }}</span>
-                                            </td>
-                                            <td>
-                                                <span
-                                                    class="badge bg-{{ $booking->cleanliness_status == 'approved' ? 'success' : 'warning' }}">
-                                                    {{ ucfirst($booking->cleanliness_status) }}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="7" class="text-center py-5">Data peminjaman tidak ditemukan.
-                                            </td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
+                                @empty
+                                    <tr>
+                                        <td colspan="7" class="text-center py-5">Data peminjaman tidak ditemukan.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
 
-                        <div class="mt-3">
-                            {{ $bookings->links() }}
-                        </div>
+                    <div class="mt-3">
+                        {{ $bookings->links() }}
                     </div>
                 </div>
-            @else
-                <div class="alert alert-info border-0 shadow-sm">
-                    <i class="bi bi-info-circle me-2"></i> Silakan pilih salah satu kartu fasilitas di atas untuk melihat
-                    detail laporan.
-                </div>
-            @endif
-
         </div>
+    @else
+        <div class="alert alert-info border-0 shadow-sm">
+            <i class="bi bi-info-circle me-2"></i> Silakan pilih salah satu kartu fasilitas di atas untuk melihat
+            detail laporan.
+        </div>
+        @endif
+
+    </div>
     </div>
 @endsection
