@@ -54,9 +54,6 @@
             @if ($bookings)
                 {{-- Ganti tombol Cetak PDF lama dengan grup tombol ini --}}
                 <div class="d-flex gap-2 mb-3">
-                    <button onclick="window.print()" class="btn btn-outline-secondary btn-sm rounded-pill">
-                        <i class="bi bi-printer"></i> Print
-                    </button>
                     <a href="{{ route('pengelola.loan_report.excel', request()->all()) }}"
                         class="btn btn-success btn-sm rounded-pill">
                         <i class="bi bi-file-earmark-excel"></i> Excel
