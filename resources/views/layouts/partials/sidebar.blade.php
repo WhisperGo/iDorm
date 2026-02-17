@@ -267,7 +267,7 @@
                         <a class="nav-link {{ Route::is('pengelola.report') ? 'active' : '' }}"
                             href="{{ route('pengelola.report') }}">
                             <i class="bi bi-file-earmark-arrow-down-fill"></i>
-                            <span class="item-name">Loan Report</span>
+                            <span class="item-name">Booking Report</span>
                         </a>
                     </li>
                 @endif
