@@ -112,8 +112,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/suspensions', [SuspendController::class, 'store'])->name('suspensions.store');
     Route::delete('/suspensions/{id}', [SuspendController::class, 'destroy'])->name('suspensions.destroy');
 
-    Route::put('/booking/{id}/cleanliness', [App\Http\Controllers\BookingController::class, 'updateCleanliness'])
-    ->name('booking.cleanliness.update');
+    Route::put('/booking/{id}/cleanliness', [App\Http\Controllers\BookingController::class, 'updateCleanliness'])->name('booking.cleanliness.update');
 });
 
 require __DIR__ . '/auth.php';
