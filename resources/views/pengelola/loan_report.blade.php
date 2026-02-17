@@ -22,24 +22,25 @@
                     <div class="row g-3">
                         {{-- Tombol Semua --}}
                         <div class="col-md-2">
-                            <a href="{{ route('pengelola.loan_report') }}" class="text-decoration-none">
+                            {{-- Kita beri parameter facility_id = all --}}
+                            <a href="{{ route('pengelola.loan_report', ['facility_id' => 'all']) }}"
+                                class="text-decoration-none">
                                 <div
-                                    class="card h-100 border text-center p-3 {{ !request('facility_id') ? 'bg-primary text-white' : 'bg-light text-dark' }}">
+                                    class="card h-100 border text-center p-3 {{ request('facility_id') == 'all' ? 'bg-primary text-white' : 'bg-light text-dark' }} hover-shadow">
                                     <i class="bi bi-collection-fill fs-3 mb-2"></i>
                                     <div class="small fw-bold">Semua</div>
                                 </div>
                             </a>
                         </div>
+
                         @foreach ($facilities as $fac)
                             <div class="col-md-2">
                                 <a href="{{ route('pengelola.loan_report', ['facility_id' => $fac->id]) }}"
                                     class="text-decoration-none">
                                     <div
                                         class="card h-100 border text-center p-3 {{ request('facility_id') == $fac->id ? 'bg-primary text-white' : 'bg-light text-dark' }} hover-shadow">
-
                                         {{-- PEMANGGILAN IKON OTOMATIS --}}
                                         <i class="bi {{ $iconMap[$fac->name] ?? 'bi-building' }} fs-3 mb-2"></i>
-
                                         <div class="small fw-bold">{{ $fac->name }}</div>
                                     </div>
                                 </a>
