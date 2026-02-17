@@ -3,6 +3,14 @@
     $gender = auth()->user()->residentDetails->gender ?? null;
 @endphp
 
+<style>
+.sidebar {
+    height: 100vh; /* Memastikan tinggi sidebar setinggi layar */
+    display: flex;
+    flex-direction: column;
+}
+</style>
+
 <aside class="sidebar sidebar-default sidebar-white sidebar-base navs-rounded-all">
     <div class="sidebar-header d-flex align-items-center justify-content-start">
         <div class="navbar-brand">
@@ -206,7 +214,7 @@
                 @endif
 
                 {{-- COMPLAINT: Link ke list keluhan (Filtered by Room for Residents) --}}
-                @if(auth()->user()->role->role_name != 'Admin')
+                @if (auth()->user()->role->role_name != 'Admin')
                     <li class="nav-item">
                         @php
                             // Tentukan nama rute berdasarkan role
@@ -223,6 +231,9 @@
                     </li>
                 @endif
 
+                <li>
+                    <hr class="hr-horizontal">
+                </li>
                 {{-- TAMBAHKAN MENU KOS PREDICTION DISINI --}}
                 <li class="nav-item static-item">
                     <a class="nav-link static-item disabled" href="#">

@@ -14,7 +14,7 @@ class ReportController extends Controller
         $totalBookings = Booking::count();
         $totalComplaints = BuildingComplaint::count();
         
-        return view('admin.complaint', compact('totalBookings', 'totalComplaints'));
+        return view('pengelola.loan_report', compact('totalBookings', 'totalComplaints'));
     }
 
     public function reportIndex(Request $request)
