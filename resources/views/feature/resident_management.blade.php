@@ -120,6 +120,86 @@
                                             </td>
                                         @endif
                                     </tr>
+
+                                    {{-- @unless ($globalSuspend) --}}
+                                    @if (auth()->user()->role->role_name == 'Manager' && !$globalSuspend)
+                                        <div class="modal fade" id="modalGlobal{{ $res->id }}" tabindex="-1"
+                                            aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content border-0 shadow-lg">
+                                                    {{-- Header dengan Soft Background --}}
+                                                    <div class="modal-header bg-soft-danger border-bottom-0">
+                                                        <div class="d-flex align-items-center">
+                                                            <span
+                                                                class="avatar-40 rounded-pill bg-danger d-flex align-items-center justify-content-center me-2">
+                                                                <i class="bi bi-exclamation-triangle-fill text-white"></i>
+                                                            </span>
+                                                            <div>
+                                                                <h5 class="modal-title fw-bold text-danger mb-0">Global
+                                                                    Suspend</h5>
+                                                                <small class="text-muted">Target:
+                                                                    {{ $res->residentDetails->full_name }}</small>
+                                                            </div>
+                                                        </div>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                            aria-label="Close"></button>
+                                                    </div>
+
+                                                    <form action="{{ route('suspensions.store') }}" method="POST">
+                                                        @csrf
+                                                        <div class="modal-body">
+                                                            <input type="hidden" name="user_id"
+                                                                value="{{ $res->id }}">
+                                                            <input type="hidden" name="facility_id" value="">
+                                                            {{-- NULL untuk Global --}}
+
+                                                            {{-- Alert Info --}}
+                                                            <div class="alert alert-soft-danger d-flex align-items-center mb-4"
+                                                                role="alert">
+                                                                <i class="bi bi-info-circle me-3"></i>
+                                                                <div class="small">
+                                                                    Akun akan <b>diblokir total</b> dari seluruh fasilitas
+                                                                    asrama.
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="form-group mb-3">
+                                                                <label class="form-label fw-bold">Alasan Hukuman <span
+                                                                        class="text-danger">*</span></label>
+                                                                <textarea name="reason" class="form-control" rows="3" required
+                                                                    placeholder="Contoh: Menunggak pembayaran, pelanggaran berat..."></textarea>
+                                                            </div>
+
+                                                            <div class="row">
+                                                                <div class="col-6">
+                                                                    <label class="form-label fw-bold">Mulai</label>
+                                                                    <input type="date" name="start_date"
+                                                                        class="form-control" value="{{ date('Y-m-d') }}"
+                                                                        required>
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <label class="form-label fw-bold">Selesai
+                                                                        (Opsional)
+                                                                    </label>
+                                                                    <input type="date" name="end_date"
+                                                                        class="form-control">
+                                                                    <small class="text-muted"
+                                                                        style="font-size: 0.75rem;">Kosong =
+                                                                        Permanen</small>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer border-top-0 pt-0">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                data-bs-dismiss="modal">Batal</button>
+                                                            <button type="submit" class="btn btn-danger">Ya, Bekukan
+                                                                Akun</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
                                     {{-- Modal Global & Local Include disini --}}
                                 @empty
                                     <tr>
