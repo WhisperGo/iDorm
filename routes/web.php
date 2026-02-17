@@ -11,6 +11,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ResidentController;
 use App\Http\Controllers\SuspendController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ChatbotController;
 use Illuminate\Support\Facades\Route;
 
 // 1. GUEST ROUTES
@@ -44,11 +45,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/prediction', [PredictionController::class, 'index'])->name('prediction.index');
     Route::post('/prediction', [PredictionController::class, 'store'])->name('prediction.store');
 
+    // 4.5. Chatbot
+    Route::post('/chatbot/send', [ChatbotController::class, 'sendMessage'])->name('chatbot.send');
+    
     // 5. ROLE: RESIDENT ONLY
     Route::prefix('user')->group(function () {
         Route::get('/booking', [BookingController::class, 'index'])->name('booking.index');
         Route::get('/booking/create/', [BookingController::class, 'create'])->name('booking.create');
         Route::post('/booking/store', [BookingController::class, 'store'])->name('booking.store');
+        Route::get('/bookings/chatbot', [BookingController::class, 'createFromChatbot'])->name('booking.chatbot');
         Route::post('/booking/{booking}/early-release', [BookingController::class, 'earlyRelease'])->name('booking.earlyRelease');
         Route::post('/booking/{booking}/upload-photo', [BookingController::class, 'uploadPhoto'])->name('booking.upload');
 
