@@ -113,7 +113,7 @@
                                     @if ($canAccess)
                                         <th class="text-center">Booking Action</th>
                                         {{-- 3 KOLOM BARU (CLEANLINESS) --}}
-                                        <th class="text-center">Cleanliness Status</th>
+                                        {{-- <th class="text-center">Cleanliness Status</th> --}}
                                         <th class="text-center" width="10%">Facility Photos</th>
                                         <th class="text-center">Cleanliness Action</th>
                                     @endif
@@ -184,7 +184,7 @@
                                                     <div class="d-flex justify-content-center align-items-center gap-2">
                                                         {{-- Tombol Accept Booking --}}
                                                         <form
-                                                            action="{{ route('admin.booking.action', [$b->id, 'accept']) }}"
+                                                            action="{{ route('admin.booking.action', [$b->id, 'approve']) }}"
                                                             method="POST">
                                                             @csrf @method('PUT')
                                                             <button type="submit"
@@ -221,28 +221,28 @@
                                                 @endif
                                             </td>
 
-                                            {{-- KOLOM: Cleanliness Status --}}
+                                            {{-- KOLOM: Cleanliness Status
                                             <td class="text-center">
                                                 @php
                                                     $statusName = $b->status->status_name;
-                                                @endphp
+                                                @endphp --}}
 
-                                                @if ($statusName === 'Completed')
+                                                {{-- @if ($statusName === 'Completed') --}}
                                                     {{-- ID 6 --}}
-                                                    <span class="badge bg-success"><i
+                                                    {{-- <span class="badge bg-success"><i
                                                             class="bi bi-check-circle me-1"></i>Selesai</span>
-                                                @elseif($statusName === 'Verifying Cleanliness')
+                                                @elseif($statusName === 'Verifying Cleanliness') --}}
                                                     {{-- ID 5 --}}
-                                                    <span class="badge bg-warning text-dark">
+                                                    {{-- <span class="badge bg-warning text-dark">
                                                         <i class="bi bi-search me-1"></i>Verifikasi Admin
                                                     </span>
-                                                @elseif($statusName === 'Awaiting Cleanliness Photo')
+                                                @elseif($statusName === 'Awaiting Cleanliness Photo') --}}
                                                     {{-- ID 7 --}}
-                                                    <span class="badge bg-secondary">Menunggu Foto User</span>
+                                                    {{-- <span class="badge bg-secondary">Menunggu Foto User</span>
                                                 @else
                                                     <span class="text-muted small">-</span>
                                                 @endif
-                                            </td>
+                                            </td> --}}
 
                                             {{-- KOLOM: Facility Photos (Hanya tampilkan gambar) --}}
                                             <td class="text-center">
