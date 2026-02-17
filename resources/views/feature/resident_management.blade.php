@@ -14,10 +14,10 @@
                     </div>
 
                     @if (Auth::user()->role->role_name === 'Manager')
-                    {{-- Letakkan di dalam card-header atau area atas tabel --}}
-                    <a href="{{ route('manager.residents.create') }}" class="btn btn-primary btn-sm shadow-sm">
-                        <i class="bi bi-plus-circle me-1"></i> Add Resident
-                    </a>
+                        {{-- Letakkan di dalam card-header atau area atas tabel --}}
+                        <a href="{{ route('manager.residents.create') }}" class="btn btn-primary btn-sm shadow-sm">
+                            <i class="bi bi-plus-circle me-1"></i> Add Resident
+                        </a>
                     @endif
                 </div>
 
@@ -37,7 +37,9 @@
                                     <th>Resident Info</th>
                                     <th class="text-center">Room</th>
                                     <th class="text-center">Global Status</th>
-                                    <th class="text-center" width="15%">Action</th>
+                                    @if (Auth::user()->role->role_name === 'Manager')
+                                        <th class="text-center" width="15%">Action</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody>
@@ -79,26 +81,29 @@
                                             @endif
                                         </td>
 
-                                        <td class="text-center">
-                                            <div class="d-flex align-items-center justify-content-center gap-2">
-                                                {{-- Edit Profile --}}
-                                                <a class="btn btn-sm btn-icon btn-soft-primary"
-                                                    href="{{ route('admin.profile.edit', $res->id) }}" title="Edit Profile">
-                                                    <i class="bi bi-pencil-square"></i>
-                                                </a>
+                                        @if (Auth::user()->role->role_name === 'Manager')
+                                            <td class="text-center">
+                                                <div class="d-flex align-items-center justify-content-center gap-2">
+                                                    {{-- Edit Profile --}}
+                                                    <a class="btn btn-sm btn-icon btn-soft-primary"
+                                                        href="{{ route('admin.profile.edit', $res->id) }}"
+                                                        title="Edit Profile">
+                                                        <i class="bi bi-pencil-square"></i>
+                                                    </a>
 
-                                                {{-- Tombol Hapus --}}
-                                                <form action="{{ route('manager.residents.destroy', $res->id) }}"
-                                                    method="POST"
-                                                    onsubmit="return confirm('Apakah Anda yakin ingin menghapus resident ini? Semua data terkait akan hilang!')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-icon btn-soft-danger btn-outline-danger">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </form>
+                                                    {{-- Tombol Hapus --}}
+                                                    <form action="{{ route('manager.residents.destroy', $res->id) }}"
+                                                        method="POST"
+                                                        onsubmit="return confirm('Apakah Anda yakin ingin menghapus resident ini? Semua data terkait akan hilang!')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit"
+                                                            class="btn btn-sm btn-icon btn-soft-danger btn-outline-danger">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </form>
 
-                                                {{-- Local Suspend Button
+                                                    {{-- Local Suspend Button
                                                 @if ($localSuspend)
                                                     <form action="{{ route('suspensions.destroy', $localSuspend->id) }}" method="POST" onsubmit="return confirm('Cabut sanksi?')">
                                                         @csrf @method('DELETE')
@@ -111,8 +116,9 @@
                                                         <i class="bi bi-lock-fill"></i>
                                                     </button>
                                                 @endif --}}
-                                            </div>
-                                        </td>
+                                                </div>
+                                            </td>
+                                        @endif
                                     </tr>
                                     {{-- Modal Global & Local Include disini --}}
                                 @empty

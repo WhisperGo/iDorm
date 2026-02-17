@@ -11,10 +11,10 @@
                     </div>
 
                     @if (Auth::user()->role->role_name === 'Manager')
-                    {{-- Tombol Tambah Admin --}}
-                    <a href="{{ route('manager.admins.create') }}" class="btn btn-primary btn-sm shadow-sm">
-                        <i class="bi bi-person-plus-fill me-1"></i> Add Admin
-                    </a>
+                        {{-- Tombol Tambah Admin --}}
+                        <a href="{{ route('manager.admins.create') }}" class="btn btn-primary btn-sm shadow-sm">
+                            <i class="bi bi-person-plus-fill me-1"></i> Add Admin
+                        </a>
                     @endif
                 </div>
 
@@ -34,7 +34,9 @@
                                     <th class="text-center" width="5%">No.</th>
                                     <th>Admin Info</th>
                                     <th>Managed Facility</th>
-                                    <th class="text-center" width="15%">Action</th>
+                                    @if (Auth::user()->role->role_name === 'Manager')
+                                        <th class="text-center" width="15%">Action</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody>
@@ -62,27 +64,31 @@
                                                     Ditugaskan</span>
                                             @endif
                                         </td>
-                                        <td class="text-center">
-                                            <div class="d-flex align-items-center justify-content-center gap-2">
-                                                {{-- Edit Button --}}
-                                                <a class="btn btn-sm btn-icon btn-soft-primary"
-                                                    href="{{ route('admin.profile.edit', $adm->id) }}" title="Edit Admin">
-                                                    <i class="bi bi-pencil-square"></i>
-                                                </a>
 
-                                                {{-- Delete Button (Soft Delete) --}}
-                                                <form action="{{ route('manager.admins.destroy', $adm->id) }}"
-                                                    method="POST"
-                                                    onsubmit="return confirm('Apakah Anda yakin ingin menonaktifkan admin ini?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit"
-                                                        class="btn btn-sm btn-icon btn-soft-danger btn-outline-danger">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
+                                        @if (Auth::user()->role->role_name === 'Manager')
+                                            <td class="text-center">
+                                                <div class="d-flex align-items-center justify-content-center gap-2">
+                                                    {{-- Edit Button --}}
+                                                    <a class="btn btn-sm btn-icon btn-soft-primary"
+                                                        href="{{ route('admin.profile.edit', $adm->id) }}"
+                                                        title="Edit Admin">
+                                                        <i class="bi bi-pencil-square"></i>
+                                                    </a>
+
+                                                    {{-- Delete Button (Soft Delete) --}}
+                                                    <form action="{{ route('manager.admins.destroy', $adm->id) }}"
+                                                        method="POST"
+                                                        onsubmit="return confirm('Apakah Anda yakin ingin menonaktifkan admin ini?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit"
+                                                            class="btn btn-sm btn-icon btn-soft-danger btn-outline-danger">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        @endif
                                     </tr>
                                 @empty
                                     <tr>
