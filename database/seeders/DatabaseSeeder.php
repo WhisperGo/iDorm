@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
 
         // 2. SEED STATUSES (Update sesuai alur baru)
         // ID: 1 (Booked), 2 (Accepted), 3 (Canceled), 4 (Verifying), 5 (Completed)
-        $bStatuses = ['Booked', 'Accepted', 'Canceled', 'Verifying', 'Completed'];
+        $bStatuses = ['Booked', 'Accepted', 'Canceled', 'On Going', 'Verifying Cleanliness', 'Completed', 'Awaiting Cleanliness Photo'];
         foreach ($bStatuses as $bs) {
             BookingStatus::firstOrCreate(['status_name' => $bs]);
         }

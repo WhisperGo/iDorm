@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('booking_statuses', function (Blueprint $table) {
             $table->id(); // BigInt Unsigned - Cocok untuk foreignId di tabel bookings
-            $table->string('status_name', 20);
+            $table->string('status_name', 50);
             
             // Menggunakan standar Laravel agar sinkron dengan tabel lainnya
             $table->timestamps();

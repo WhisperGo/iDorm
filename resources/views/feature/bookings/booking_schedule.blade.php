@@ -124,13 +124,17 @@
                                     @php $b = $group->first(); @endphp
                                     <tr>
                                         <td class="text-center">{{ $loop->iteration }}</td>
+
                                         <td class="text-center">
-                                            {{ \Carbon\Carbon::parse($b->booking_date)->format('d M Y') }}</td>
+                                            {{ \Carbon\Carbon::parse($b->booking_date)->format('d M Y') }}
+                                        </td>
+
                                         <td class="text-center">
                                             <span class="badge bg-soft-primary text-primary fs-6">
                                                 {{ substr($b->start_time, 0, 5) }} - {{ substr($b->end_time, 0, 5) }}
                                             </span>
                                         </td>
+
                                         <td>
                                             <div class="fw-bold">
                                                 {{ $b->user->residentDetails->full_name ?? ($b->user->name ?? 'User Tidak Ditemukan') }}
@@ -139,6 +143,7 @@
                                                 {{ $b->user->residentDetails->room_number ?? '-' }}
                                             </small>
                                         </td>
+
                                         <td>
                                             @php
                                                 $facilityName = strtolower($b->facility->name);
@@ -165,6 +170,7 @@
                                                 <div class="fw-bold">{{ $b->facility->name }}</div>
                                             @endif
                                         </td>
+                                        
                                         <td class="text-center">
                                             <span
                                                 class="badge bg-info text-uppercase px-3 py-2">{{ $b->status->status_name }}</span>
@@ -215,25 +221,36 @@
                                                 @endif
                                             </td>
 
-                                            {{-- 2. Cleanliness Status (BARU) --}}
+                                            {{-- KOLOM: Cleanliness Status --}}
                                             <td class="text-center">
-                                                @if ($b->cleanliness_status === 'approved')
-                                                    <span class="badge bg-success">Approved</span>
-                                                @elseif($b->cleanliness_status === 'rejected')
-                                                    <span class="badge bg-danger">Rejected</span>
+                                                @php
+                                                    $statusName = $b->status->status_name;
+                                                @endphp
+
+                                                @if ($statusName === 'Completed')
+                                                    {{-- ID 6 --}}
+                                                    <span class="badge bg-success"><i
+                                                            class="bi bi-check-circle me-1"></i>Selesai</span>
+                                                @elseif($statusName === 'Verifying Cleanliness')
+                                                    {{-- ID 5 --}}
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="bi bi-search me-1"></i>Verifikasi Admin
+                                                    </span>
+                                                @elseif($statusName === 'Awaiting Cleanliness Photo')
+                                                    {{-- ID 7 --}}
+                                                    <span class="badge bg-secondary">Menunggu Foto User</span>
                                                 @else
-                                                    <span class="badge bg-warning text-dark">Pending</span>
+                                                    <span class="text-muted small">-</span>
                                                 @endif
                                             </td>
 
-                                            {{-- 3. Facility Photos (BARU) --}}
+                                            {{-- KOLOM: Facility Photos (Hanya tampilkan gambar) --}}
                                             <td class="text-center">
                                                 @if ($b->photo_proof_path)
-                                                    {{-- Pastikan sudah run: php artisan storage:link --}}
                                                     <a href="{{ asset('storage/' . $b->photo_proof_path) }}"
                                                         target="_blank">
                                                         <img src="{{ asset('storage/' . $b->photo_proof_path) }}"
-                                                            alt="Bukti Kebersihan" class="img-thumbnail"
+                                                            alt="Bukti" class="img-thumbnail"
                                                             style="height: 50px; width: 50px; object-fit: cover;">
                                                     </a>
                                                 @else
@@ -241,41 +258,41 @@
                                                 @endif
                                             </td>
 
-                                            {{-- 4. Cleanliness Action (BARU) --}}
+                                            {{-- KOLOM: Cleanliness Action (Tombol Admin) --}}
                                             <td class="text-center">
-                                                {{-- Tombol hanya muncul jika User SUDAH upload foto DAN status masih Pending --}}
-                                                @if ($b->photo_proof_path && $b->cleanliness_status === 'pending')
-                                                    <div class="d-flex justify-content-center align-items-center gap-2">
+                                                {{-- Tampilkan tombol HANYA jika status = Verifying Cleanliness (ID 5) --}}
+                                                @if ($b->status->status_name === 'Verifying Cleanliness' && $b->photo_proof_path)
+                                                    <div class="d-flex justify-content-center gap-2">
 
-                                                        {{-- Tombol Approve Kebersihan --}}
-                                                        {{-- Pastikan route 'booking.cleanliness.update' sudah dibuat di web.php --}}
+                                                        {{-- Tombol APPROVE (Ubah ke ID 6) --}}
                                                         <form action="{{ route('booking.cleanliness.update', $b->id) }}"
                                                             method="POST">
                                                             @csrf @method('PUT')
                                                             <input type="hidden" name="action" value="approved">
-                                                            <button type="submit" class="btn btn-outline-success btn-sm"
-                                                                title="Approve Kebersihan">
-                                                                <i class="bi bi-check-circle-fill"></i>
+                                                            <button type="submit" class="btn btn-success btn-sm"
+                                                                title="Approve & Selesaikan">
+                                                                <i class="bi bi-check-lg"></i>
                                                             </button>
                                                         </form>
 
-                                                        {{-- Tombol Reject Kebersihan --}}
+                                                        {{-- Tombol REJECT (Kembalikan ke ID 7) --}}
                                                         <form action="{{ route('booking.cleanliness.update', $b->id) }}"
                                                             method="POST"
-                                                            onsubmit="return confirm('Tolak bukti kebersihan ini? User harus upload ulang.');">
+                                                            onsubmit="return confirm('Tolak bukti ini? Status akan kembali ke Awaiting Photo.');">
                                                             @csrf @method('PUT')
                                                             <input type="hidden" name="action" value="rejected">
-                                                            <button type="submit" class="btn btn-outline-danger btn-sm"
-                                                                title="Reject Kebersihan">
-                                                                <i class="bi bi-x-circle-fill"></i>
+                                                            <button type="submit" class="btn btn-danger btn-sm"
+                                                                title="Tolak & Minta Upload Ulang">
+                                                                <i class="bi bi-x-lg"></i>
                                                             </button>
                                                         </form>
+
                                                     </div>
-                                                @elseif(!$b->photo_proof_path)
-                                                    <small class="text-muted">-</small>
+                                                @elseif($b->status->status_name === 'Completed')
+                                                    <i class="bi bi-patch-check-fill text-primary fs-4"
+                                                        title="Verified & Completed"></i>
                                                 @else
-                                                    {{-- Jika sudah diapprove/reject --}}
-                                                    <i class="bi bi-check-all text-primary fs-5" title="Selesai"></i>
+                                                    <small class="text-muted">-</small>
                                                 @endif
                                             </td>
                                         @endif
