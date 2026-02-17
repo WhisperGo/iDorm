@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
+use App\Models\BookingStatus;
 use App\Models\Facility;
 use App\Models\FacilityItem;
-use App\Models\TimeSlot;
 use App\Models\Suspension;
+use App\Models\TimeSlot;
+use Illuminate\Container\Attributes\Log;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Carbon;
@@ -367,7 +369,7 @@ class BookingController extends Controller
 
     public function myPersonalHistory()
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         // 1. Ambil Data (Eager Load Relasi Baru)
         $bookings = Booking::where('user_id', $user->id)
@@ -454,15 +456,20 @@ class BookingController extends Controller
     // Fungsi untuk Early Release (Penghuni)
     public function earlyRelease(Booking $booking)
     {
-        if ($booking->user_id !== Auth::id())
-            abort(403);
+        if($booking->user_id !== Auth::user()){
+            return redirect()->back()->with('error', 'akses ditolak');
+        }
+
+        $now = now('Asia/Jakarta');
+
+        $verifyingStatus = BookingStatus::where('status_name', 'Verifying')->first();
 
         $booking->update([
-            'is_early_release' => true,
-            'actual_finish_at' => now(),
+            'end_time' => $now->format('H:i:s'),
+            'status_id' => $verifyingStatus->id,
         ]);
 
-        return back()->with('success', 'Peminjaman diakhiri lebih awal. Silakan upload foto kebersihan.');
+        return redirect()->back()->with('success', 'Sesi diakhiri lebih awal. Silakan upload foto kebersihan!');
     }
 
     private function checkSuspension($userId, $facilityId)
