@@ -21,8 +21,8 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
-        'email',
+        // 'name',
+        // 'email',
         'password',
         'account_status',
     ];
@@ -79,7 +79,7 @@ class User extends Authenticatable
 
     // app/Models/Booking.php
     public function facility(): BelongsTo {
-        return $this->belongsTo(Facility::class);
+        return $this->belongsTo(Facility::class, 'facility_id');
     }
 
     public function activeSuspensions(){

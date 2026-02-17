@@ -30,4 +30,9 @@ class AdminDetail extends Model
     {
         return $this->belongsTo(Facility::class, 'facility_id', );
     }
+
+    public function facility()
+    {
+        return $this->belongsTo(Facility::class, 'facility_id');
+    }
 }

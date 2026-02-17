@@ -4,11 +4,12 @@
 @endphp
 
 <style>
-.sidebar {
-    height: 100vh; /* Memastikan tinggi sidebar setinggi layar */
-    display: flex;
-    flex-direction: column;
-}
+    .sidebar {
+        height: 100vh;
+        /* Memastikan tinggi sidebar setinggi layar */
+        display: flex;
+        flex-direction: column;
+    }
 </style>
 
 <aside class="sidebar sidebar-default sidebar-white sidebar-base navs-rounded-all">
@@ -75,7 +76,13 @@
                         <a class="nav-link {{ Route::is('pengelola.resident') ? 'active' : '' }}"
                             href="{{ route('pengelola.resident') }}">
                             <i class="bi bi-people-fill"></i>
-                            <span class="item-name">User Data</span>
+                            <span class="item-name">Resident Data</span>
+                        </a>
+
+                        <a class="nav-link {{ Route::is('manager.admins.index') ? 'active' : '' }}"
+                            href="{{ route('manager.admins.index') }}">
+                            <i class="bi bi-people-fill"></i>
+                            <span class="item-name">Admin Data</span>
                         </a>
                     </li>
                 @elseif ($role === 'Admin')
@@ -269,6 +276,10 @@
                             <i class="bi bi-file-earmark-arrow-down-fill"></i>
                             <span class="item-name">Booking Report</span>
                         </a>
+                    </li>
+
+                    <li>
+                        <hr class="hr-horizontal">
                     </li>
                 @endif
             </ul>

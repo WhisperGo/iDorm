@@ -108,6 +108,32 @@
                                     value="{{ $user->residentDetails?->room_number ?? 'N/A' }}" readonly>
                             </div>
 
+                            {{-- TAMBAHKAN DI SINI: Khusus untuk Admin (Role 2) --}}
+                            @if ($user->role_id == 2)
+                                <div class="col-md-12 mb-3">
+                                    <label class="form-label fw-bold small text-primary">Tugaskan di Fasilitas</label>
+                                    <select name="facility_id"
+                                        class="form-select {{ $isRestricted ? 'bg-light text-muted' : '' }}"
+                                        {{ $isRestricted ? 'disabled' : 'required' }}>
+                                        <option value="" disabled>-- Pilih Fasilitas --</option>
+                                        @foreach ($facilities as $fac)
+                                            <option value="{{ $fac->id }}"
+                                                {{ old('facility_id', $user->adminDetails?->facility_id) == $fac->id ? 'selected' : '' }}>
+                                                {{ $fac->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @if ($isRestricted)
+                                        <input type="hidden" name="facility_id"
+                                            value="{{ $user->adminDetails?->facility_id }}">
+                                        <div class="form-text text-danger" style="font-size: 11px;">
+                                            <i class="bi bi-info-circle"></i> Otoritas fasilitas hanya bisa diubah oleh
+                                            Manager.
+                                        </div>
+                                    @endif
+                                </div>
+                            @endif
+
                             {{-- Detail Tambahan - Readonly jika Restricted --}}
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold small">Kelas</label>
