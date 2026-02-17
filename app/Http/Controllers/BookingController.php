@@ -396,9 +396,18 @@
             if ($request->hasFile('photo')) {
                 $path = $request->file('photo')->store('cleanliness', 'public');
 
+                // Cari ID untuk status 'Verifying Cleanliness'
+                // Jika kamu yakin ID-nya 5, bisa langsung hardcode 5.
+                // Tapi lebih aman cari berdasarkan nama agar tidak error jika ID berubah.
+                $verifyingStatus = BookingStatus::where('status_name', 'Verifying Cleanliness')->first();
+
+                $statusId = $verifyingStatus ? $verifyingStatus->id : 5;
+
                 $booking->update([
                     'photo_proof_path' => $path,
-                    'cleanliness_status' => 'pending'
+                    'cleanliness_status' => 'pending',
+                    'status_id' => $statusId,
+                    'is_early_release' => 0
                 ]);
 
                 return back()->with('success', 'Foto kebersihan berhasil diunggah.');
