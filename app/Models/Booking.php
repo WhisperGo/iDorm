@@ -61,43 +61,63 @@ class Booking extends Model
         return $this->belongsTo(BookingStatus::class, 'status_id');
     }
 
-    // Di dalam class Booking
+    // File: app/Models/Booking.php
+
     public function getCalculatedStatusAttribute()
-        {
-            $now = Carbon::now('Asia/Jakarta');
+    {
+        $now = Carbon::now('Asia/Jakarta');
 
-            $start = Carbon::parse($this->booking_date . ' ' . $this->start_time, 'Asia/Jakarta');
-            $end = Carbon::parse($this->booking_date . ' ' . $this->end_time, 'Asia/Jakarta');
+        $start = Carbon::parse($this->booking_date . ' ' . $this->start_time, 'Asia/Jakarta');
+        $end = Carbon::parse($this->booking_date . ' ' . $this->end_time, 'Asia/Jakarta');
 
-            $statusName = $this->status->status_name;
-        
-            // 1. Jika status sudah Completed atau Canceled, kembalikan status asli
-            if (in_array($statusName, ['Completed', 'Canceled', 'Rejected'])) {
-                return $statusName;
-            }
-        
-            // 2. Jika statusnya Accepted, cek waktunya
-            if ($statusName === 'Accepted') {
-                if ($now->lt($start)) {
-                    return 'Upcoming';
-                }
-                if ($now->between($start, $end)) {
-                    return 'On Going';
-                }
-                if($now->gt($end)){
-                    return 'Awaiting Cleanliness Photo';
-                }
-            }
-        
-            // 3. Jika statusnya 'Verifying' (setelah upload foto)
-            if ($statusName === 'Verifying') {
-                return 'Verifying Cleanliness';
-            }
-        
-            return $statusName; // Default: Booked
+        // Pastikan relasi status diload
+        if (!$this->relationLoaded('status')) {
+            $this->load('status');
         }
 
-        public function canReleaseEarly(){
-            return $this->calculated_status === 'On Going';
+        $statusName = $this->status->status_name ?? 'Booked';
+
+        // --- PERBAIKAN DI SINI ---
+        // Masukkan 'Verifying Cleanliness' ke dalam array ini.
+        // Artinya: Jika status di DB adalah salah satu dari ini, JANGAN cek jam lagi. Langsung return statusnya.
+        $ignoredStatuses = [
+            'Completed', 
+            'Canceled', 
+            'Rejected', 
+            'Verifying Cleanliness', // <--- PENTING! Tambahkan ini
+            'Verifying' // Jaga-jaga kalau nama di DB cuma 'Verifying'
+        ];
+
+        if (in_array($statusName, $ignoredStatuses)) {
+            return $statusName;
         }
+        // -------------------------
+
+        // Logika Time-Based hanya berlaku jika status masih 'Accepted'
+        if ($statusName === 'Accepted') {
+            if ($now->lt($start)) {
+                return 'Upcoming'; // Atau biarkan 'Accepted'
+            }
+
+            // Sedang berjalan
+            if ($now->between($start, $end)) {
+                // Cek flag early release
+                if ($this->is_early_release) {
+                     return 'Awaiting Cleanliness Photo';
+                }
+                return 'On Going';
+            }
+
+            // Waktu sudah habis
+            if ($now->gt($end)) {
+                return 'Awaiting Cleanliness Photo';
+            }
+        }
+
+        return $statusName; 
+    }
+
+    public function canReleaseEarly(){
+        return $this->calculated_status === 'On Going';
+    }
 }
