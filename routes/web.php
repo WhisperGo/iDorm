@@ -89,6 +89,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/complaints', [ComplaintController::class, 'adminIndex'])->name('pengelola.complaint');
         Route::get('/complaints/{id}', [ComplaintController::class, 'showManager'])->name('pengelola.complaint.showPengelolaOnly');
         Route::patch('/complaints/{id}/status', [ComplaintController::class, 'updateStatus'])->name('pengelola.updateStatus');
+        Route::get('/report/excel', [ReportController::class, 'exportExcel'])->name('pengelola.loan_report.excel');
+        Route::get('/report/pdf', [ReportController::class, 'exportPdf'])->name('pengelola.loan_report.pdf');
     });
 
     // Route::put('/profile/update/{id}', [ProfileController::class, 'update'])->name('admin.profile.update');
