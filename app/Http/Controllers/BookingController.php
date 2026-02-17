@@ -18,76 +18,87 @@ class BookingController extends Controller
 {
     public function create(Request $request)
     {
-        $kategori = $request->get('kategori_fasilitas');
         $user = Auth::user();
+        $kategori = $request->get('kategori_fasilitas');
         $gender = trim($user->residentDetails->gender ?? '');
 
-        // 1. Ambil Fasilitas Utama berdasarkan Kategori
+        // 1. Inisialisasi variabel default agar compact tidak error
+        $globalSuspend = null;
+        $localSuspend = null;
         $parentFacility = null;
-        if ($kategori) {
-            $cat = strtolower($kategori);
-            $query = Facility::query();
+        $items = collect();
+        $facilities = collect();
+        $timeSlots = collect();
 
-            // Mapping nama kategori ke nama di database (sesuaikan dengan DB anda)
+        // 2. Ambil riwayat booking user (selalu muncul di bawah form)
+        $myBookings = Booking::where('user_id', $user->id)
+            ->with(['facility', 'facilityItem', 'status', 'slot'])
+            ->latest()
+            ->get();
+
+        // 3. CEK SUSPEND GLOBAL (Diberikan oleh Manager/Pengelola)
+        $globalSuspend = \App\Models\Suspension::where('user_id', $user->id)
+            ->whereNull('facility_id')
+            ->active()
+            ->first();
+
+        // 4. LOGIKA JIKA TIDAK KENA GLOBAL SUSPEND
+        if (!$globalSuspend && $kategori) {
+            $cat = strtolower($kategori);
+
+            // Mapping kategori ke nama fasilitas di DB
             $map = [
                 'mesin_cuci' => 'Mesin Cuci',
                 'dapur' => 'Dapur',
-                'sergun' => 'Serba', // Asumsi 'Serba Guna'
+                'sergun' => 'Serba',
                 'cws' => 'Co-Working',
                 'theater' => 'Theater'
             ];
 
             if (isset($map[$cat])) {
-                $parentFacility = $query->where('name', 'LIKE', '%' . $map[$cat] . '%')->first();
+                $parentFacility = Facility::where('name', 'LIKE', '%' . $map[$cat] . '%')->first();
             }
-        }
 
-        if ($parentFacility) {
-            $suspend = $this->checkSuspension($user->id, $parentFacility->id);
-            
-            if ($suspend) {
-                $pesan = $suspend->facility_id 
-                    ? "Akses Ditolak: Anda disuspend dari fasilitas ini." 
-                    : "Akses Ditolak: Akun Anda sedang dibekukan Pengelola.";
-                    
-                return redirect()->route('dashboard')->with('error', $pesan);
-            }
-        }
+            if ($parentFacility) {
+                // A. CEK SUSPEND LOKAL (Spesifik Fasilitas ini)
+                $localSuspend = $this->checkSuspension($user->id, $parentFacility->id);
 
-        // 2. Ambil Items (Mesin Cuci, Bagian Sergun, dll)
-        $items = collect();
-        if ($parentFacility) {
-            $allItems = FacilityItem::where('facility_id', $parentFacility->id)->get();
+                // B. AMBIL ITEM & TIMESLOT (Hanya jika tidak kena suspend lokal)
+                if (!$localSuspend) {
+                    $facilities = collect([$parentFacility]);
+                    $allItems = FacilityItem::where('facility_id', $parentFacility->id)->get();
 
-            // Filter khusus Mesin Cuci berdasarkan Gender
-            if (strtolower($kategori) == 'mesin_cuci' && !empty($gender)) {
-                $cleanGender = strtolower($gender);
-                $items = $allItems->filter(function ($item) use ($cleanGender) {
-                    $itemName = strtolower($item->name);
-                    // Logika filter gender
-                    if ($cleanGender === 'male') {
-                        return str_contains($itemName, 'male') && !str_contains($itemName, 'female');
+                    // Filter Gender khusus Mesin Cuci
+                    if ($cat == 'mesin_cuci' && !empty($gender)) {
+                        $cleanGender = strtolower($gender);
+                        $items = $allItems->filter(function ($item) use ($cleanGender) {
+                            $itemName = strtolower($item->name);
+                            if ($cleanGender === 'male') {
+                                return str_contains($itemName, 'male') && !str_contains($itemName, 'female');
+                            }
+                            return str_contains($itemName, $cleanGender);
+                        });
+                    } else {
+                        $items = $allItems;
                     }
-                    return str_contains($itemName, $cleanGender);
-                });
-            } else {
-                $items = $allItems;
+
+                    // Ambil TimeSlots (Sesuaikan kategori timeslot anda)
+                    $timeSlots = TimeSlot::where('facilities', 'heavy')->get();
+                }
             }
         }
 
-        // 3. Data Pendukung Lainnya
-        $facilities = $parentFacility ? collect([$parentFacility]) : collect();
-        $timeSlots = TimeSlot::where('facilities', 'heavy')->get(); // Untuk Mesin Cuci
-
-        // Ambil riwayat booking user (digunakan di view tabel bawah)
-        // Kita pakai logic grouping controller sebelumnya di method index/history, 
-        // tapi di sini kita kirim raw data saja karena view 'add_booking' butuh raw untuk tabel history singkat
-        $myBookings = Booking::where('user_id', $user->id)
-            ->with(['facility', 'facilityItem', 'status', 'slot']) // Eager load facilityItem
-            ->latest()
-            ->get();
-
-        return view('feature.bookings.add_booking', compact('facilities', 'items', 'timeSlots', 'kategori', 'user', 'myBookings'));
+        // 5. Kirim semua data ke View
+        return view('feature.bookings.add_booking', compact(
+            'facilities',
+            'items',
+            'timeSlots',
+            'kategori',
+            'user',
+            'myBookings',
+            'globalSuspend',
+            'localSuspend'
+        ));
     }
 
     public function store(Request $request)
@@ -454,12 +465,12 @@ class BookingController extends Controller
         return back()->with('success', 'Peminjaman diakhiri lebih awal. Silakan upload foto kebersihan.');
     }
 
-private function checkSuspension($userId, $facilityId)
+    private function checkSuspension($userId, $facilityId)
     {
         return Suspension::where('user_id', $userId)
             ->where(function ($query) use ($facilityId) {
                 $query->where('facility_id', $facilityId)   // Cek suspend spesifik fasilitas
-                      ->orWhereNull('facility_id');         // Cek suspend global (Pengelola)
+                    ->orWhereNull('facility_id');         // Cek suspend global (Pengelola)
             })
             ->active() // <--- INI DIA ACTIVE SCOPE-NYA (Pengganti logika tanggal yang ribet)
             ->first();
