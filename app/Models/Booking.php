@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Booking extends Model
 {
     use SoftDeletes;
+
+    protected $appends = ['calculated_status'];
     
     protected $fillable = [
         'user_id',
@@ -62,30 +64,40 @@ class Booking extends Model
     // Di dalam class Booking
     public function getCalculatedStatusAttribute()
         {
-            $now = Carbon::now();
-            $start = Carbon::parse($this->booking_date . ' ' . $this->start_time);
-            $end = Carbon::parse($this->booking_date . ' ' . $this->end_time);
+            $now = Carbon::now('Asia/Jakarta');
+
+            $start = Carbon::parse($this->booking_date . ' ' . $this->start_time, 'Asia/Jakarta');
+            $end = Carbon::parse($this->booking_date . ' ' . $this->end_time, 'Asia/Jakarta');
+
+            $statusName = $this->status->status_name;
         
             // 1. Jika status sudah Completed atau Canceled, kembalikan status asli
-            if (in_array($this->status->status_name, ['Completed', 'Canceled'])) {
-                return $this->status->status_name;
+            if (in_array($statusName, ['Completed', 'Canceled', 'Rejected'])) {
+                return $statusName;
             }
         
             // 2. Jika statusnya Accepted, cek waktunya
-            if ($this->status->status_name === 'Accepted') {
+            if ($statusName === 'Accepted') {
+                if ($now->lt($start)) {
+                    return 'Upcoming';
+                }
                 if ($now->between($start, $end)) {
                     return 'On Going';
                 }
-                if ($now->greaterThan($end)) {
+                if($now->gt($end)){
                     return 'Awaiting Cleanliness Photo';
                 }
             }
         
             // 3. Jika statusnya 'Verifying' (setelah upload foto)
-            if ($this->status->status_name === 'Verifying') {
+            if ($statusName === 'Verifying') {
                 return 'Verifying Cleanliness';
             }
         
-            return $this->status->status_name; // Default: Booked
+            return $statusName; // Default: Booked
+        }
+
+        public function canReleaseEarly(){
+            return $this->calculated_status === 'On Going';
         }
 }
