@@ -91,7 +91,16 @@ Route::middleware(['auth'])->group(function () {
         // Rute Tambah Resident
         Route::get('/residents/create', [UserController::class, 'createResident'])->name('manager.residents.create');
         Route::post('/residents/store', [UserController::class, 'storeResident'])->name('manager.residents.store');
+        
+        // Route Hapus Resident
         Route::delete('/residents/{id}', [UserController::class, 'destroyResident'])->name('manager.residents.destroy');
+        
+        // Route Tambah Admin
+        Route::get('/admins/create', [UserController::class, 'createAdmin'])->name('manager.admins.create');
+        Route::post('/admins/store', [UserController::class, 'storeAdmin'])->name('manager.admins.store');
+
+        // Route Hapus Admin
+        Route::delete('/admins/{id}', [UserController::class, 'destroyAdmin'])->name('manager.admins.destroy');
         // Resident Data (role_id = 3)
         // Route::get('/residents', [UserController::class, 'residentIndex'])->name('manager.residents.index');
 
