@@ -469,10 +469,10 @@
                 }
 
                 // Eksekusi Perubahan Status
-                if ($action === 'accept') {
+                if ($action === 'approve') {
                     $booking->update(['status_id' => 2]); // ID 2: Accepted
                     return back()->with('success', 'Peminjaman sudah di setujui.');
-                } elseif ($action === 'cancel') {
+                } elseif ($action === 'reject') {
                     $booking->update(['status_id' => 3]); // ID 3: Canceled
                     return back()->with('error', 'Peminjaman sudah tidak di setujui.');
                 } elseif ($action === 'complete') {
