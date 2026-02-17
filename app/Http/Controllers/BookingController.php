@@ -339,6 +339,30 @@ class BookingController extends Controller
         return view('feature.view_schedule', compact('bookings', 'category', 'title'));
     }
 
+    public function updateCleanliness(Request $request, $id)
+    {
+        $request->validate([
+            'action' => 'required|in:approved,rejected',
+        ]);
+
+        $booking = Booking::findOrFail($id);
+
+        // Pastikan hanya bisa update jika user sudah upload foto (opsional, tergantung logic kamu)
+        if (!$booking->photo_proof_path) {
+            return back()->with('error', 'User belum mengupload bukti foto kebersihan.');
+        }
+
+        $booking->update([
+            'cleanliness_status' => $request->action,
+            // Jika rejected, bisa tambah logika untuk mengosongkan foto agar user upload ulang
+            // 'photo_proof_path' => $request->action === 'rejected' ? null : $booking->photo_proof_path 
+        ]);
+
+        $statusMsg = $request->action == 'approved' ? 'disetujui' : 'ditolak';
+        
+        return back()->with('success', 'Status kebersihan berhasil ' . $statusMsg . '.');
+    }
+
     // Fungsi bantu biar kodingan rapi
     private function applyGenderFilter($query, $gender)
     {
