@@ -181,15 +181,15 @@
                                     <div class="animate-fade-in">
                                         <h5 class="text-primary mb-3">Formulir Peminjaman Co-Working Space</h5>
                                         @if ($facilities->isEmpty())
-                                            <div class="alert alert-danger">
+                                            {{-- <div class="alert alert-danger">
                                                 ⚠️ Fasilitas Theater tidak ditemukan! Pastikan nama di database mengandung kata
                                                 "Theater" atau "Theatre".
-                                            </div>
+                                            </div> --}}
                                         @else
-                                            <div class="alert alert-info py-2">
+                                            {{-- <div class="alert alert-info py-2">
                                                 <small>Booking untuk: <strong>{{ $facilities->first()->name }}</strong> (ID:
                                                     {{ $facilities->first()->id }})</small>
-                                            </div>
+                                            </div> --}}
                                             <form action="{{ route('booking.store') }}" method="POST">
                                                 @csrf
                                                 <input type="hidden" name="facility_id"
@@ -316,7 +316,7 @@
                                 @elseif(request('kategori_fasilitas') == 'theater')
                                     <div class="animate-fade-in">
                                         <h5 class="text-primary mb-3">Formulir Peminjaman Theater</h5>
-                                        @if ($facilities->isEmpty())
+                                        {{-- @if ($facilities->isEmpty())
                                             <div class="alert alert-danger">
                                                 ⚠️ Fasilitas Theater tidak ditemukan! Pastikan nama di database mengandung kata
                                                 "Theater" atau "Theatre".
@@ -325,7 +325,7 @@
                                             <div class="alert alert-info py-2">
                                                 <small>Booking untuk: <strong>{{ $facilities->first()->name }}</strong> (ID:
                                                     {{ $facilities->first()->id }})</small>
-                                            </div>
+                                            </div> --}}
                                             <form action="{{ route('booking.store') }}" method="POST">
                                                 @csrf
                                                 <input type="hidden" name="facility_id"
@@ -380,7 +380,7 @@
                                 @elseif (request('kategori_fasilitas') == 'sergun')
                                     <div class="animate-fade-in">
                                         <h5 class="text-primary mb-3">Formulir Peminjaman Serba Guna</h5>
-                                        @if ($facilities->isEmpty())
+                                        {{-- @if ($facilities->isEmpty())
                                             <div class="alert alert-danger">
                                                 ⚠️ Fasilitas Serba Guna tidak ditemukan! Pastikan nama di database mengandung
                                                 kata
@@ -390,7 +390,7 @@
                                             <div class="alert alert-info py-2">
                                                 <small>Booking untuk: <strong>{{ $facilities->first()->name }}</strong> (ID:
                                                     {{ $facilities->first()->id }})</small>
-                                            </div>
+                                            </div> --}}
                                             <form action="{{ route('booking.store') }}" method="POST">
                                                 @csrf
                                                 <input type="hidden" name="facility_id"
