@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Facility;
+use App\Models\ResidentDetail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,6 +12,46 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
+    // 1. Menampilkan Form Tambah Resident
+    public function createResident()
+    {
+        return view('feature.create_resident'); 
+    }
+    
+    // 2. Memproses Simpan Data Resident
+    public function storeResident(Request $request)
+    {
+        // Validasi Input
+        $request->validate([
+            'card_id'      => 'required|string|size:4|unique:users,card_id',
+            'full_name'    => 'required|string|max:255',
+            'gender'       => 'required|in:Male,Female',
+            'room_number'  => 'required|string',
+            'class_name'   => 'required|string|max:100',
+            'phone_number' => 'nullable|string',
+            // 'password'     => 'required|min:8|confirmed',
+        ]);
+    
+        // A. Simpan ke Tabel Users (Akun Login)
+        $user = User::create([
+            'card_id' => $request->card_id,
+            'role_id' => 3, // Role ID 3 = Resident
+            'password' => Hash::make('password'),
+            'account_status' => 'active',
+        ]);
+    
+        // B. Simpan ke Tabel ResidentDetails (Profil)
+        $user->residentDetails()->create([
+            'full_name'    => $request->full_name,
+            'gender'       => $request->gender,
+            'room_number'  => $request->room_number,
+            'class_name'  => $request->class_name,
+            'phone_number' => $request->phone_number,
+        ]);
+    
+        // Kembali ke halaman daftar resident dengan pesan sukses
+        return redirect()->route('pengelola.resident')->with('success', 'Resident ' . $request->full_name . ' berhasil ditambahkan!');
+    }
     // List Semua User (Admin & Resident)
     public function index()
     {
@@ -97,6 +138,19 @@ class UserController extends Controller
         return redirect()->route($routeName)->with('success', 'Data ' . $request->full_name . ' berhasil diperbarui!');
     }
 
+    public function destroyResident($id)
+    {
+        $user = User::findOrFail($id);
+
+        $user->delete();
+        
+        if ($user->residentDetails) {
+            $user->residentDetails()->delete();
+        }
+
+        return redirect()->route('pengelola.resident')->with('success', 'Data resident berhasil dihapus secara permanen.');
+    }
+
     // List Data Penghuni (Resident - role_id 3)
     public function residentIndex()
     {
@@ -115,6 +169,61 @@ class UserController extends Controller
             'isLaundryAdmin' => Auth::user()->adminDetails?->facility?->name === 'Mesin Cuci',
             'adminGender' => Auth::user()->role_id == 2 ? Auth::user()->adminDetails?->gender : Auth::user()->residentDetails?->gender,
         ]);
+    }
+
+    // Menampilkan Form Tambah Admin
+    public function createAdmin()
+    {
+        $facilities = \App\Models\Facility::all();
+        return view('feature.create_admin', compact('facilities'));
+    }
+
+    // Menyimpan Data Admin
+    public function storeAdmin(Request $request)
+    {
+        $request->validate([
+            'card_id'      => 'required|string|size:4|unique:users,card_id',
+            'full_name'    => 'required|string|max:255',
+            'gender'       => 'required|in:Male,Female',
+            'class_name'   => 'required|string|max:100',
+            'room_number'  => 'required|string', // Tambahkan ini
+            'facility_id'  => 'required|exists:facilities,id',
+            'phone_number' => 'nullable|string',
+            ]);
+
+        // 1. Buat User (Role 2 = Admin)
+        $user = User::create([
+            'card_id' => $request->card_id,
+            'role_id' => 2,
+            'password' => \Illuminate\Support\Facades\Hash::make('password'),
+            'account_status' => 'active',
+        ]);
+
+        // 2. Buat Admin Details
+        $user->adminDetails()->create([
+            'full_name'    => $request->full_name,
+            'gender'       => $request->gender,
+            'class_name'   => $request->class_name,
+            'room_number'  => $request->room_number, // PASTIKAN DISIMPAN DI SINI
+            'facility_id'  => $request->facility_id,
+            'phone_number' => $request->phone_number,
+        ]);
+
+        return redirect()->route('manager.admins.index')->with('success', 'Admin ' . $request->full_name . ' berhasil ditambahkan!');
+    }
+
+    // Soft Delete Admin
+    public function destroyAdmin($id)
+    {
+        $user = User::findOrFail($id);
+
+        // Hapus User & Detailnya (Soft Delete)
+        $user->delete();
+        if ($user->adminDetails) {
+            $user->adminDetails()->delete();
+        }
+
+        return redirect()->route('manager.admins.index')->with('success', 'Admin berhasil dinonaktifkan.');
     }
 
     // List Data Admin Fasilitas (Admin - role_id 2)
