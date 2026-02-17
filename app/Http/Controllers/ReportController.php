@@ -3,42 +3,85 @@
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
-use App\Models\Announcement;
 use App\Models\BuildingComplaint;
 use App\Models\Facility;
 use Illuminate\Http\Request;
-
 use App\Exports\LoanReportExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
 
-
 class ReportController extends Controller
 {
-    // 1. Muncul saat pertama kali klik menu (Hanya Menu Pilihan)
+    /**
+     * Tampilan awal (Landing) - Belum milih kartu
+     */
     public function index()
     {
-        $totalBookings = Booking::count();
-        $totalComplaints = BuildingComplaint::count();
-        $facilities = Facility::all(); // Ambil semua fasilitas untuk pilihan kartu
-        
-        // Kirim $bookings kosong agar Blade tidak error, atau gunakan flag
         return view('pengelola.loan_report', [
-            'totalBookings' => $totalBookings,
-            'totalComplaints' => $totalComplaints,
-            'facilities' => $facilities,
-            'bookings' => null, // Tandanya kita belum pilih fasilitas
+            'facilities' => Facility::all(),
+            'totalBookings' => Booking::count(),
+            'totalComplaints' => BuildingComplaint::count(),
+            'bookings' => null, // Tabel tidak akan muncul
             'title' => 'Pilih Fasilitas Laporan'
         ]);
     }
 
-    // 2. Muncul setelah Klik Kartu atau Filter Tanggal
+    /**
+     * Tampilan setelah milih kartu atau filter tanggal
+     */
     public function reportIndex(Request $request)
     {
-        $query = Booking::with(['user.residentDetails', 'facility', 'status']);
-    
-        // Filter Fasilitas
+        $facilities = Facility::all();
+        $bookings = null;
+
+        // Cek apakah ada parameter facility_id
         if ($request->filled('facility_id')) {
+            $query = Booking::with(['user.residentDetails', 'facility', 'status']);
+
+            // LOGIKA ALL: Jika isinya bukan 'all', baru kita filter berdasarkan ID
+            if ($request->facility_id !== 'all') {
+                $query->where('facility_id', $request->facility_id);
+            }
+
+            // Filter Tanggal
+            if ($request->filled('start_date') && $request->filled('end_date')) {
+                $query->whereBetween('booking_date', [$request->start_date, $request->end_date]);
+            }
+
+            $bookings = $query->latest()->paginate(15)->withQueryString();
+        }
+
+        return view('pengelola.loan_report', [
+            'bookings' => $bookings,
+            'facilities' => $facilities,
+            'totalBookings' => Booking::count(),
+            'totalComplaints' => BuildingComplaint::count(),
+            'title' => 'Detail Laporan Peminjaman'
+        ]);
+    }
+
+    /**
+     * Export ke Excel
+     */
+    public function exportExcel(Request $request) 
+    {
+        return Excel::download(new LoanReportExport($request), 'laporan-iDorm-'.now()->format('Ymd').'.xlsx');
+    }
+
+    /**
+     * Export ke PDF
+     */
+    public function exportPdf(Request $request) 
+    {
+        // Beri napas tambahan buat server
+        ini_set('memory_limit', '512M');
+        set_time_limit(300);
+
+        // MULAI QUERY (Jangan langsung di-get())
+        $query = Booking::with(['user.residentDetails', 'facility', 'status']);
+
+        // Filter Fasilitas (Sama dengan reportIndex)
+        if ($request->filled('facility_id') && $request->facility_id !== 'all') {
             $query->where('facility_id', $request->facility_id);
         }
 
@@ -46,42 +89,14 @@ class ReportController extends Controller
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('booking_date', [$request->start_date, $request->end_date]);
         }
-    
-        $bookings = $query->latest()->paginate(15)->withQueryString();
-        $facilities = Facility::all();
-        $totalBookings = Booking::count();
-        $totalComplaints = BuildingComplaint::count();
-    
-        return view('pengelola.loan_report', [
-            'bookings' => $bookings,
-            'facilities' => $facilities,
-            'totalBookings' => $totalBookings,
-            'totalComplaints' => $totalComplaints,
-            'title' => 'Detail Laporan Peminjaman'
-        ]);
-    }
 
-    // Tambahkan di dalam class
-    public function exportExcel(Request $request) 
-    {
-        return Excel::download(new LoanReportExport($request), 'laporan-iDorm-'.now()->format('Ymd').'.xlsx');
-    }
-
-    public function exportPdf(Request $request) 
-    {
-        ini_set('memory_limit', '512M'); // Tambah limit memori jadi 512MB
-        set_time_limit(300);
-        $query = Booking::with(['user.residentDetails', 'facility', 'status']);
-
-        if ($request->filled('facility_id')) {
-            $query->where('facility_id', $request->facility_id);
-        }
-        if ($request->filled('start_date') && $request->filled('end_date')) {
-            $query->whereBetween('booking_date', [$request->start_date, $request->end_date]);
-        }
-
+        // Ambil datanya
         $bookings = $query->latest()->get();
-        $facility_name = $request->facility_id ? \App\Models\Facility::find($request->facility_id)->name : 'Semua Fasilitas';
+
+        // Penentuan nama fasilitas untuk header PDF
+        $facility_name = ($request->facility_id && $request->facility_id !== 'all') 
+            ? Facility::find($request->facility_id)->name 
+            : 'Semua Fasilitas';
 
         $pdf = Pdf::loadView('pengelola.pdf_report', compact('bookings', 'facility_name'));
         return $pdf->download('laporan-iDorm-'.now()->format('Ymd').'.pdf');
