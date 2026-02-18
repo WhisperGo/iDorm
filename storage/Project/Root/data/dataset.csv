@@ -1,0 +1,901 @@
+text,intent
+we need to reserve cws,booking_request
+thank you so much,thanks
+hey,greet
+book Communal 5,booking_request
+We need to reserve Communal 1,booking_request
+put me down for communal 1,booking_request
+delete Co working space,cancel_booking
+please cancel Communal 2,cancel_booking
+end chat,goodbye
+thank u,thanks
+thanks bot,thanks
+please cancel communal 5,cancel_booking
+secure sergun,booking_request
+abort Communal 5,cancel_booking
+reserving serbaguna,booking_request
+arigato,thanks
+hi bot,greet
+end chat,goodbye
+hey idorm,greet
+cancel booking,cancel_booking
+exit,goodbye
+cancel booking,cancel_booking
+thx,thanks
+thx,thanks
+good evening,greet
+is communal 3 free at 08.00?,check_availability
+greetings,greet
+stop the booking for Serbaguna,cancel_booking
+can we use sergun on 12/12/2025?,check_availability
+terima kasih,thanks
+thank you,thanks
+hey,greet
+arigato,thanks
+goodbye,goodbye
+hi,greet
+schedule Communal 2,booking_request
+quit,goodbye
+see you,goodbye
+is Communal 5 free at 10.00?,check_availability
+hey,greet
+reserving Communal 3,booking_request
+need CWS,booking_request
+cancel booking,cancel_booking
+hello,greet
+hi there,greet
+thank you so much,thanks
+communal 2 booking,booking_request
+goodbye,goodbye
+check communal 2,check_availability
+is CWS available?,check_availability
+yo,greet
+good morning,greet
+hi there,greet
+availability Dapur,check_availability
+forget co working space,cancel_booking
+hey,greet
+is Sergun free?,check_availability
+cancel reservation,cancel_booking
+is plaza open,check_availability
+thank u,thanks
+thank you so much,thanks
+We need to reserve Sergun,booking_request
+delete booking,cancel_booking
+grab communal 3,booking_request
+is communal 5 vacant,check_availability
+see you,goodbye
+yo,greet
+stop the booking for theater,cancel_booking
+please secure communal 1 for us,booking_request
+thank you,thanks
+thank you so much,thanks
+delete booking,cancel_booking
+when is Theater free,check_availability
+can we use Co working space on 25th Dec,check_availability
+thanks a lot,thanks
+book Communal 1 now,booking_request
+delete Communal 3,cancel_booking
+is coworking space open,check_availability
+cancel it,cancel_booking
+hi there,greet
+see ya,goodbye
+yo,greet
+cancel my booking,cancel_booking
+see ya,goodbye
+cancel my booking,cancel_booking
+remove reservation for PPTI 22,cancel_booking
+booking communal 5 at morning,booking_request
+thank you,thanks
+void Serbaguna,cancel_booking
+bye,goodbye
+any slots in Serbaguna?,check_availability
+makasih,thanks
+thank you,thanks
+see you,goodbye
+end chat,goodbye
+cancel my booking,cancel_booking
+availability Communal 2,check_availability
+greetings,greet
+goodbye,goodbye
+cancel reservation,cancel_booking
+can i get sergun?,booking_request
+thanks a lot,thanks
+unbook sergun,cancel_booking
+see you,goodbye
+is Dapur available,check_availability
+stop the booking for Communal 2,cancel_booking
+booking Communal 1 at 08:00-12:00,booking_request
+is communal 3 open?,check_availability
+cancel it,cancel_booking
+thanks,thanks
+any slots in theater?,check_availability
+thanks,thanks
+any slots in Communal 5?,check_availability
+cancel reservation,cancel_booking
+booking cws for class,booking_request
+is Dapur empty?,check_availability
+please cancel Serbaguna,cancel_booking
+check Communal 5,check_availability
+goodbye,goodbye
+hi bot,greet
+hallo,greet
+have a nice day,goodbye
+have a nice day,goodbye
+see if serbaguna is available,check_availability
+book CWS pls,booking_request
+ppbp 22 needs theater,booking_request
+goodbye,goodbye
+hold cws,booking_request
+see ya,goodbye
+see ya,goodbye
+forget Serbaguna,cancel_booking
+Theater on 10/01/2026,booking_request
+have a nice day,goodbye
+thank you so much,thanks
+Serbaguna for tomorrow,booking_request
+check Sergun status,check_availability
+greetings,greet
+thank you,thanks
+schedule Dapur,booking_request
+arigato,thanks
+terima kasih,thanks
+makasih,thanks
+goodbye,goodbye
+terima kasih,thanks
+unbook Co working space,cancel_booking
+hi there,greet
+need communal 1,booking_request
+can I use Co working space?,check_availability
+Coworking Space for tomorrow,booking_request
+PPBP 22 needs CWS,booking_request
+I want to cancel reservation,cancel_booking
+drop communal 3,cancel_booking
+hello,greet
+thanks bot,thanks
+thanks a lot,thanks
+availability Communal 3,check_availability
+get Coworking Space,booking_request
+reserve cws,booking_request
+remove Dapur,cancel_booking
+hi bot,greet
+bye bye,goodbye
+hello bot,greet
+thanks,thanks
+hi there,greet
+status of communal 3,check_availability
+keep co working space,booking_request
+get sergun,booking_request
+have a nice day,goodbye
+book coworking space now,booking_request
+see if Plaza is available,check_availability
+have a nice day,goodbye
+is theater free,check_availability
+book Co working space,booking_request
+hallo,greet
+thank u,thanks
+hi,greet
+is coworking space free?,check_availability
+is Communal 3 open?,check_availability
+cancel it,cancel_booking
+i want to cancel reservation,cancel_booking
+reserving Theater,booking_request
+availability cws,check_availability
+PPBP 24 needs CWS,booking_request
+see you,goodbye
+thx,thanks
+greetings,greet
+see if Sergun is available,check_availability
+exit,goodbye
+thanks,thanks
+good morning,greet
+thank you so much,thanks
+thanks bot,thanks
+forget Communal 5,cancel_booking
+bye,goodbye
+cancel booking,cancel_booking
+delete CWS,cancel_booking
+hey idorm,greet
+availability Coworking Space,check_availability
+please cancel coworking space,cancel_booking
+reserve Serbaguna from 07.30 to 09.30 to 07.30 to 09.30,booking_request
+book Serbaguna,booking_request
+see if Coworking Space is available,check_availability
+unbook Serbaguna,cancel_booking
+check Plaza status,check_availability
+can we use Plaza on 25th Dec?,check_availability
+check dapur,check_availability
+makasih,thanks
+hello bot,greet
+thank you so much,thanks
+check communal 2,check_availability
+abort co working space,cancel_booking
+hey,greet
+drop cws,cancel_booking
+thanks a lot,thanks
+exit,goodbye
+good morning,greet
+is Communal 2 empty?,check_availability
+bye,goodbye
+thanks,thanks
+good afternoon,greet
+i want to cancel reservation,cancel_booking
+thanks a lot,thanks
+want communal 1,booking_request
+reservation for CWS please,booking_request
+see ya,goodbye
+thanks a lot,thanks
+goodbye,goodbye
+greetings,greet
+good afternoon,greet
+cancel my booking,cancel_booking
+have a nice day,goodbye
+exit,goodbye
+is Communal 3 open?,check_availability
+drop cws,cancel_booking
+hi bot,greet
+see you,goodbye
+forget communal 1,cancel_booking
+delete booking,cancel_booking
+please cancel communal 5,cancel_booking
+terima kasih,thanks
+see if Coworking Space is available,check_availability
+hi there,greet
+good afternoon,greet
+check Theater status,check_availability
+is dapur free,check_availability
+arigato,thanks
+we don't need Communal 5 anymore,cancel_booking
+see ya,goodbye
+when is communal 1 free?,check_availability
+thank you so much,thanks
+check schedule for Communal 2,check_availability
+terima kasih,thanks
+please cancel communal 5,cancel_booking
+void dapur,cancel_booking
+get co working space,booking_request
+delete booking,cancel_booking
+reservation for plaza please,booking_request
+get communal 1,booking_request
+put me down for plaza,booking_request
+booking co working space for class,booking_request
+see you,goodbye
+exit,goodbye
+book Communal 3 now,booking_request
+hallo,greet
+can I use Communal 2,check_availability
+see ya,goodbye
+is Theater vacant,check_availability
+quit,goodbye
+check cws,check_availability
+i want to cancel reservation,cancel_booking
+any slots in communal 1,check_availability
+hey,greet
+check coworking space,check_availability
+any slots in Dapur?,check_availability
+thx,thanks
+when is Serbaguna free?,check_availability
+Communal 3 available tomorrow?,check_availability
+halo,greet
+goodbye,goodbye
+greetings,greet
+hey idorm,greet
+book Communal 3 pls,booking_request
+please secure communal 2 for us,booking_request
+end chat,goodbye
+hi bot,greet
+remove communal 5,cancel_booking
+unbook Communal 1,cancel_booking
+status of Theater,check_availability
+see ya,goodbye
+arigato,thanks
+exit,goodbye
+reserving serbaguna,booking_request
+check schedule for coworking space,check_availability
+bye,goodbye
+is Communal 1 occupied?,check_availability
+get Communal 5,booking_request
+remove communal 1,cancel_booking
+book Communal 2 pls,booking_request
+secure Communal 5,booking_request
+yo,greet
+thank u,thanks
+drop communal 5,cancel_booking
+hello bot,greet
+is theater available?,check_availability
+is dapur open?,check_availability
+see you,goodbye
+have a nice day,goodbye
+check cws status,check_availability
+hi there,greet
+arigato,thanks
+when is dapur free?,check_availability
+forget Communal 1,cancel_booking
+PPTI 7 wants Coworking Space,booking_request
+delete booking,cancel_booking
+check schedule for dapur,check_availability
+can i get serbaguna?,booking_request
+when is co working space free,check_availability
+bye,goodbye
+hello,greet
+check schedule for dapur,check_availability
+have a nice day,goodbye
+status of Dapur,check_availability
+cancel booking,cancel_booking
+booking Co working space at 08:00-12:00,booking_request
+any slots in Co working space?,check_availability
+hi bot,greet
+delete communal 3,cancel_booking
+book Co working space now,booking_request
+thank you so much,thanks
+abort serbaguna,cancel_booking
+is Communal 1 vacant?,check_availability
+i want to cancel reservation,cancel_booking
+greetings,greet
+see if Communal 5 is available,check_availability
+hallo,greet
+hey,greet
+keep cws,booking_request
+thanks a lot,thanks
+ppbp 7 needs plaza,booking_request
+good afternoon,greet
+thanks bot,thanks
+i want to cancel reservation,cancel_booking
+status of Communal 2,check_availability
+status of dapur,check_availability
+end chat,goodbye
+hallo,greet
+makasih,thanks
+hallo,greet
+communal 5 available tomorrow?,check_availability
+thanks bot,thanks
+bye bye,goodbye
+is theater occupied?,check_availability
+book CWS,booking_request
+Theater booking,booking_request
+good morning,greet
+thanks,thanks
+terima kasih,thanks
+hey,greet
+bye,goodbye
+book CWS,booking_request
+i want to cancel reservation,cancel_booking
+we don't need Coworking Space anymore,cancel_booking
+remove Co working space,cancel_booking
+hi,greet
+hey idorm,greet
+abort Sergun,cancel_booking
+thanks,thanks
+thanks bot,thanks
+I want to cancel reservation,cancel_booking
+reserve theater,booking_request
+thank you,thanks
+is serbaguna vacant,check_availability
+have a nice day,goodbye
+check Dapur,check_availability
+cancel Serbaguna,cancel_booking
+is Sergun occupied,check_availability
+makasih,thanks
+bye bye,goodbye
+hello,greet
+hold dapur,booking_request
+delete Communal 2,cancel_booking
+Can I get Sergun?,booking_request
+exit,goodbye
+goodbye,goodbye
+can we use Theater on 5th Jan 2026?,check_availability
+hold cws,booking_request
+see you,goodbye
+reserving Coworking Space,booking_request
+status of Plaza,check_availability
+thanks a lot,thanks
+see you,goodbye
+makasih,thanks
+reserve Communal 2 from afternoon to afternoon,booking_request
+get serbaguna,booking_request
+thx,thanks
+quit,goodbye
+have a nice day,goodbye
+We need to reserve Communal 2,booking_request
+exit,goodbye
+cancel CWS,cancel_booking
+see you,goodbye
+makasih,thanks
+cancel reservation,cancel_booking
+is coworking space free at 07.30 to 09.30?,check_availability
+want co working space,booking_request
+yo,greet
+goodbye,goodbye
+hey,greet
+we don't need Co working space anymore,cancel_booking
+goodbye,goodbye
+hi bot,greet
+halo,greet
+is Communal 2 available?,check_availability
+reserve Co working space from 08:00-12:00 to 08:00-12:00,booking_request
+bye bye,goodbye
+hi,greet
+need Sergun,booking_request
+I want to cancel reservation,cancel_booking
+hello bot,greet
+we don't need communal 3 anymore,cancel_booking
+goodbye,goodbye
+have a nice day,goodbye
+cancel booking,cancel_booking
+can I use CWS,check_availability
+thanks bot,thanks
+bye,goodbye
+cancel reservation,cancel_booking
+want coworking space,booking_request
+bye,goodbye
+put me down for Communal 1,booking_request
+hold Sergun,booking_request
+see if sergun is available,check_availability
+greetings,greet
+makasih,thanks
+is cws occupied?,check_availability
+void Sergun,cancel_booking
+get Co working space,booking_request
+stop the booking for communal 5,cancel_booking
+please secure communal 3 for us,booking_request
+thx,thanks
+Can I get Theater?,booking_request
+hey idorm,greet
+end chat,goodbye
+check Sergun,check_availability
+hold Plaza,booking_request
+void cws,cancel_booking
+need communal 1,booking_request
+yo,greet
+makasih,thanks
+can we use Communal 1 on Monday?,check_availability
+need Serbaguna asap,booking_request
+hold dapur,booking_request
+exit,goodbye
+quit,goodbye
+hi there,greet
+thanks bot,thanks
+thx,thanks
+hi,greet
+hallo,greet
+bye bye,goodbye
+i want to book communal 5,booking_request
+hello bot,greet
+cancel it,cancel_booking
+hey idorm,greet
+yo,greet
+bye,goodbye
+is communal 1 free?,check_availability
+delete booking,cancel_booking
+greetings,greet
+can we use communal 1 on today,check_availability
+book sergun now,booking_request
+thank you,thanks
+terima kasih,thanks
+when is Communal 3 free?,check_availability
+cancel communal 5,cancel_booking
+need communal 5,booking_request
+is Communal 5 open,check_availability
+thx,thanks
+hey idorm,greet
+halo,greet
+end chat,goodbye
+hallo,greet
+halo,greet
+booking serbaguna for class,booking_request
+is coworking space occupied?,check_availability
+is cws empty?,check_availability
+quit,goodbye
+delete Co working space,cancel_booking
+Communal 1 booking,booking_request
+good morning,greet
+check Communal 2,check_availability
+is co working space free at morning,check_availability
+unbook theater,cancel_booking
+drop coworking space,cancel_booking
+cancel Plaza,cancel_booking
+thank you,thanks
+check communal 1 status,check_availability
+thx,thanks
+quit,goodbye
+please cancel plaza,cancel_booking
+can we use Communal 1 on 3rd March,check_availability
+halo,greet
+remove Serbaguna,cancel_booking
+see you,goodbye
+thanks,thanks
+bye bye,goodbye
+get communal 5,booking_request
+is theater vacant,check_availability
+hi,greet
+thanks,thanks
+any slots in Communal 3?,check_availability
+hi there,greet
+book Plaza,booking_request
+exit,goodbye
+thank you so much,thanks
+hello bot,greet
+dapur for tomorrow,booking_request
+we don't need coworking space anymore,cancel_booking
+good afternoon,greet
+exit,goodbye
+hello,greet
+cancel reservation,cancel_booking
+bye bye,goodbye
+is Serbaguna open?,check_availability
+thanks,thanks
+quit,goodbye
+please cancel Communal 3,cancel_booking
+see if Plaza is available,check_availability
+goodbye,goodbye
+thanks bot,thanks
+thanks a lot,thanks
+hey idorm,greet
+end chat,goodbye
+delete Co working space,cancel_booking
+makasih,thanks
+goodbye,goodbye
+we don't need communal 2 anymore,cancel_booking
+when is Plaza free,check_availability
+see you,goodbye
+hallo,greet
+quit,goodbye
+book dapur pls,booking_request
+is Theater free at 08:00-12:00,check_availability
+end chat,goodbye
+see ya,goodbye
+is Communal 3 open,check_availability
+thank you so much,thanks
+have a nice day,goodbye
+thank u,thanks
+greetings,greet
+need Serbaguna,booking_request
+quit,goodbye
+halo,greet
+cancel it,cancel_booking
+bye,goodbye
+status of communal 2,check_availability
+hi bot,greet
+cancel reservation,cancel_booking
+have a nice day,goodbye
+delete booking,cancel_booking
+hallo,greet
+drop theater,cancel_booking
+is CWS free,check_availability
+status of cws,check_availability
+bye bye,goodbye
+hi bot,greet
+have a nice day,goodbye
+see ya,goodbye
+put me down for Communal 5,booking_request
+availability communal 3,check_availability
+hello bot,greet
+delete Serbaguna,cancel_booking
+forget Sergun,cancel_booking
+arigato,thanks
+hello,greet
+please cancel coworking space,cancel_booking
+cancel my booking,cancel_booking
+halo,greet
+booking Co working space at 09.30,booking_request
+Can I get Serbaguna?,booking_request
+see you,goodbye
+thank you,thanks
+makasih,thanks
+thank u,thanks
+yo,greet
+arigato,thanks
+see you,goodbye
+hey idorm,greet
+grab communal 3,booking_request
+yo,greet
+secure Plaza,booking_request
+good morning,greet
+bye bye,goodbye
+thanks bot,thanks
+arigato,thanks
+thank you,thanks
+i want to book communal 3,booking_request
+any slots in Co working space,check_availability
+terima kasih,thanks
+quit,goodbye
+check schedule for dapur,check_availability
+book serbaguna now,booking_request
+hello bot,greet
+please cancel communal 3,cancel_booking
+check schedule for theater,check_availability
+delete communal 3,cancel_booking
+unbook sergun,cancel_booking
+is communal 5 available?,check_availability
+arigato,thanks
+forget Communal 5,cancel_booking
+cancel communal 5,cancel_booking
+hi,greet
+exit,goodbye
+goodbye,goodbye
+delete Coworking Space,cancel_booking
+any slots in plaza?,check_availability
+Communal 3 available tomorrow?,check_availability
+thank u,thanks
+goodbye,goodbye
+hi there,greet
+check Theater status,check_availability
+hey,greet
+void plaza,cancel_booking
+hallo,greet
+hey,greet
+good morning,greet
+arigato,thanks
+see ya,goodbye
+Please secure Communal 3 for us,booking_request
+cancel sergun,cancel_booking
+thank you,thanks
+thank you so much,thanks
+cancel it,cancel_booking
+good evening,greet
+bye bye,goodbye
+please secure cws for us,booking_request
+end chat,goodbye
+thank you so much,thanks
+bye bye,goodbye
+thanks bot,thanks
+we need to reserve plaza,booking_request
+exit,goodbye
+makasih,thanks
+exit,goodbye
+delete booking,cancel_booking
+see you,goodbye
+thank u,thanks
+thanks a lot,thanks
+status of CWS,check_availability
+is Theater free at 08:00-12:00,check_availability
+quit,goodbye
+is communal 5 free at afternoon?,check_availability
+status of communal 3,check_availability
+makasih,thanks
+remove co working space,cancel_booking
+good evening,greet
+drop CWS,cancel_booking
+is Communal 1 empty?,check_availability
+see you,goodbye
+remove reservation for PPTI 24,cancel_booking
+good afternoon,greet
+see ya,goodbye
+check communal 5,check_availability
+thank you,thanks
+reservation for cws please,booking_request
+end chat,goodbye
+can i get serbaguna?,booking_request
+halo,greet
+thanks bot,thanks
+delete booking,cancel_booking
+have a nice day,goodbye
+thx,thanks
+thank you so much,thanks
+hello,greet
+remove communal 1,cancel_booking
+is dapur empty?,check_availability
+book Plaza now,booking_request
+cancel Co working space,cancel_booking
+end chat,goodbye
+bye bye,goodbye
+end chat,goodbye
+remove communal 3,cancel_booking
+goodbye,goodbye
+put me down for cws,booking_request
+end chat,goodbye
+is Communal 2 open?,check_availability
+is Dapur free at 08:00-12:00?,check_availability
+delete booking,cancel_booking
+please secure theater for us,booking_request
+hey,greet
+thanks a lot,thanks
+reservation for sergun please,booking_request
+hey,greet
+is Communal 3 free,check_availability
+check schedule for Plaza,check_availability
+secure Communal 1,booking_request
+reservation for Communal 5 please,booking_request
+bye bye,goodbye
+need Dapur asap,booking_request
+arigato,thanks
+book coworking space now,booking_request
+thank you,thanks
+terima kasih,thanks
+book Plaza,booking_request
+makasih,thanks
+greetings,greet
+arigato,thanks
+is Communal 2 available,check_availability
+remove reservation for ppti 25,cancel_booking
+get dapur,booking_request
+hey idorm,greet
+thank u,thanks
+Theater available tomorrow,check_availability
+delete plaza,cancel_booking
+forget Theater,cancel_booking
+thanks a lot,thanks
+status of Co working space,check_availability
+hallo,greet
+quit,goodbye
+thx,thanks
+arigato,thanks
+put me down for Communal 1,booking_request
+ppbp 20 needs communal 1,booking_request
+i want to cancel reservation,cancel_booking
+thanks a lot,thanks
+thx,thanks
+booking communal 5 at 1pm,booking_request
+any slots in Co working space,check_availability
+I want to cancel reservation,cancel_booking
+bye,goodbye
+cancel reservation,cancel_booking
+thank u,thanks
+I want to book CWS,booking_request
+makasih,thanks
+reservation for dapur please,booking_request
+we don't need Co working space anymore,cancel_booking
+is coworking space open,check_availability
+CWS booking,booking_request
+want coworking space,booking_request
+Communal 3 available tomorrow?,check_availability
+end chat,goodbye
+drop Coworking Space,cancel_booking
+makasih,thanks
+is co working space occupied?,check_availability
+thanks bot,thanks
+ppbp 20 needs serbaguna,booking_request
+bye,goodbye
+is theater empty?,check_availability
+Communal 2 on Monday,booking_request
+cancel Sergun,cancel_booking
+terima kasih,thanks
+I want to book Theater,booking_request
+terima kasih,thanks
+yo,greet
+thank you,thanks
+hello,greet
+is communal 2 open?,check_availability
+reserving Sergun,booking_request
+thank you,thanks
+thx,thanks
+halo,greet
+thanks,thanks
+thank u,thanks
+drop Theater,cancel_booking
+keep theater,booking_request
+end chat,goodbye
+hello bot,greet
+remove Communal 3,cancel_booking
+I want to cancel reservation,cancel_booking
+exit,goodbye
+grab sergun,booking_request
+halo,greet
+booking Communal 5 at 1pm,booking_request
+bye,goodbye
+thank you so much,thanks
+end chat,goodbye
+thank you so much,thanks
+hi,greet
+good morning,greet
+thanks,thanks
+bye,goodbye
+goodbye,goodbye
+hello,greet
+see you,goodbye
+halo,greet
+thanks,thanks
+any slots in coworking space,check_availability
+hello bot,greet
+hi,greet
+need serbaguna asap,booking_request
+can i use dapur?,check_availability
+is Communal 1 free,check_availability
+thx,thanks
+hey,greet
+drop coworking space,cancel_booking
+please cancel Plaza,cancel_booking
+bye,goodbye
+can we use co working space on 5th jan 2026?,check_availability
+can i get sergun?,booking_request
+good afternoon,greet
+can i use coworking space?,check_availability
+book Plaza,booking_request
+need communal 1,booking_request
+bye,goodbye
+please secure co working space for us,booking_request
+have a nice day,goodbye
+hallo,greet
+exit,goodbye
+check Serbaguna,check_availability
+see if communal 2 is available,check_availability
+communal 2 available tomorrow?,check_availability
+any slots in communal 1?,check_availability
+quit,goodbye
+good evening,greet
+good afternoon,greet
+exit,goodbye
+keep communal 2,booking_request
+drop Communal 3,cancel_booking
+hello bot,greet
+reserve communal 3 from 0730 to 0930 to 0730 to 0930,booking_request
+Plaza for tomorrow,booking_request
+abort Plaza,cancel_booking
+halo,greet
+can I use Co working space?,check_availability
+get Communal 2,booking_request
+delete booking,cancel_booking
+is coworking space free at 1000,check_availability
+thanks,thanks
+thanks,thanks
+drop Communal 3,cancel_booking
+delete Communal 1,cancel_booking
+unbook Theater,cancel_booking
+bye bye,goodbye
+keep serbaguna,booking_request
+i want to book coworking space,booking_request
+see ya,goodbye
+terima kasih,thanks
+forget Communal 5,cancel_booking
+exit,goodbye
+we need to reserve theater,booking_request
+see you,goodbye
+greetings,greet
+need co working space,booking_request
+delete communal 3,cancel_booking
+cancel reservation,cancel_booking
+good morning,greet
+terima kasih,thanks
+secure Communal 5,booking_request
+is communal 5 open?,check_availability
+good morning,greet
+see you,goodbye
+reserve co working space,booking_request
+arigato,thanks
+thanks a lot,thanks
+thank you,thanks
+any slots in Dapur?,check_availability
+void communal 1,cancel_booking
+hallo,greet
+need communal 1 asap,booking_request
+see if Plaza is available,check_availability
+cancel Communal 2,cancel_booking
+good afternoon,greet
+hey,greet
+thanks,thanks
+is communal 5 empty?,check_availability
+hi,greet
+thanks,thanks
+we don't need communal 1 anymore,cancel_booking
+please secure cws for us,booking_request
+terima kasih,thanks
+thank you so much,thanks
+want communal 2,booking_request
+Communal 1 booking,booking_request
+end chat,goodbye
+good evening,greet
+is communal 5 free at 08:00-12:00?,check_availability
+thanks a lot,thanks
+delete booking,cancel_booking
+drop communal 3,cancel_booking
+see if Sergun is available,check_availability
+have a nice day,goodbye
+availability Theater,check_availability
+delete booking,cancel_booking
+arigato,thanks
+bye,goodbye
+greetings,greet
+goodbye,goodbye
+co working space booking,booking_request
+quit,goodbye
+is Communal 3 available,check_availability
+communal 3 on next week,booking_request
+yo,greet
+forget plaza,cancel_booking
+schedule Communal 5,booking_request
+hello,greet
+reserve CWS,booking_request
+thanks bot,thanks
+good morning,greet
+see if Serbaguna is available,check_availability
+drop communal 5,cancel_booking

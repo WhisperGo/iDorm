@@ -1,0 +1,52 @@
+Hasil json kalau masih ada null, paling kalo ini reply bot jalanin aja, sisanya ga
+
+{
+    "status": "incomplete",
+    "data": {
+        "intent": "booking_request",
+        "confidence": 0.98,
+        "entities": { "room": "CWS", "date": null, ... },
+        "missing_info": "tanggal",
+        "bot_reply": "Mohon maaf, informasi mengenai tanggal belum lengkap...",
+        "original_text": "Book CWS",
+        "preprocessed_text": "Book CWS"
+    }
+}
+
+json kalau success gada missing entity, baru ke db
+
+{
+    "status": "success",
+    "data": {
+        "intent": "booking_request",
+        "confidence": 0.99,
+        "entities": { "room": "CWS", "date": "tomorrow", ... },
+        "missing_info": null,
+        "bot_reply": "Permintaan Anda sedang diproses oleh sistem...",
+        "original_text": "Book CWS tomorow",
+        "preprocessed_text": "Book CWS tomorrow"  <-- Dosen akan suka lihat ini
+    }
+}
+
+
+
+
+
+notes:
+
+Konsep: Bot tidak belajar real-time. Tapi bot mencatat (logging) semua percakapan di mana dia bingung (Confidence Score rendah).
+
+Siklus Kerja (Cycle):
+
+Interaksi: User chat.
+
+Filter: Jika confidence < 0.60, simpan teks tersebut ke database khusus (tabel failed_predictions).
+
+Labeling (Tugas Anda): Seminggu sekali, Anda buka tabel itu. Anda lihat: "Oh, banyak yang ngetik 'peminjaman batal'. Bot bingung." -> Anda beri label manual: cancel_booking.
+
+Retrain: Masukkan data baru itu ke training_dataset.csv dan latih ulang (train_model.ipynb).
+
+Deploy: Update model .pkl di server.
+
+Kelebihan: Model makin pintar secara terkontrol. Tidak ada risiko error.
+

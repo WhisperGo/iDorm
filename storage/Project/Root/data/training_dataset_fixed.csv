@@ -1,0 +1,361 @@
+text,intent
+cancel it,cancel_booking
+coworking space booking,booking_request
+Communal 3 on tomorrow,booking_request
+get communal 5,booking_request
+stop the booking for Dapur,cancel_booking
+see if co working space is available,check_availability
+keep cws,booking_request
+please cancel communal 5,cancel_booking
+delete dapur,cancel_booking
+check Coworking Space,check_availability
+any slots in plaza,check_availability
+check schedule for cws,check_availability
+drop communal 2,cancel_booking
+booking dapur at 08:00-12:00,booking_request
+cancel my booking,cancel_booking
+keep theater,booking_request
+cancel cws,cancel_booking
+is theater free?,check_availability
+when is co working space free?,check_availability
+secure coworking space,booking_request
+remove Communal 3,cancel_booking
+we don't need Dapur anymore,cancel_booking
+We need to reserve Serbaguna,booking_request
+cancel reservation,cancel_booking
+cancel my booking,cancel_booking
+PPBP 23 needs Communal 3,booking_request
+is Communal 3 free at morning?,check_availability
+we don't need cws anymore,cancel_booking
+delete Dapur,cancel_booking
+I want to cancel reservation,cancel_booking
+check Coworking Space status,check_availability
+need Co working space asap,booking_request
+remove reservation for PPTI 21,cancel_booking
+is Coworking Space free,check_availability
+drop Communal 5,cancel_booking
+please cancel Communal 3,cancel_booking
+status of Communal 5,check_availability
+CWS available tomorrow?,check_availability
+is dapur free at 10.00?,check_availability
+booking serbaguna at 17.00 - 18.30,booking_request
+dapur available tomorrow,check_availability
+is Communal 3 available?,check_availability
+I want to book Dapur,booking_request
+need communal 3 asap,booking_request
+check schedule for Coworking Space,check_availability
+check Plaza,check_availability
+reservation for Dapur please,booking_request
+is Communal 3 vacant,check_availability
+book dapur pls,booking_request
+secure Communal 5,booking_request
+delete Coworking Space,cancel_booking
+remove reservation for ppti 7,cancel_booking
+stop the booking for Communal 1,cancel_booking
+reserve Communal 5 from 17.00 - 18.30 to 17.00 - 18.30,booking_request
+Dapur available tomorrow?,check_availability
+cancel it,cancel_booking
+schedule CWS,booking_request
+is CWS vacant?,check_availability
+cancel it,cancel_booking
+check Communal 5 status,check_availability
+can we use Dapur on 3rd March?,check_availability
+Theater available tomorrow,check_availability
+booking communal 5 for class,booking_request
+hold Coworking Space,booking_request
+is Communal 2 vacant,check_availability
+Please secure Theater for us,booking_request
+schedule Coworking Space,booking_request
+booking Serbaguna at 18 to 20,booking_request
+cancel my booking,cancel_booking
+void coworking space,cancel_booking
+secure serbaguna,booking_request
+delete booking,cancel_booking
+reserve Plaza,booking_request
+delete booking,cancel_booking
+I want to book Serbaguna,booking_request
+delete Theater,cancel_booking
+abort Communal 2,cancel_booking
+remove reservation for PPTI 22,cancel_booking
+delete communal 3,cancel_booking
+please secure serbaguna for us,booking_request
+delete booking,cancel_booking
+want theater,booking_request
+Coworking Space available tomorrow,check_availability
+sergun on today,booking_request
+book Coworking Space,booking_request
+co working space available tomorrow,check_availability
+check Communal 5 status,check_availability
+is Plaza free,check_availability
+remove co working space,cancel_booking
+delete booking,cancel_booking
+availability serbaguna,check_availability
+is Theater free,check_availability
+abort sergun,cancel_booking
+is communal 3 available?,check_availability
+want Sergun,booking_request
+see if communal 1 is available,check_availability
+book cws,booking_request
+is CWS occupied,check_availability
+want co working space,booking_request
+hold serbaguna,booking_request
+book Plaza,booking_request
+reservation for dapur please,booking_request
+PPTI 7 wants Dapur,booking_request
+cancel it,cancel_booking
+reserve CWS,booking_request
+cancel booking,cancel_booking
+any slots in plaza,check_availability
+Coworking Space available tomorrow?,check_availability
+reservation for Coworking Space please,booking_request
+keep coworking space,booking_request
+reserve Communal 2 from morning to morning,booking_request
+is Plaza empty,check_availability
+i want to cancel reservation,cancel_booking
+is theater vacant,check_availability
+cancel reservation,cancel_booking
+hold plaza,booking_request
+is communal 2 free at 1700 - 1830,check_availability
+i want to cancel reservation,cancel_booking
+co working space booking,booking_request
+forget Serbaguna,cancel_booking
+check communal 2 status,check_availability
+hold Communal 5,booking_request
+when is Communal 3 free?,check_availability
+unbook theater,cancel_booking
+I want to cancel reservation,cancel_booking
+secure Co working space,booking_request
+i want to book cws,booking_request
+schedule theater,booking_request
+abort communal 3,cancel_booking
+cancel communal 5,cancel_booking
+any slots in co working space?,check_availability
+We need to reserve Co working space,booking_request
+is Communal 3 open?,check_availability
+need Coworking Space asap,booking_request
+is Plaza occupied,check_availability
+check schedule for plaza,check_availability
+need Coworking Space,booking_request
+is plaza free at 17.00 - 18.30?,check_availability
+see if Communal 5 is available,check_availability
+we don't need serbaguna anymore,cancel_booking
+delete Communal 1,cancel_booking
+abort Communal 3,cancel_booking
+sergun booking,booking_request
+drop Plaza,cancel_booking
+please cancel communal 1,cancel_booking
+check schedule for Communal 5,check_availability
+availability coworking space,check_availability
+want serbaguna,booking_request
+Sergun available tomorrow,check_availability
+is sergun empty?,check_availability
+please cancel Communal 5,cancel_booking
+need Co working space,booking_request
+put me down for coworking space,booking_request
+cancel serbaguna,cancel_booking
+any slots in plaza,check_availability
+is Communal 5 empty?,check_availability
+want Communal 3,booking_request
+We need to reserve Sergun,booking_request
+book Plaza,booking_request
+is Communal 3 vacant?,check_availability
+void co working space,cancel_booking
+delete booking,cancel_booking
+is communal 5 free?,check_availability
+cancel my booking,cancel_booking
+can we use Communal 1 on 25th Dec?,check_availability
+is plaza free,check_availability
+remove reservation for ppti 23,cancel_booking
+can we use Serbaguna on 16th February 2026?,check_availability
+Communal 2 for tomorrow,booking_request
+schedule Theater,booking_request
+is Dapur empty,check_availability
+is dapur empty,check_availability
+need Serbaguna asap,booking_request
+is CWS open?,check_availability
+can i get serbaguna?,booking_request
+Communal 5 booking,booking_request
+check plaza,check_availability
+keep plaza,booking_request
+is communal 2 free at 1pm,check_availability
+void co working space,cancel_booking
+sergun available tomorrow,check_availability
+check schedule for Sergun,check_availability
+is Dapur open?,check_availability
+please cancel Plaza,cancel_booking
+schedule sergun,booking_request
+check schedule for CWS,check_availability
+can we use CWS on 10/01/2026?,check_availability
+any slots in Coworking Space,check_availability
+is communal 2 empty?,check_availability
+cancel my booking,cancel_booking
+ppbp 9 needs theater,booking_request
+need Communal 5 asap,booking_request
+can we use Theater on 16th February 2026,check_availability
+remove reservation for PPTI 9,cancel_booking
+remove reservation for PPTI 9,cancel_booking
+dapur booking,booking_request
+is Serbaguna vacant?,check_availability
+delete communal 1,cancel_booking
+booking coworking space at 10.00,booking_request
+book cws now,booking_request
+see if communal 1 is available,check_availability
+book communal 2 now,booking_request
+please cancel Coworking Space,cancel_booking
+reserve communal 1,booking_request
+reservation for communal 1 please,booking_request
+delete booking,cancel_booking
+can we use Communal 5 on 5th Jan 2026?,check_availability
+remove reservation for ppti 24,cancel_booking
+status of dapur,check_availability
+cancel booking,cancel_booking
+want CWS,booking_request
+unbook coworking space,cancel_booking
+grab dapur,booking_request
+see if plaza is available,check_availability
+is Theater empty,check_availability
+cancel it,cancel_booking
+Communal 3 booking,booking_request
+can we use dapur on 18th dec?,check_availability
+forget CWS,cancel_booking
+is communal 1 free at 08:00-12:00?,check_availability
+abort communal 1,cancel_booking
+please secure coworking space for us,booking_request
+delete booking,cancel_booking
+can we use Dapur on tomorrow,check_availability
+Please secure Theater for us,booking_request
+check schedule for Communal 5,check_availability
+is Sergun free?,check_availability
+cancel reservation,cancel_booking
+can we use sergun on 2018-12-25?,check_availability
+drop Theater,cancel_booking
+cancel reservation,cancel_booking
+check communal 1,check_availability
+status of cws,check_availability
+forget Dapur,cancel_booking
+abort Dapur,cancel_booking
+I want to cancel reservation,cancel_booking
+check communal 1,check_availability
+is Co working space vacant?,check_availability
+cancel booking,cancel_booking
+Serbaguna booking,booking_request
+can we use Sergun on Monday?,check_availability
+ppbp 24 needs serbaguna,booking_request
+stop the booking for Communal 2,cancel_booking
+remove Communal 3,cancel_booking
+reservation for serbaguna please,booking_request
+can I use Sergun,check_availability
+reservation for Plaza please,booking_request
+please cancel Theater,cancel_booking
+booking Serbaguna at 09.30,booking_request
+drop communal 1,cancel_booking
+reservation for Theater please,booking_request
+Communal 3 for tomorrow,booking_request
+ppti 9 wants serbaguna,booking_request
+is dapur empty?,check_availability
+cancel my booking,cancel_booking
+delete theater,cancel_booking
+reserving communal 3,booking_request
+need plaza,booking_request
+secure theater,booking_request
+unbook Communal 3,cancel_booking
+is theater available?,check_availability
+remove Coworking Space,cancel_booking
+cancel reservation,cancel_booking
+theater available tomorrow,check_availability
+remove reservation for PPTI 24,cancel_booking
+grab Theater,booking_request
+drop communal 1,cancel_booking
+book communal 2 now,booking_request
+cancel booking,cancel_booking
+is Sergun empty?,check_availability
+void co working space,cancel_booking
+can we use Communal 1 on Monday,check_availability
+we don't need communal 3 anymore,cancel_booking
+get CWS,booking_request
+secure Communal 1,booking_request
+is co working space open?,check_availability
+cws booking,booking_request
+we need to reserve communal 5,booking_request
+drop communal 5,cancel_booking
+check communal 5,check_availability
+reserve Sergun,booking_request
+unbook co working space,cancel_booking
+is CWS vacant,check_availability
+we need to reserve communal 2,booking_request
+remove communal 5,cancel_booking
+book serbaguna,booking_request
+stop the booking for Serbaguna,cancel_booking
+book Sergun now,booking_request
+cancel booking,cancel_booking
+delete Co working space,cancel_booking
+is co working space free?,check_availability
+i want to cancel reservation,cancel_booking
+is CWS occupied,check_availability
+is Communal 1 occupied?,check_availability
+delete Serbaguna,cancel_booking
+reserve Co working space,booking_request
+abort Communal 5,cancel_booking
+can i get sergun?,booking_request
+please secure co working space for us,booking_request
+book Communal 2,booking_request
+abort Communal 1,cancel_booking
+need communal 3 asap,booking_request
+keep Dapur,booking_request
+We need to reserve Dapur,booking_request
+delete Communal 5,cancel_booking
+check Communal 1,check_availability
+check schedule for Dapur,check_availability
+co working space on today,booking_request
+drop theater,cancel_booking
+remove Coworking Space,cancel_booking
+drop communal 3,cancel_booking
+cancel Communal 1,cancel_booking
+we don't need Plaza anymore,cancel_booking
+book Coworking Space,booking_request
+is Communal 5 occupied,check_availability
+is communal 2 vacant?,check_availability
+status of Serbaguna,check_availability
+schedule Communal 2,booking_request
+is Communal 2 free,check_availability
+please cancel CWS,cancel_booking
+Please secure Dapur for us,booking_request
+keep sergun,booking_request
+Communal 5 for tomorrow,booking_request
+Plaza available tomorrow,check_availability
+cancel CWS,cancel_booking
+cancel booking,cancel_booking
+we need to reserve theater,booking_request
+check CWS,check_availability
+void Serbaguna,cancel_booking
+communal 1 available tomorrow?,check_availability
+cancel it,cancel_booking
+check Sergun,check_availability
+when is Plaza free?,check_availability
+is Plaza open?,check_availability
+stop the booking for Co working space,cancel_booking
+put me down for communal 3,booking_request
+is Plaza empty?,check_availability
+dapur on 25th dec,booking_request
+status of cws,check_availability
+see if communal 3 is available,check_availability
+availability serbaguna,check_availability
+is serbaguna available?,check_availability
+book CWS,booking_request
+need Coworking Space,booking_request
+cancel it,cancel_booking
+remove serbaguna,cancel_booking
+book Serbaguna pls,booking_request
+Can I get Dapur?,booking_request
+Dapur available tomorrow?,check_availability
+reserve Theater from 14:00-16:00 to 14:00-16:00,booking_request
+remove communal 2,cancel_booking
+remove theater,cancel_booking
+abort Co working space,cancel_booking
+is Communal 3 free?,check_availability
+status of serbaguna,check_availability
+co working space on 2nd february 2026,booking_request
+void communal 3,cancel_booking
+remove co working space,cancel_booking
+check schedule for Communal 2,check_availability
+check Communal 2 status,check_availability

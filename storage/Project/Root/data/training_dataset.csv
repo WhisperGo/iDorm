@@ -1,0 +1,51 @@
+text,intent
+PPTI 22 wants to book CWS room on 18th December 2025 from 08.00 to 10.00,booking_request
+reserve the Theater for PPBP 7 on 12/12/2025,booking_request
+can i get the plaza for a meeting?,booking_request
+We need to hold the Sergun room next friday,booking_request
+booking Communal 1 for ppti 25,booking_request
+book CWS in 21 January 2025 from 18 to 20,booking_request
+reserve sergun from 07.30 to 09.30 on 2nd February 2026 by PPBP 10,booking_request
+I'd like to reserve Dapur for tomorrow morning,booking_request
+need Plaza on December 5th for PPTI 23,booking_request
+can we book the Theater this Saturday?,booking_request
+Schedule CWS room for January 15th 2026 from 14:00-16:00,booking_request
+PPBP 8 needs Communal 1 on 19/01/2026,booking_request
+want to reserve Communal 3 for next Thursday 10am to 12pm,booking_request
+book me the Dapur on 5th Jan 2026,booking_request
+PPTI 24 requesting Theater for 28-02-2026 at 9am,booking_request
+hold the CWS room for us on Feb 10th,booking_request
+Plaza booking for PPBP 11 next Friday 13:00 to 15:00,booking_request
+reserve CWS for workshop on 08/03/2026 from 8am-12pm,booking_request
+PPBP 9 wants Plaza on 22nd Dec 2025,booking_request
+book Communal 1 for training session next Tuesday,booking_request
+secure Dapur room for 16th February 2026 afternoon,booking_request
+Theater needed by PPTI 24 on 10/01/2026 evening,booking_request
+Is the CWS room available right now?,check_availability
+check schedule for Theater,check_availability
+is Dapur free on 18th Dec?,check_availability
+"check availability of Theater on Thursday, November 27th 2025",check_availability
+are there any slot in Plaza right now?,check_availability
+"can i see if in next week, on 21-03-2026, Communal 3 is available?",check_availability
+what's the availability of Sergun next Monday?,check_availability
+show me Theater schedule for next week,check_availability
+is Communal 3 occupied on 25th Dec?,check_availability
+any free slots in Dapur this afternoon?,check_availability
+check if Plaza is booked on 30/12/2025,check_availability
+is the Sergun available on 3rd March?,check_availability
+can you check Communal 1 for December 20th?,check_availability
+Theater free on the 15th?,check_availability
+what about Dapur availability on 01/02/2026?,check_availability
+i want to check CWS on friday 13th february 2026 13.00-15.00?,check_availability
+please tell me the availability on Communal 2 08.00-12.00 on this Saturday?,check_availability
+availability of Dapur in this Friday 17.00 - 18.30? (12 December 2025),check_availability
+need to cancel Theater reservation for PPBP 9,cancel_booking
+please drop the booking for PPTI 21,cancel_booking
+drop the reservation for CWS,cancel_booking
+remove booking for PPTI 22,cancel_booking
+remove my CWS booking on 12th January,cancel_booking
+i want to cancel my booking for sergun on this week,cancel_booking
+PPTI 23 wants to remove booking on Theater on 19 May 2025,cancel_booking
+please remove my booking on 20 August 2026,cancel_booking
+cancel PPTI 25 booking on Communal 5 today,cancel_booking
+withdraw our Plaza reservation for tommorow please,cancel_booking
