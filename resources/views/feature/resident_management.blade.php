@@ -36,9 +36,11 @@
                                     <th class="text-center" width="5%">No.</th>
                                     <th>Resident Info</th>
                                     <th class="text-center">Room</th>
-                                    <th class="text-center">Global Status</th>
                                     @if (Auth::user()->role->role_name === 'Manager')
+                                        <th class="text-center">Global Status</th>
                                         <th class="text-center" width="15%">Action</th>
+                                    @elseif (Auth::user()->role->role_name === 'Admin')
+                                        <th class="text-center" style="width: 10px;">Local Status</th>
                                     @endif
                                 </tr>
                             </thead>
@@ -64,22 +66,68 @@
                                         <td class="text-center font-monospace">{{ $residentDetails?->room_number ?? '-' }}
                                         </td>
 
-                                        <td class="text-center">
-                                            @if ($globalSuspend)
-                                                <form action="{{ route('suspensions.destroy', $globalSuspend->id) }}"
-                                                    method="POST" onsubmit="return confirm('Buka blokir global?')">
-                                                    @csrf @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-sm w-100">
-                                                        <i class="bi bi-unlock-fill"></i> TERBLOKIR
+                                        @if (Auth::user()->role->role_name === 'Manager')
+                                            <td class="text-center">
+                                                @if ($globalSuspend)
+                                                    <form action="{{ route('suspensions.destroy', $globalSuspend->id) }}"
+                                                        method="POST" onsubmit="return confirm('Buka blokir global?')">
+                                                        @csrf @method('DELETE')
+                                                        <button type="submit" class="btn btn-danger btn-sm w-100">
+                                                            <i class="bi bi-unlock-fill"></i> TERBLOKIR
+                                                        </button>
+                                                    </form>
+                                                @else
+                                                    <button type="button" class="btn btn-soft-success btn-sm w-100"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#modalGlobal{{ $res->id }}">
+                                                        <i class="bi bi-check-circle me-1"></i> ACTIVE
                                                     </button>
-                                                </form>
-                                            @else
-                                                <button type="button" class="btn btn-soft-success btn-sm w-100"
-                                                    data-bs-toggle="modal" data-bs-target="#modalGlobal{{ $res->id }}">
-                                                    <i class="bi bi-check-circle me-1"></i> ACTIVE
-                                                </button>
-                                            @endif
-                                        </td>
+                                                @endif
+                                            </td>
+                                        @endif
+
+                                        @if (Auth::user()->role->role_name === 'Admin')
+                                            {{-- Local Suspend Button --}}
+                                            <td class="text-center">
+                                                @if ($localSuspend)
+                                                    <form action="{{ route('suspensions.destroy', $localSuspend->id) }}"
+                                                        method="POST" class="d-inline-block m-0"
+                                                        onsubmit="return confirm('Cabut sanksi?')">
+                                                        @csrf @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-icon btn-soft-danger"
+                                                            data-bs-toggle="tooltip" data-bs-placement="top"
+                                                            title="Cabut Sanksi">
+                                                            <span class="btn-inner">
+                                                                <svg class="icon-20" width="20" viewBox="0 0 24 24"
+                                                                    fill="none" stroke="currentColor" stroke-width="1.5"
+                                                                    stroke-linecap="round" stroke-linejoin="round">
+                                                                    <rect x="3" y="11" width="18" height="11"
+                                                                        rx="2" ry="2"></rect>
+                                                                    <path d="M7 11V7a5 5 0 0 1 9.9-1"></path>
+                                                                </svg>
+                                                            </span>
+                                                        </button>
+                                                    </form>
+                                                @else
+                                                    <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip"
+                                                        data-bs-placement="top" title="Beri Sanksi">
+                                                        <button type="button" class="btn btn-sm btn-icon btn-soft-warning"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#modalLocal{{ $res->id }}">
+                                                            <span class="btn-inner">
+                                                                <svg class="icon-20" width="20" viewBox="0 0 24 24"
+                                                                    fill="none" stroke="currentColor" stroke-width="1.5"
+                                                                    stroke-linecap="round" stroke-linejoin="round">
+                                                                    <rect x="3" y="11" width="18" height="11"
+                                                                        rx="2" ry="2"></rect>
+                                                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                                                </svg>
+                                                            </span>
+                                                        </button>
+                                                    </span>
+                                                @endif
+                                            </td>
+                                        @endif
 
                                         @if (Auth::user()->role->role_name === 'Manager')
                                             <td class="text-center">
@@ -102,20 +150,6 @@
                                                             <i class="bi bi-trash"></i>
                                                         </button>
                                                     </form>
-
-                                                    {{-- Local Suspend Button
-                                                @if ($localSuspend)
-                                                    <form action="{{ route('suspensions.destroy', $localSuspend->id) }}" method="POST" onsubmit="return confirm('Cabut sanksi?')">
-                                                        @csrf @method('DELETE')
-                                                        <button type="submit" class="btn btn-sm btn-icon btn-soft-danger" title="Cabut Sanksi">
-                                                            <i class="bi bi-unlock"></i>
-                                                        </button>
-                                                    </form>
-                                                @else
-                                                    <button type="button" class="btn btn-sm btn-icon btn-soft-warning" data-bs-toggle="modal" data-bs-target="#modalLocal{{ $res->id }}" title="Beri Sanksi">
-                                                        <i class="bi bi-lock-fill"></i>
-                                                    </button>
-                                                @endif --}}
                                                 </div>
                                             </td>
                                         @endif
