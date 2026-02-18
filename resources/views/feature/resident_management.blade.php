@@ -200,6 +200,120 @@
                                             </div>
                                         </div>
                                     @endif
+
+                                    {{-- MODAL LOCAL SUSPEND (ADMIN)
+                                        Style: Hope UI Warning Theme (Soft Background) --}}
+                                    @if (auth()->user()->role->role_name != 'Resident')
+                                        <div class="modal fade" id="modalLocal{{ $res->id }}" tabindex="-1"
+                                            aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content border-0 shadow-lg">
+                                                    {{-- Header dengan Soft Background --}}
+                                                    <div class="modal-header bg-soft-warning border-bottom-0">
+                                                        <div class="d-flex align-items-center">
+                                                            <span
+                                                                class="avatar-40 rounded-pill bg-warning d-flex align-items-center justify-content-center me-2">
+                                                                <i class="bi bi-lock-fill text-white"></i>
+                                                            </span>
+                                                            <div>
+                                                                <h5 class="modal-title fw-bold text-dark mb-0">Suspend
+                                                                    Fasilitas</h5>
+                                                                <small class="text-muted">Penghuni:
+                                                                    {{ $res->residentDetails->full_name }}</small>
+                                                            </div>
+                                                        </div>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                            aria-label="Close"></button>
+                                                    </div>
+
+                                                    <form action="{{ route('suspensions.store') }}" method="POST">
+                                                        @csrf
+                                                        <div class="modal-body">
+                                                            <input type="hidden" name="user_id"
+                                                                value="{{ $res->id }}">
+
+                                                            {{-- LOGIC OTORITAS ADMIN --}}
+                                                            <div class="form-group mb-3">
+                                                                <label class="form-label fw-bold">Fasilitas</label>
+                                                                @php
+                                                                    $user = auth()->user();
+                                                                    $isManager = $user->role->role_name === 'Manager';
+                                                                    $adminFacilityId =
+                                                                        $user->adminDetails->facility_id ?? null;
+                                                                @endphp
+
+                                                                @if ($isManager)
+                                                                    {{-- Manager: Select Option --}}
+                                                                    <select name="facility_id" class="form-select"
+                                                                        required>
+                                                                        <option value="" selected disabled>-- Pilih
+                                                                            Fasilitas --</option>
+                                                                        @foreach ($facilities as $facility)
+                                                                            <option value="{{ $facility->id }}">
+                                                                                {{ $facility->name }}</option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                @else
+                                                                    {{-- Admin: Readonly Input (Hope UI Style) --}}
+                                                                    @php
+                                                                        $myFacility = $facilities->firstWhere(
+                                                                            'id',
+                                                                            $adminFacilityId,
+                                                                        );
+                                                                        $facilityName = $myFacility
+                                                                            ? $myFacility->name
+                                                                            : 'Tidak Ada Otoritas';
+                                                                    @endphp
+                                                                    <div class="input-group">
+                                                                        <span
+                                                                            class="input-group-text bg-light border-end-0 text-primary">
+                                                                            <i class="bi bi-building"></i>
+                                                                        </span>
+                                                                        <input type="text"
+                                                                            class="form-control bg-light border-start-0 fw-bold text-dark"
+                                                                            value="{{ $facilityName }}" readonly>
+                                                                    </div>
+                                                                    <input type="hidden" name="facility_id"
+                                                                        value="{{ $adminFacilityId }}">
+                                                                    <small class="text-warning mt-1 d-block"
+                                                                        style="font-size: 0.75rem;">*Sesuai otoritas akun
+                                                                        Anda</small>
+                                                                @endif
+                                                            </div>
+
+                                                            <div class="form-group mb-3">
+                                                                <label class="form-label fw-bold">Pelanggaran /
+                                                                    Alasan</label>
+                                                                <textarea name="reason" class="form-control" rows="2" required
+                                                                    placeholder="Contoh: Merusak alat, tidak membersihkan..."></textarea>
+                                                            </div>
+
+                                                            <div class="row">
+                                                                <div class="col-6">
+                                                                    <label class="form-label fw-bold">Mulai</label>
+                                                                    <input type="date" name="start_date"
+                                                                        class="form-control" value="{{ date('Y-m-d') }}"
+                                                                        required>
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <label class="form-label fw-bold">Selesai</label>
+                                                                    <input type="date" name="end_date"
+                                                                        class="form-control">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer border-top-0 pt-0">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                data-bs-dismiss="modal">Batal</button>
+                                                            <button type="submit"
+                                                                class="btn btn-warning text-dark fw-bold">Simpan
+                                                                Hukuman</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
                                     {{-- Modal Global & Local Include disini --}}
                                 @empty
                                     <tr>
