@@ -55,7 +55,7 @@ class ResidentSeeder extends Seeder
         //     'room_number' => 'A105',
         // ]);
 
-        for ($i = 0; $i < 500; $i++) {
+        for ($i = 0; $i < 100; $i++) {
             $gender = $faker->randomElement(['Male', 'Female']);
             
             // 1. Buat User
