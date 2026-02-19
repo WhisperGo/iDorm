@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # iDorm - Dormitory Management System
 
 iDorm adalah sistem manajemen asrama terpadu yang dibangun menggunakan framework Laravel. Sistem ini dirancang untuk mendigitalisasi operasional asrama, mulai dari peminjaman fasilitas hingga pelaporan kerusakan gedung secara terpusat.
@@ -20,6 +19,3 @@ iDorm adalah sistem manajemen asrama terpadu yang dibangun menggunakan framework
 - **Database**: MySQL (Skema Relasional 3NF).
 - **Frontend**: Blade Engine dengan integrasi *Standardized Component System*.
 - **Keamanan**: Implementasi *Soft Deletes* pada aksi delete.
-=======
-
->>>>>>> development
