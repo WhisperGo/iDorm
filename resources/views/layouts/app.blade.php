@@ -112,214 +112,215 @@
 
 @push('scripts')
 
-    <body class="">
-        {{-- <div id="loading">
+<body class="">
+    {{-- <div id="loading">
         <div class="loader simple-loader">
             <div class="loader-body"></div>
         </div>
     </div> --}}
 
-        @include('layouts.partials.sidebar')
 
-        <main class="main-content">
+    @include('layouts.partials.sidebar')
 
-            @include('layouts.partials.navbar')
+    <main class="main-content">
 
-            <div class="position-relative">
-                <div class="iq-banner">
-                    @include('layouts.partials.banner')
-                </div>
+        @include('layouts.partials.navbar')
 
-                <div class="container-fluid content-inner mt-5 py-0">
-                    @yield('content')
-                </div>
-
-                @include('layouts.partials.footer')
+        <div class="position-relative">
+            <div class="iq-banner">
+                @include('layouts.partials.banner')
             </div>
 
-        </main>
-
-        {{-- Tombol Chat Melayang --}}
-        <button id="chat-toggle"
-            class="btn btn-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center"
-            style="position: fixed; bottom: 25px; right: 30px; width: 65px; height: 65px; z-index: 2000; border: 3px solid #fff;">
-            <i class="bi bi-robot fs-2 text-white"></i>
-        </button>
-
-        {{-- Container Kotak Chat --}}
-        <div id="chat-container" class="card shadow-lg d-none animate__animated animate__fadeInUp"
-            style="position: fixed; bottom: 70px; right: 30px; width: 380px; height: 500px; z-index: 2000; border-radius: 20px; border: none; overflow: hidden; display: flex; flex-direction: column;">
-
-            <div class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center shadow-sm">
-                <div class="d-flex align-items-center">
-                    <div class="bg-white rounded-circle me-2 d-flex align-items-center justify-content-center"
-                        style="width: 40px; height: 40px;">
-                        <i class="bi bi-robot text-primary fs-4"></i>
-                    </div>
-                    <div>
-                        <h6 class="mb-0 fw-bold text-white">iDorm AI Assistant</h6>
-                        <small style="font-size: 0.7rem; opacity: 0.9;">Online | Ready to help</small>
-                    </div>
-                </div>
-                <div class="d-flex align-items-center">
-                    {{-- TOMBOL INI HARUS ADA --}}
-                    <button type="button" class="btn btn-sm btn-link text-white me-2 p-0" id="clear-chat"
-                        title="Bersihkan Chat">
-                        <i class="bi bi-trash3 fs-5"></i>
-                    </button>
-                    <button type="button" class="btn-close btn-close-white" id="close-chat"></button>
-                </div>
+            <div class="container-fluid content-inner mt-5 py-0">
+                @yield('content')
             </div>
 
-            {{-- Body Chat --}}
-            <div id="chat-box" class="card-body overflow-auto p-3 flex-grow-1" style="background: #f4f7fa;">
-                <div class="d-flex mb-3">
-                    <div class="bot-msg p-3 shadow-sm small border" style="max-width: 85%;">
-                        Halo! Saya iDorm AI. Saya bisa bantu kamu cek jadwal, lapor kerusakan, atau booking fasilitas. Ada
-                        yang ingin kamu tanyakan?
-                    </div>
+            @include('layouts.partials.footer')
+        </div>
+
+    </main>
+
+    {{-- Tombol Chat Melayang --}}
+    <button id="chat-toggle"
+        class="btn btn-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center"
+        style="position: fixed; bottom: 25px; right: 30px; width: 65px; height: 65px; z-index: 2000; border: 3px solid #fff;">
+        <i class="bi bi-robot fs-2 text-white"></i>
+    </button>
+
+    {{-- Container Kotak Chat --}}
+    <div id="chat-container" class="card shadow-lg d-none animate__animated animate__fadeInUp"
+        style="position: fixed; bottom: 70px; right: 30px; width: 380px; height: 500px; z-index: 2000; border-radius: 20px; border: none; overflow: hidden; display: flex; flex-direction: column;">
+
+        <div class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center shadow-sm">
+            <div class="d-flex align-items-center">
+                <div class="bg-white rounded-circle me-2 d-flex align-items-center justify-content-center"
+                    style="width: 40px; height: 40px;">
+                    <i class="bi bi-robot text-primary fs-4"></i>
+                </div>
+                <div>
+                    <h6 class="mb-0 fw-bold text-white">iDorm AI Assistant</h6>
+                    <small style="font-size: 0.7rem; opacity: 0.9;">Online | Ready to help</small>
                 </div>
             </div>
+            <div class="d-flex align-items-center">
+                {{-- TOMBOL INI HARUS ADA --}}
+                <button type="button" class="btn btn-sm btn-link text-white me-2 p-0" id="clear-chat"
+                    title="Bersihkan Chat">
+                    <i class="bi bi-trash3 fs-5"></i>
+                </button>
+                <button type="button" class="btn-close btn-close-white" id="close-chat"></button>
+            </div>
+        </div>
 
-            {{-- Input Footer --}}
-            <div class="card-footer bg-white p-3 border-top">
-                <div class="input-group">
-                    <input type="text" id="user-input" class="form-control border-0 bg-light p-2"
-                        placeholder="Ketik pesan kamu..." style="border-radius: 12px 0 0 12px; font-size: 0.9rem;">
-                    <button class="btn btn-primary px-3" id="send-btn" style="border-radius: 0 12px 12px 0;">
-                        <i class="bi bi-send-fill"></i>
-                    </button>
+        {{-- Body Chat --}}
+        <div id="chat-box" class="card-body overflow-auto p-3 flex-grow-1" style="background: #f4f7fa;">
+            <div class="d-flex mb-3">
+                <div class="bot-msg p-3 shadow-sm small border" style="max-width: 85%;">
+                    Halo! Saya iDorm AI. Saya bisa bantu kamu cek jadwal, lapor kerusakan, atau booking fasilitas. Ada
+                    yang ingin kamu tanyakan?
                 </div>
             </div>
         </div>
 
-        <script src="{{ asset('hopeui/js/core/libs.min.js') }}"></script>
-        <script src="{{ asset('hopeui/js/core/external.min.js') }}"></script>
-        <script src="{{ asset('hopeui/js/charts/widgetcharts.js') }}"></script>
-        <script src="{{ asset('hopeui/js/charts/vectore-chart.js') }}"></script>
-        <script src="{{ asset('hopeui/js/charts/dashboard.js') }}"></script>
-        <script src="{{ asset('hopeui/js/plugins/fslightbox.js') }}"></script>
-        <script src="{{ asset('hopeui/js/plugins/setting.js') }}"></script>
-        <script src="{{ asset('hopeui/js/plugins/slider-tabs.js') }}"></script>
-        <script src="{{ asset('hopeui/js/plugins/form-wizard.js') }}"></script>
-        <script src="{{ asset('hopeui/vendor/aos/dist/aos.js') }}"></script>
-        <script src="{{ asset('hopeui/js/hope-ui.js') }}" defer></script>
+        {{-- Input Footer --}}
+        <div class="card-footer bg-white p-3 border-top">
+            <div class="input-group">
+                <input type="text" id="user-input" class="form-control border-0 bg-light p-2"
+                    placeholder="Ketik pesan kamu..." style="border-radius: 12px 0 0 12px; font-size: 0.9rem;">
+                <button class="btn btn-primary px-3" id="send-btn" style="border-radius: 0 12px 12px 0;">
+                    <i class="bi bi-send-fill"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ asset('hopeui/js/core/libs.min.js') }}"></script>
+    <script src="{{ asset('hopeui/js/core/external.min.js') }}"></script>
+    <script src="{{ asset('hopeui/js/charts/widgetcharts.js') }}"></script>
+    <script src="{{ asset('hopeui/js/charts/vectore-chart.js') }}"></script>
+    <script src="{{ asset('hopeui/js/charts/dashboard.js') }}"></script>
+    <script src="{{ asset('hopeui/js/plugins/fslightbox.js') }}"></script>
+    <script src="{{ asset('hopeui/js/plugins/setting.js') }}"></script>
+    <script src="{{ asset('hopeui/js/plugins/slider-tabs.js') }}"></script>
+    <script src="{{ asset('hopeui/js/plugins/form-wizard.js') }}"></script>
+    <script src="{{ asset('hopeui/vendor/aos/dist/aos.js') }}"></script>
+    <script src="{{ asset('hopeui/js/hope-ui.js') }}" defer></script>
 
 
-        {{-- Script Chatbot & Custom Logic --}}
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                // 1. Inisialisasi Elemen
-                const chatToggle = document.getElementById('chat-toggle');
-                const chatContainer = document.getElementById('chat-container');
-                const closeChat = document.getElementById('close-chat');
-                const sendBtn = document.getElementById('send-btn');
-                const userInput = document.getElementById('user-input');
-                const chatBox = document.getElementById('chat-box');
-                const clearChatBtn = document.getElementById('clear-chat');
+    {{-- Script Chatbot & Custom Logic --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1. Inisialisasi Elemen
+            const chatToggle = document.getElementById('chat-toggle');
+            const chatContainer = document.getElementById('chat-container');
+            const closeChat = document.getElementById('close-chat');
+            const sendBtn = document.getElementById('send-btn');
+            const userInput = document.getElementById('user-input');
+            const chatBox = document.getElementById('chat-box');
+            const clearChatBtn = document.getElementById('clear-chat');
 
-                // --- 2. FUNGSI LOGIKA UI ---
+            // --- 2. FUNGSI LOGIKA UI ---
 
-                function appendMessageToUI(sender, text, isHtml = false) {
-                    const msgDiv = document.createElement('div');
-                    msgDiv.className = sender === 'user' ? 'd-flex justify-content-end mb-3' : 'd-flex mb-3';
-                    const innerDiv = document.createElement('div');
-                    innerDiv.className = sender === 'user' ? 'user-msg p-3 shadow-sm small' :
-                        'bot-msg p-3 shadow-sm small';
-                    innerDiv.style.maxWidth = '85%';
+            function appendMessageToUI(sender, text, isHtml = false) {
+                const msgDiv = document.createElement('div');
+                msgDiv.className = sender === 'user' ? 'd-flex justify-content-end mb-3' : 'd-flex mb-3';
+                const innerDiv = document.createElement('div');
+                innerDiv.className = sender === 'user' ? 'user-msg p-3 shadow-sm small' :
+                    'bot-msg p-3 shadow-sm small';
+                innerDiv.style.maxWidth = '85%';
 
-                    if (isHtml) innerDiv.innerHTML = text;
-                    else innerDiv.textContent = text;
+                if (isHtml) innerDiv.innerHTML = text;
+                else innerDiv.textContent = text;
 
-                    msgDiv.appendChild(innerDiv);
-                    chatBox.appendChild(msgDiv);
-                    chatBox.scrollTop = chatBox.scrollHeight;
+                msgDiv.appendChild(innerDiv);
+                chatBox.appendChild(msgDiv);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+
+            function saveChatHistory(sender, text, isHtml = false) {
+                const history = JSON.parse(localStorage.getItem('idorm_chat_history')) || [];
+                history.push({
+                    sender,
+                    text,
+                    isHtml
+                });
+                if (history.length > 20) history.shift();
+                localStorage.setItem('idorm_chat_history', JSON.stringify(history));
+            }
+
+            function loadChatHistory() {
+                const history = JSON.parse(localStorage.getItem('idorm_chat_history')) || [];
+                chatBox.innerHTML = '';
+                if (history.length > 0) {
+                    history.forEach(msg => appendMessageToUI(msg.sender, msg.text, msg.isHtml));
+                } else {
+                    appendMessageToUI('bot', 'Hello! I am iDorm AI. How can I help you today?');
                 }
+            }
 
-                function saveChatHistory(sender, text, isHtml = false) {
-                    const history = JSON.parse(localStorage.getItem('idorm_chat_history')) || [];
-                    history.push({
-                        sender,
-                        text,
-                        isHtml
+            function appendTypingIndicator(id) {
+                const typingDiv = document.createElement('div');
+                typingDiv.id = id;
+                typingDiv.className = 'd-flex mb-3';
+                typingDiv.innerHTML =
+                    `<div class="bot-msg p-2 px-3 shadow-sm small border-0"><i>AI is typing...</i></div>`;
+                chatBox.appendChild(typingDiv);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+
+            // --- 3. FUNGSI KIRIM PESAN & HANDLE RESPONSE ---
+
+            async function sendMessage() {
+                const message = userInput.value.trim();
+                if (!message) return;
+
+                appendMessageToUI('user', message);
+                saveChatHistory('user', message);
+                userInput.value = '';
+
+                const typingId = 'typing-' + Date.now();
+                appendTypingIndicator(typingId);
+
+                try {
+                    const response = await fetch("{{ route('chatbot.send') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            message: message
+                        })
                     });
-                    if (history.length > 20) history.shift();
-                    localStorage.setItem('idorm_chat_history', JSON.stringify(history));
-                }
 
-                function loadChatHistory() {
-                    const history = JSON.parse(localStorage.getItem('idorm_chat_history')) || [];
-                    chatBox.innerHTML = '';
-                    if (history.length > 0) {
-                        history.forEach(msg => appendMessageToUI(msg.sender, msg.text, msg.isHtml));
-                    } else {
-                        appendMessageToUI('bot', 'Hello! I am iDorm AI. How can I help you today?');
-                    }
-                }
+                    const result = await response.json();
+                    const typingElem = document.getElementById(typingId);
+                    if (typingElem) typingElem.remove();
 
-                function appendTypingIndicator(id) {
-                    const typingDiv = document.createElement('div');
-                    typingDiv.id = id;
-                    typingDiv.className = 'd-flex mb-3';
-                    typingDiv.innerHTML =
-                        `<div class="bot-msg p-2 px-3 shadow-sm small border-0"><i>AI is typing...</i></div>`;
-                    chatBox.appendChild(typingDiv);
-                    chatBox.scrollTop = chatBox.scrollHeight;
-                }
+                    if (result.status === 'success' && result.data.bot_reply) {
+                        let botReply = result.data.bot_reply;
+                        let intent = result.data.intent;
+                        let actionHtml = '';
 
-                // --- 3. FUNGSI KIRIM PESAN & HANDLE RESPONSE ---
+                        // A. LOGIKA JIKA INTENT = BOOKING REQUEST
+                        if (intent === 'booking_request') {
+                            const ent = result.data.entities;
+                            const room = ent.room ? ent.room.toLowerCase() : '';
+                            const bookingUrl =
+                                `{{ route('booking.chatbot') }}?room=${ent.room}&date=${ent.date}&start=${ent.start_time}&end=${ent.end_time}`;
 
-                async function sendMessage() {
-                    const message = userInput.value.trim();
-                    if (!message) return;
+                            const needsSelection = ['dapur', 'kitchen', 'mesin cuci', 'laundry', 'sergun',
+                                'multi-purpose', 'serba guna'
+                            ];
 
-                    appendMessageToUI('user', message);
-                    saveChatHistory('user', message);
-                    userInput.value = '';
+                            let isSpecial = needsSelection.some(item => room.includes(item));
+                            let instruction = isSpecial ?
+                                "Schedule secured! Click below to <b>select tools/units</b> and finalize." :
+                                "Schedule secured! Click below to <b>finalize</b> your booking.";
 
-                    const typingId = 'typing-' + Date.now();
-                    appendTypingIndicator(typingId);
+                            let buttonText = isSpecial ? "Select Tools & Confirm" : "Confirm Booking";
 
-                    try {
-                        const response = await fetch("{{ route('chatbot.send') }}", {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: JSON.stringify({
-                                message: message
-                            })
-                        });
-
-                        const result = await response.json();
-                        const typingElem = document.getElementById(typingId);
-                        if (typingElem) typingElem.remove();
-
-                        if (result.status === 'success' && result.data.bot_reply) {
-                            let botReply = result.data.bot_reply;
-                            let intent = result.data.intent;
-                            let actionHtml = '';
-
-                            // A. LOGIKA JIKA INTENT = BOOKING REQUEST
-                            if (intent === 'booking_request') {
-                                const ent = result.data.entities;
-                                const room = ent.room ? ent.room.toLowerCase() : '';
-                                const bookingUrl =
-                                    `{{ route('booking.chatbot') }}?room=${ent.room}&date=${ent.date}&start=${ent.start_time}&end=${ent.end_time}`;
-
-                                const needsSelection = ['dapur', 'kitchen', 'mesin cuci', 'laundry', 'sergun',
-                                    'multi-purpose', 'serba guna'
-                                ];
-
-                                let isSpecial = needsSelection.some(item => room.includes(item));
-                                let instruction = isSpecial ?
-                                    "Schedule secured! Click below to <b>select tools/units</b> and finalize." :
-                                    "Schedule secured! Click below to <b>finalize</b> your booking.";
-
-                                let buttonText = isSpecial ? "Select Tools & Confirm" : "Confirm Booking";
-
-                                actionHtml = `
+                            actionHtml = `
                         <div class="mt-3 p-2 border-top">
                             <p class="small mb-2 text-muted"><b>Final Step:</b> ${instruction}</p>
                             <a href="${bookingUrl}" class="btn btn-success btn-sm w-100 rounded-pill fw-bold text-white shadow-sm">
@@ -327,18 +328,18 @@
                             </a>
                         </div>
                     `;
-                                appendMessageToUI('bot', botReply + actionHtml, true);
-                                saveChatHistory('bot', botReply + actionHtml, true);
-                            }
+                            appendMessageToUI('bot', botReply + actionHtml, true);
+                            saveChatHistory('bot', botReply + actionHtml, true);
+                        }
 
-                            // B. LOGIKA JIKA INTENT = CHECK AVAILABILITY
-                            else if (intent === 'check_availability') {
-                                if (result.data.available) {
-                                    const ent = result.data.entities;
-                                    const bookingUrl =
-                                        `{{ route('booking.chatbot') }}?room=${ent.room}&date=${ent.date}&start=${ent.start_time}&end=${ent.end_time}`;
+                        // B. LOGIKA JIKA INTENT = CHECK AVAILABILITY
+                        else if (intent === 'check_availability') {
+                            if (result.data.available) {
+                                const ent = result.data.entities;
+                                const bookingUrl =
+                                    `{{ route('booking.chatbot') }}?room=${ent.room}&date=${ent.date}&start=${ent.start_time}&end=${ent.end_time}`;
 
-                                    actionHtml = `
+                                actionHtml = `
                             <div class="mt-3 p-2 border-top">
                                 <p class="small mb-2 text-primary"><b>Interested?</b> Secure this slot before someone else does!</p>
                                 <a href="${bookingUrl}" class="btn btn-primary btn-sm w-100 rounded-pill fw-bold text-white shadow-sm">
@@ -346,55 +347,55 @@
                                 </a>
                             </div>
                         `;
-                                }
-                                appendMessageToUI('bot', botReply + actionHtml, true);
-                                saveChatHistory('bot', botReply + actionHtml, true);
                             }
-
-                            // C. BALASAN BIASA (CHAT UMUM)
-                            else {
-                                appendMessageToUI('bot', botReply);
-                                saveChatHistory('bot', botReply);
-                            }
+                            appendMessageToUI('bot', botReply + actionHtml, true);
+                            saveChatHistory('bot', botReply + actionHtml, true);
                         }
-                    } catch (error) {
-                        console.error('Error:', error);
-                        const typingElem = document.getElementById(typingId);
-                        if (typingElem) typingElem.remove();
-                        appendMessageToUI('bot',
-                            'Sorry, I am having trouble connecting to my brain. Please try again.');
+
+                        // C. BALASAN BIASA (CHAT UMUM)
+                        else {
+                            appendMessageToUI('bot', botReply);
+                            saveChatHistory('bot', botReply);
+                        }
                     }
+                } catch (error) {
+                    console.error('Error:', error);
+                    const typingElem = document.getElementById(typingId);
+                    if (typingElem) typingElem.remove();
+                    appendMessageToUI('bot',
+                        'Sorry, I am having trouble connecting to my brain. Please try again.');
                 }
+            }
 
-                // --- 4. EVENT LISTENERS ---
+            // --- 4. EVENT LISTENERS ---
 
-                loadChatHistory();
+            loadChatHistory();
 
-                chatToggle.addEventListener('click', () => {
-                    chatContainer.classList.toggle('d-none');
-                    chatBox.scrollTop = chatBox.scrollHeight;
-                    userInput.focus();
-                });
-
-                closeChat.addEventListener('click', () => chatContainer.classList.add('d-none'));
-
-                clearChatBtn.addEventListener('click', () => {
-                    if (confirm('Delete all chat history?')) {
-                        localStorage.removeItem('idorm_chat_history');
-                        loadChatHistory();
-                    }
-                });
-
-                sendBtn.addEventListener('click', sendMessage);
-                userInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') sendMessage();
-                });
+            chatToggle.addEventListener('click', () => {
+                chatContainer.classList.toggle('d-none');
+                chatBox.scrollTop = chatBox.scrollHeight;
+                userInput.focus();
             });
-        </script>
-        @stack('scripts')
-    </body>
 
-    {{-- <script>
+            closeChat.addEventListener('click', () => chatContainer.classList.add('d-none'));
+
+            clearChatBtn.addEventListener('click', () => {
+                if (confirm('Delete all chat history?')) {
+                    localStorage.removeItem('idorm_chat_history');
+                    loadChatHistory();
+                }
+            });
+
+            sendBtn.addEventListener('click', sendMessage);
+            userInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendMessage();
+            });
+        });
+    </script>
+    @stack('scripts')
+</body>
+
+{{-- <script>
         document.querySelectorAll('.btn-freeze').forEach(button => {
             button.addEventListener('click', function(e) {
                 const form = this.closest('.freeze-form');
@@ -494,4 +495,4 @@
         });
     </script> --}}
 
-    </html>
+</html>
