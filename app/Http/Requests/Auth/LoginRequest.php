@@ -24,12 +24,13 @@ class LoginRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(): array {
-    return [
-        'card_id' => ['required', 'string', 'size:4'], // Validasi 4 digit
-        'password' => ['required', 'string'],
-    ];
-}
+    public function rules(): array
+    {
+        return [
+            'card_id' => ['required', 'string', 'size:4'], // Validasi 4 digit
+            'password' => ['required', 'string'],
+        ];
+    }
 
     /**
      * Attempt to authenticate the request's credentials.
@@ -44,7 +45,7 @@ class LoginRequest extends FormRequest
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'email' => 'ID Card atau Password yang Anda masukkan salah.',
             ]);
         }
 
@@ -79,6 +80,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->string('email')) . '|' . $this->ip());
     }
 }
