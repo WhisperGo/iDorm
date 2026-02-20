@@ -20,7 +20,7 @@
                 </i>
             </div>
 
-            <div class="input-group search-input">
+            <!-- <div class="input-group search-input">
                 <span class="input-group-text" id="search-input">
                     <svg class="icon-18" width="18" viewBox="0 0 24 24" fill="none"
                         xmlns="http://www.w3.org/2000/svg">
@@ -31,7 +31,7 @@
                     </svg>
                 </span>
                 <input type="search" class="form-control" placeholder="Search...">
-            </div>
+            </div> -->
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
@@ -44,7 +44,7 @@
             </button>
 
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="mb-2 navbar-nav ms-auto align-items-center navbar-list mb-lg-0">
+                <ul class="mb-2 navbar-nav ms-auto align-items-end align-items-xl-center navbar-list mb-lg-0">
                     <li class="nav-item dropdown custom-drop">
                         <a class="py-0 nav-link d-flex align-items-center" href="#" id="navbarDropdown"
                             role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -52,7 +52,7 @@
                                 class="theme-color-default-img img-fluid avatar avatar-50 avatar-rounded">
 
                             {{-- BAGIAN NAMA & ROLE --}}
-                            <div class="caption ms-3 d-none d-md-block ">
+                            <div class="caption ms-3">
                                 @if (Auth::user()->role->role_name == 'Resident')
                                 <h6 class="mb-0 caption-title fw-bold">
                                     {{ Auth::user()->residentDetails->full_name ?? Auth::user()->name }}

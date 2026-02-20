@@ -1,6 +1,6 @@
 @php
-    $role = auth()->user()->role->role_name;
-    $gender = auth()->user()->residentDetails->gender ?? null;
+$role = auth()->user()->role->role_name;
+$gender = auth()->user()->residentDetails->gender ?? null;
 @endphp
 
 <style>
@@ -10,9 +10,21 @@
         display: flex;
         flex-direction: column;
     }
+
+    /* Override template style: show sub-nav icons when sidebar is collapsed instead of mini-icons */
+    .sidebar.sidebar-mini.sidebar-base:not(.sidebar-hover:hover) .nav-item .sub-nav .nav-item .icon {
+        display: flex !important;
+        justify-content: center;
+    }
 </style>
 
-<aside class="sidebar sidebar-default sidebar-white sidebar-base navs-rounded-all">
+<aside class="sidebar sidebar-default sidebar-white sidebar-base navs-rounded-all" id="main-sidebar">
+    <script>
+        // Apply saved state before anything renders to prevent CSS transitions from firing on load
+        if (localStorage.getItem("sidebar-state") === "mini") {
+            document.getElementById("main-sidebar").classList.add("sidebar-mini");
+        }
+    </script>
     <div class="sidebar-header d-flex align-items-center justify-content-start">
         <div class="navbar-brand">
             <div class="logo-main">
@@ -64,43 +76,51 @@
 
                 {{-- MASTER DATA: Hanya Muncul untuk Pengelola --}}
                 @if ($role === 'Manager')
-                    <li>
-                        <hr class="hr-horizontal">
-                    </li>
-                    <li class="nav-item static-item">
-                        <a class="nav-link static-item disabled" href="#">
-                            <span class="default-icon">Master Data</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ Route::is('pengelola.resident') ? 'active' : '' }}"
-                            href="{{ route('pengelola.resident') }}">
+                <li>
+                    <hr class="hr-horizontal">
+                </li>
+                <li class="nav-item static-item">
+                    <a class="nav-link static-item disabled" href="#" tabindex="-1">
+                        <span class="default-icon">Master Data</span>
+                        <span class="mini-icon">-</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ Route::is('pengelola.resident') ? 'active' : '' }}"
+                        href="{{ route('pengelola.resident') }}">
+                        <i class="icon">
                             <i class="bi bi-people-fill"></i>
-                            <span class="item-name">Resident Data</span>
-                        </a>
+                        </i>
+                        <span class="item-name">Resident Data</span>
+                    </a>
 
-                        <a class="nav-link {{ Route::is('manager.admins.index') ? 'active' : '' }}"
-                            href="{{ route('manager.admins.index') }}">
+                    <a class="nav-link {{ Route::is('manager.admins.index') ? 'active' : '' }}"
+                        href="{{ route('manager.admins.index') }}">
+                        <i class="icon">
                             <i class="bi bi-people-fill"></i>
-                            <span class="item-name">Admin Data</span>
-                        </a>
-                    </li>
+                        </i>
+                        <span class="item-name">Admin Data</span>
+                    </a>
+                </li>
                 @elseif ($role === 'Admin')
-                    <li>
-                        <hr class="hr-horizontal">
-                    </li>
-                    <li class="nav-item static-item">
-                        <a class="nav-link static-item disabled" href="#">
-                            <span class="default-icon">Master Data</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ Route::is('admin.resident') ? 'active' : '' }}"
-                            href="{{ route('admin.resident') }}">
+                <li>
+                    <hr class="hr-horizontal">
+                </li>
+                <li class="nav-item static-item">
+                    <a class="nav-link static-item disabled" href="#" tabindex="-1">
+                        <span class="default-icon">Master Data</span>
+                        <span class="mini-icon">-</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ Route::is('admin.resident') ? 'active' : '' }}"
+                        href="{{ route('admin.resident') }}">
+                        <i class="icon">
                             <i class="bi bi-people-fill"></i>
-                            <span class="item-name">Resident Data</span>
-                        </a>
-                    </li>
+                        </i>
+                        <span class="item-name">Resident Data</span>
+                    </a>
+                </li>
                 @endif
 
                 <li>
@@ -108,8 +128,9 @@
                 </li>
 
                 <li class="nav-item static-item">
-                    <a class="nav-link static-item disabled" href="#">
+                    <a class="nav-link static-item disabled" href="#" tabindex="-1">
                         <span class="default-icon">Pages</span>
+                        <span class="mini-icon">-</span>
                     </a>
                 </li>
 
@@ -117,18 +138,27 @@
                 <li class="nav-item">
                     <a class="nav-link {{ Route::is('announcements') ? 'active' : '' }}"
                         href="{{ route('announcements') }}">
-                        <i class="bi bi-chat-left-quote-fill"></i>
+                        <i class="icon">
+                            <i class="bi bi-chat-left-quote-fill"></i>
+                        </i>
                         <span class="item-name">Announcement</span>
                     </a>
                 </li>
 
                 {{-- Menu Facilities (Dinamis untuk lihat jadwal) --}}
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="collapse" href="#sidebar-special">
-                        <i class="bi bi-people-fill"></i>
+                    <a class="nav-link" data-bs-toggle="collapse" href="#sidebar-special" role="button" aria-expanded="false" aria-controls="sidebar-special">
+                        <i class="icon">
+                            <i class="bi bi-people-fill"></i>
+                        </i>
                         <span class="item-name">Facilities Schedule</span>
+                        <i class="right-icon">
+                            <svg class="icon-18" xmlns="http://www.w3.org/2000/svg" width="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </i>
                     </a>
-                    <ul class="sub-nav collapse" id="sidebar-special">
+                    <ul class="sub-nav collapse" id="sidebar-special" data-bs-parent="#sidebar-menu">
                         {{-- Menggunakan rute facility.schedule yang baru --}}
                         <li class="nav-item">
                             <a class="nav-link {{ Request::is('facility-schedule/dapur') ? 'active' : '' }}"
@@ -202,40 +232,44 @@
 
                 {{-- BOOKING: Hanya untuk Resident --}}
                 @if ($role === 'Resident')
-                    <li class="nav-item">
-                        <a class="nav-link {{ Route::is('booking.create') ? 'active' : '' }}"
-                            href="{{ route('booking.create') }}">
+                <li class="nav-item">
+                    <a class="nav-link {{ Route::is('booking.create') ? 'active' : '' }}"
+                        href="{{ route('booking.create') }}">
+                        <i class="icon">
                             <i class="bi bi-calendar4-week"></i>
-                            <span class="item-name">Make a Booking</span>
-                        </a>
-                    </li>
+                        </i>
+                        <span class="item-name">Make a Booking</span>
+                    </a>
+                </li>
 
-                    {{-- MENU BARU: My Bookings --}}
-                    <li class="nav-item">
-                        <a class="nav-link {{ Route::is('booking.my_bookings') ? 'active' : '' }}"
-                            href="{{ route('booking.my_bookings') }}">
+                {{-- MENU BARU: My Bookings --}}
+                <li class="nav-item">
+                    <a class="nav-link {{ Route::is('booking.my_bookings') ? 'active' : '' }}"
+                        href="{{ route('booking.my_bookings') }}">
+                        <i class="icon">
                             <i class="bi bi-clock-history"></i>
-                            <span class="item-name">My Bookings</span>
-                        </a>
-                    </li>
+                        </i>
+                        <span class="item-name">My Bookings</span>
+                    </a>
+                </li>
                 @endif
 
                 {{-- COMPLAINT: Link ke list keluhan (Filtered by Room for Residents) --}}
                 @if (auth()->user()->role->role_name != 'Admin')
-                    <li class="nav-item">
-                        @php
-                            // Tentukan nama rute berdasarkan role
-                            $complaintRoute =
-                                Auth::user()->role->role_name === 'Resident' ? 'complaint.index' : 'admin.complaint';
-                        @endphp
-                        <a class="nav-link {{ Route::is($complaintRoute) ? 'active' : '' }}"
-                            href="{{ route($complaintRoute) }}">
-                            <i class="icon">
-                                <i class="bi bi-exclamation-octagon"></i>
-                            </i>
-                            <span class="item-name">Complaints</span>
-                        </a>
-                    </li>
+                <li class="nav-item">
+                    @php
+                    // Tentukan nama rute berdasarkan role
+                    $complaintRoute =
+                    Auth::user()->role->role_name === 'Resident' ? 'complaint.index' : 'admin.complaint';
+                    @endphp
+                    <a class="nav-link {{ Route::is($complaintRoute) ? 'active' : '' }}"
+                        href="{{ route($complaintRoute) }}">
+                        <i class="icon">
+                            <i class="bi bi-exclamation-octagon"></i>
+                        </i>
+                        <span class="item-name">Complaints</span>
+                    </a>
+                </li>
                 @endif
 
                 <li>
@@ -243,8 +277,9 @@
                 </li>
                 {{-- TAMBAHKAN MENU KOS PREDICTION DISINI --}}
                 <li class="nav-item static-item">
-                    <a class="nav-link static-item disabled" href="#">
+                    <a class="nav-link static-item disabled" href="#" tabindex="-1">
                         <span class="default-icon">Boarding House Prediction</span>
+                        <span class="mini-icon">-</span>
                     </a>
                 </li>
 
@@ -260,27 +295,30 @@
 
                 {{-- REPORT: Hanya untuk Pengelola --}}
                 @if ($role === 'Manager')
-                    <li>
-                        <hr class="hr-horizontal">
-                    </li>
+                <li>
+                    <hr class="hr-horizontal">
+                </li>
 
-                    <li class="nav-item static-item">
-                        <a class="nav-link static-item disabled" href="#">
-                            <span class="default-icon">Report</span>
-                        </a>
-                    </li>
+                <li class="nav-item static-item">
+                    <a class="nav-link static-item disabled" href="#" tabindex="-1">
+                        <span class="default-icon">Report</span>
+                        <span class="mini-icon">-</span>
+                    </a>
+                </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link {{ Route::is('pengelola.report') ? 'active' : '' }}"
-                            href="{{ route('pengelola.report') }}">
+                <li class="nav-item">
+                    <a class="nav-link {{ Route::is('pengelola.report') ? 'active' : '' }}"
+                        href="{{ route('pengelola.report') }}">
+                        <i class="icon">
                             <i class="bi bi-file-earmark-arrow-down-fill"></i>
-                            <span class="item-name">Booking Report</span>
-                        </a>
-                    </li>
+                        </i>
+                        <span class="item-name">Booking Report</span>
+                    </a>
+                </li>
 
-                    <li>
-                        <hr class="hr-horizontal">
-                    </li>
+                <li>
+                    <hr class="hr-horizontal">
+                </li>
                 @endif
             </ul>
         </div>
