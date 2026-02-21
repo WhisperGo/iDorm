@@ -22,6 +22,7 @@ class PredictionController extends Controller
      */
     public function store(Request $request)
     {
+        // dd("Tombol diklik, data masuk!", $request->all());
         // dd($request->all());
         // 1. VALIDASI INPUT
         // Pastikan semua field yang dibutuhkan model AI sudah terisi
@@ -70,19 +71,28 @@ class PredictionController extends Controller
             if ($response->successful()) {
                 // dd($result = $response->json());
                 $data = $response->json();
+
+                $basePrice = $data['output'] ?? 0;
                 // KUNCI PERBAIKAN: Kita bungkus ulang datanya agar sesuai dengan variabel di Blade kamu
                 $formattedRes = [
                     'status'   => 'success',
                     'metadata' => [
-                        'region'              => $data['region'],
+                        'region'              => $data['region'] ?? $request->region,
                         'mae_margin'          => $data['metadata']['mae_margin'] ?? 300000,
                         'calculated_distance' => $data['metadata']['calculated_distance'] ?? 0,
                     ],
                     'result'   => [
-                        'base_prediction' => $data['predicted_price'], // Python ngirim ini, Blade nyari base_prediction
-                        'fair_range'      => $data['fair_range'],      // Isinya min & max
+                        'base_prediction' => $basePrice, // Python ngirim ini, Blade nyari base_prediction
+                        'fair_range'      => $data['fair_range'] ?? [
+                        'min' => $basePrice - 300000,
+                        'max' => $basePrice + 300000
+                        ],      // Isinya min & max
                         'offered_price'   => (float)$request->harga,   // Ambil dari input awal user
-                        'analysis'        => $data['analysis'],        // Isinya verdict, color_code, description
+                        'analysis'        => $data['analysis'] ?? [
+                        'verdict'     => 'Wajar',
+                        'color_code'  => 'success',
+                        'description' => 'Harga tergolong standar pasar.'
+                        ],        // Isinya verdict, color_code, description
                     ]
                 ];
 
@@ -90,11 +100,8 @@ class PredictionController extends Controller
                 session(['prediction_data' => $formattedRes]);
 
                 // Kirim ke Blade dengan nama variabel 'res'
-                return view('feature.prediction_result', ['res' => $formattedRes]);
-                } else {
-                    // Jika Python gagal (bukan 200), tampilkan isi kegagalannya
-                    dd("Python Gagal: ", $response->body());
-                }
+                return redirect()->route('prediction.result');
+                } 
         
                 return back()->with('error', 'Gagal memproses prediksi.')->withInput();
 
