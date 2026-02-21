@@ -4,21 +4,20 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="card shadow-sm">
-                <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-                    <div class="d-flex justify-content-between align-items-center flex-wrap">
-                        <div class="header-title">
-                            <h4 class="card-title mb-0 fw-bold">Resident Management</h4>
-                            <small class="text-muted">Mengelola data seluruh penghuni asrama</small>
-                        </div>
-                        <div id="live-filter-container"></div>
+                <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div class="header-title">
+                        <h4 class="card-title mb-0 fw-bold">Resident Management</h4>
+                        <small class="text-muted">Mengelola data seluruh penghuni asrama</small>
                     </div>
-
-                    @if (Auth::user()->role->role_name === 'Manager')
-                        {{-- Letakkan di dalam card-header atau area atas tabel --}}
-                        <a href="{{ route('manager.residents.create') }}" class="btn btn-primary btn-sm shadow-sm">
-                            <i class="bi bi-plus-circle me-1"></i> Add Resident
-                        </a>
-                    @endif
+                    <div class="d-flex align-items-center gap-3">
+                        <div id="live-filter-container"></div>
+                        @if (Auth::user()->role->role_name === 'Manager')
+                            <a href="{{ route('manager.residents.create') }}"
+                                class="btn btn-primary btn-sm shadow-sm d-inline-flex align-items-center rounded-pill px-3 text-nowrap">
+                                <i class="bi bi-person-plus-fill me-1"></i> Add Resident
+                            </a>
+                        @endif
+                    </div>
                 </div>
 
                 <div class="card-body mt-0">
@@ -351,7 +350,11 @@
                                     {{-- Modal Global & Local Include disini --}}
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="text-center py-4">Belum ada data resident.</td>
+                                        <td colspan="5" class="text-center py-5">
+                                            <i class="bi bi-people text-muted mb-3"
+                                                style="font-size: 3rem; opacity: 0.5;"></i>
+                                            <h5 class="text-muted">Belum ada data resident.</h5>
+                                        </td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -363,3 +366,51 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        $(document).ready(function() {
+            if ($.fn.DataTable.isDataTable('#datatable')) {
+                $('#datatable').DataTable().destroy();
+            }
+
+            var table = $('#datatable').DataTable({
+                "paging": false,
+                "info": false,
+                "searching": true,
+                "ordering": true,
+                "autoWidth": false,
+                "dom": 'rt',
+                "language": {
+                    "emptyTable": `
+                        <div class="text-center py-5">
+                            <i class="bi bi-people text-muted mb-3" style="font-size: 3rem; opacity: 0.5;"></i>
+                            <h5 class="text-muted">Belum ada data resident.</h5>
+                        </div>
+                    `,
+                    "zeroRecords": `
+                        <div class="text-center py-5">
+                            <i class="bi bi-search text-muted mb-3" style="font-size: 3rem; opacity: 0.5;"></i>
+                            <h5 class="text-muted">Pencarian tidak ditemukan.</h5>
+                            <p class="small text-muted">Tidak ada data resident yang cocok dengan kata kunci Anda.</p>
+                        </div>
+                    `
+                }
+            });
+
+            // Custom search input styling
+            const searchHtml = `
+            <div class="dataTables_filter d-flex align-items-center justify-content-end" id="custom-search-input">
+                <label class="mb-0 d-flex align-items-center gap-2">
+                    <span>Search:</span>
+                    <input type="search" class="form-control form-control-sm border-primary" placeholder="Ketik nama..." style="width: 250px;">
+                </label>
+            </div>`;
+
+            $('#live-filter-container').html(searchHtml);
+            $('#custom-search-input input').on('keyup', function() {
+                table.search(this.value).draw();
+            });
+        });
+    </script>
+@endpush
