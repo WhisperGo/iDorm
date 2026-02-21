@@ -17,20 +17,21 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
     <style>
-        /* 1. SIDEBAR PALING DEPAN */
-        /* Kita paksa Sidebar punya z-index tertinggi */
-        aside.sidebar {
-            z-index: 1060 !important;
-            /* Di atas Navbar (1050) & Modal */
+        /* 1. SIDEBAR PALING DEPAN (TAPI DI BAWAH BACKDROP MODAL) */
+        /* Z-index backdrop modal Bootstrap bawaan adalah 1050. */
+        /* Kita set Sidebar di 1040 agar tertutup merata oleh backdrop tanpa memotong elemen */
+        aside.sidebar,
+        .sidebar,
+        .iq-sidebar {
+            z-index: 1040 !important;
         }
 
         /* 2. NAVBAR DI BELAKANG SIDEBAR TAPI DI DEPAN KONTEN */
-        /* Ini style default untuk navbar sticky kita */
         .navbar-sticky {
             position: sticky;
             top: 0;
-            z-index: 1050;
-            /* Di bawah Sidebar (1060), di atas Konten (1) */
+            z-index: 1030 !important;
+            /* Di bawah Sidebar (1040), di atas Konten */
             width: 100%;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -38,24 +39,19 @@
         }
 
         .iq-top-navbar {
-            z-index: 1040 !important;
-            /* Naikkan jadi 1040 agar setara sidebar */
-        }
-
-        /* 2. Pastikan Sidebar tetap di bawah Modal Backdrop (1050) */
-        .sidebar,
-        .iq-sidebar {
-            z-index: 1041 !important;
-            /* Sidebar sedikit di atas navbar agar shadow-nya terlihat bagus */
+            z-index: 1030 !important;
         }
 
         /* 3. KHUSUS UNTUK MODAL (PENTING) */
-        /* Saat modal terbuka, paksa navbar & sidebar turun kelas */
-        body.modal-open .iq-top-navbar,
+        /* Saat modal terbuka, biarkan elemen tetap pada letaknya namun pastikan z-index tidak drop di bawah konten */
+        body.modal-open .iq-top-navbar {
+            z-index: 1030 !important;
+        }
+
+        body.modal-open aside.sidebar,
         body.modal-open .sidebar,
         body.modal-open .iq-sidebar {
-            z-index: 1000 !important;
-            /* Turunkan drastis saat ada modal */
+            z-index: 1040 !important;
         }
 
         /* 3. CHATBOT UI CUSTOMIZATION */

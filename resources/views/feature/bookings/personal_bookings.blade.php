@@ -43,16 +43,14 @@
                                         $status = $b->calculated_status;
 
                                         // Mapping Warna Badge
-                                        $badgeColor =
-                                            [
-                                                'Booked' => 'info',
-                                                'Accepted' => 'primary',
-                                                'On Going' => 'warning',
-                                                'Canceled' => 'danger',
-                                                'Verifying Cleanliness' => 'dark',
-                                                'Completed' => 'success',
-                                                'Awaiting Cleanliness Photo' => 'secondary',
-                                            ][$status] ?? 'light';
+                                        $badgeColor = match (strtoupper($status)) {
+                                            'BOOKED', 'SCHEDULED' => 'primary',
+                                            'ACCEPTED', 'APPROVED', 'COMPLETED' => 'success',
+                                            'CANCELED', 'CANCELLED', 'REJECTED' => 'danger',
+                                            'ON GOING', 'VERIFYING CLEANLINESS', 'PENDING' => 'warning',
+                                            'AWAITING CLEANLINESS PHOTO' => 'secondary',
+                                            default => 'info',
+                                        };
                                     @endphp
                                     <tr>
                                         <td class="text-center">{{ $loop->iteration }}</td>
@@ -83,10 +81,8 @@
                                         </td>
 
                                         <td class="text-center">
-                                            <span class="badge bg-{{ $badgeColor }} text-uppercase shadow-xs"
-                                                style="font-size: 0.75rem;">
-                                                {{ $status }}
-                                            </span>
+                                            <span
+                                                class="badge bg-{{ $badgeColor }} text-uppercase px-3 py-2">{{ $status }}</span>
                                         </td>
 
                                         <td>
@@ -99,39 +95,42 @@
                                                         onsubmit="return confirm('Apakah Anda sudah selesai menggunakan fasilitas?')">
                                                         @csrf
                                                         <button type="submit"
-                                                            class="btn btn-sm btn-outline-warning fw-bold">
-                                                            <i class="bi bi-stop-circle me-1"></i> Selesai Sekarang
+                                                            class="btn btn-sm btn-warning text-white rounded-pill px-3 shadow-sm d-inline-flex align-items-center">
+                                                            <i class="bi bi-stop-circle me-2"></i> Selesai Sekarang
                                                         </button>
                                                     </form>
 
                                                     {{-- 2. LOGIKA UPLOAD FOTO (Waktu Habis ATAU Selesai Awal, dan belum ada foto) --}}
-                                                @elseif($status === 'Awaiting Cleanliness Photo' && !$b->photo_proof_path)
-                                                    <div class="card p-2 bg-light border-dashed w-100">
+                                                    <div
+                                                        class="card p-3 bg-soft-primary border-0 rounded-3 shadow-none w-100">
                                                         <form action="{{ route('booking.upload', $b->id) }}" method="POST"
                                                             enctype="multipart/form-data">
                                                             @csrf
-                                                            <label class="form-label small fw-bold mb-1">Unggah Foto
-                                                                Kebersihan:</label>
+                                                            <label class="form-label small fw-bold text-primary mb-2">
+                                                                <i class="bi bi-camera-fill me-1"></i> Unggah Foto
+                                                                Kebersihan:
+                                                            </label>
                                                             <div class="input-group input-group-sm">
                                                                 <input type="file" name="photo" class="form-control"
-                                                                    required>
-                                                                <button class="btn btn-primary"
-                                                                    type="submit">Kirim</button>
+                                                                    required style="border-radius: 0.5rem 0 0 0.5rem;">
+                                                                <button class="btn btn-primary px-3" type="submit"
+                                                                    style="border-radius: 0 0.5rem 0.5rem 0;">Kirim</button>
                                                             </div>
                                                         </form>
                                                     </div>
 
                                                     {{-- 3. LOGIKA MENUNGGU VERIFIKASI ADMIN --}}
                                                 @elseif($status === 'Verifying Cleanliness')
-                                                    <div class="text-center">
-                                                        <span class="text-muted small">
+                                                    <div class="text-center p-2 rounded-3 bg-soft-warning w-100">
+                                                        <span class="text-dark small fw-bold d-block mb-2">
                                                             <i class="bi bi-hourglass-split me-1"></i> Menunggu Verifikasi
-                                                            Kebersihan oleh Admin
+                                                            Admin
                                                         </span>
-                                                        <br>
                                                         <a href="{{ asset('storage/' . $b->photo_proof_path) }}"
-                                                            target="_blank" class="badge bg-info text-decoration-none">
-                                                            Lihat Foto Anda
+                                                            target="_blank"
+                                                            class="btn btn-sm btn-white text-primary rounded-pill px-3 shadow-sm"
+                                                            style="background: white;">
+                                                            <i class="bi bi-image"></i> Lihat Foto Anda
                                                         </a>
                                                     </div>
 
@@ -141,15 +140,20 @@
                                                         <i class="bi bi-patch-check-fill fs-4"></i>
                                                         <div class="small fw-bold">Selesai & Bersih</div>
                                                     </div>
-
-                                                    {{-- 5. LOGIKA BOOKED (BELUM MULAI) --}}
                                                 @elseif($status === 'Booked')
-                                                    <small class="text-muted fst-italic">Menunggu persetujuan
-                                                        admin...</small>
+                                                    <div class="text-center p-2 rounded-3 bg-soft-secondary w-100">
+                                                        <small class="text-muted fw-bold">
+                                                            <i class="bi bi-clock-history me-1"></i> Menunggu Persetujuan
+                                                            Admin
+                                                        </small>
+                                                    </div>
                                                 @elseif($status === 'Accepted')
-                                                    <small class="text-primary fw-bold">
-                                                        <i class="bi bi-info-circle me-1"></i> Silakan datang saat jam mulai
-                                                    </small>
+                                                    <div class="text-center p-2 rounded-3 bg-soft-info w-100">
+                                                        <small class="text-info fw-bold">
+                                                            <i class="bi bi-info-circle me-1"></i> Silakan Datang Saat Waktu
+                                                            Mulai
+                                                        </small>
+                                                    </div>
                                                 @endif
 
                                             </div>

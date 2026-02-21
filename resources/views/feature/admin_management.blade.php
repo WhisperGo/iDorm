@@ -152,7 +152,7 @@
             <div class="dataTables_filter d-flex align-items-center justify-content-end" id="custom-search-input">
                 <label class="mb-0 d-flex align-items-center gap-2">
                     <span>Search:</span>
-                    <input type="search" class="form-control form-control-sm border-primary" placeholder="Ketik nama admin..." style="width: 250px;">
+                    <input type="search" class="form-control form-control-sm" style="width: 250px;">
                 </label>
             </div>`;
 

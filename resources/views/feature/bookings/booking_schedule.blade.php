@@ -177,8 +177,18 @@
                                         </td>
 
                                         <td class="text-center">
+                                            @php
+                                                $statusColor = match (strtoupper($b->status->status_name)) {
+                                                    'BOOKED', 'SCHEDULED' => 'primary',
+                                                    'APPROVED', 'COMPLETED' => 'success',
+                                                    'REJECTED', 'CANCELED', 'CANCELLED' => 'danger',
+                                                    'VERIFYING CLEANLINESS', 'PENDING' => 'warning',
+                                                    'AWAITING CLEANLINESS PHOTO' => 'secondary',
+                                                    default => 'info',
+                                                };
+                                            @endphp
                                             <span
-                                                class="badge bg-info text-uppercase px-3 py-2">{{ $b->status->status_name }}</span>
+                                                class="badge bg-{{ $statusColor }} text-uppercase px-3 py-2">{{ $b->status->status_name }}</span>
                                         </td>
 
                                         {{-- KOLOM KHUSUS ADMIN / MANAGER --}}
