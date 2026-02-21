@@ -93,11 +93,11 @@ class DatabaseSeeder extends Seeder
         // Memanggil Seeder Tambahan
         $this->call([
             ResidentSeeder::class,
-            AnnouncementSeeder::class,
-            TimeSlotSeeder::class,
-            FacilitySeeder::class,
-            AdminSeeder::class,
-            BookingSeeder::class,
+            // AnnouncementSeeder::class,
+            // TimeSlotSeeder::class,
+            // FacilitySeeder::class,
+            // AdminSeeder::class,
+            // BookingSeeder::class,
         ]);
         // -------------------------
 

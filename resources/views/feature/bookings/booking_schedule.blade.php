@@ -44,9 +44,49 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="card shadow-sm">
-                <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+                <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-3">
                     <div class="header-title">
                         <h4 class="card-title mb-0 fw-bold">Schedule: {{ $title }}</h4>
+                    </div>
+                    <div class="d-flex align-items-center flex-wrap gap-3">
+                        <div id="filter-container"></div>
+
+                        @if ($category == 'dapur' || $category == 'sergun' || $category == 'mesin cuci')
+                            <form action="{{ url()->current() }}" method="GET" id="manual-filter-form"
+                                class="m-0 d-flex align-items-center gap-2">
+                                <label class="mb-0 text-nowrap fw-bold">Filter Unit:</label>
+                                <select name="item" class="form-select form-select-sm" onchange="this.form.submit()"
+                                    style="width: auto;">
+                                    <option value="">-- Semua Unit --</option>
+                                    @php
+                                        // Kita tentukan keyword pencarian yang pas buat database
+                                        $dbKeyword = match ($category) {
+                                            'sergun' => 'Serba Guna',
+                                            'dapur' => 'Dapur',
+                                            'cws' => 'Co-Working',
+                                            'mesin cuci' => 'Mesin Cuci',
+                                            default => str_replace('-', ' ', $category),
+                                        };
+
+                                        $filterItems = \App\Models\FacilityItem::whereHas('facility', function (
+                                            $q,
+                                        ) use ($dbKeyword) {
+                                            $q->where('name', 'LIKE', '%' . $dbKeyword . '%');
+                                        })->get();
+                                    @endphp
+                                    @foreach ($filterItems as $fi)
+                                        <option value="{{ $fi->id }}"
+                                            {{ request('item') == $fi->id ? 'selected' : '' }}>
+                                            {{ $fi->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </form>
+                        @endif
+
+                        @if (request('item') || request('search'))
+                            <a href="{{ url()->current() }}" class="btn btn-soft-danger btn-sm m-0 px-3">Reset</a>
+                        @endif
                     </div>
                 </div>
 
@@ -64,48 +104,6 @@
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     @endif
-
-                    <div class="row align-items-center mb-4">
-                        <div class="col-md-6 d-flex align-items-center flex-wrap gap-2">
-                            @if ($category == 'dapur' || $category == 'sergun' || $category == 'mesin cuci')
-                                <label class="mb-0">Filter Unit:</label>
-                                <form action="{{ url()->current() }}" method="GET" id="manual-filter-form" class="m-0">
-                                    <select name="item" class="form-select form-select-sm" onchange="this.form.submit()" style="width: auto;">
-                                        <option value="">-- Semua Unit --</option>
-                                        @php
-                                            // Kita tentukan keyword pencarian yang pas buat database
-                                            $dbKeyword = match ($category) {
-                                                'sergun' => 'Serba Guna',
-                                                'dapur' => 'Dapur',
-                                                'cws' => 'Co-Working',
-                                                'mesin cuci' => 'Mesin Cuci',
-                                                default => str_replace('-', ' ', $category),
-                                            };
-
-                                            $filterItems = \App\Models\FacilityItem::whereHas('facility', function (
-                                                $q,
-                                            ) use ($dbKeyword) {
-                                                $q->where('name', 'LIKE', '%' . $dbKeyword . '%');
-                                            })->get();
-                                        @endphp
-                                        @foreach ($filterItems as $fi)
-                                            <option value="{{ $fi->id }}"
-                                                {{ request('item') == $fi->id ? 'selected' : '' }}>
-                                                {{ $fi->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </form>
-                            @endif
-
-                            @if (request('item') || request('search'))
-                                <a href="{{ url()->current() }}" class="btn btn-soft-danger btn-sm m-0">Reset</a>
-                            @endif
-                        </div>
-                        <div class="col-md-6 d-flex justify-content-end">
-                            <div id="filter-container"></div>
-                        </div>
-                    </div>
 
                     <div class="table-responsive">
                         <table id="schedule-final-table" class="table table-bordered align-middle">
@@ -177,7 +175,7 @@
                                                 <div class="fw-bold">{{ $b->facility->name }}</div>
                                             @endif
                                         </td>
-                                        
+
                                         <td class="text-center">
                                             <span
                                                 class="badge bg-info text-uppercase px-3 py-2">{{ $b->status->status_name }}</span>
@@ -234,18 +232,18 @@
                                                     $statusName = $b->status->status_name;
                                                 @endphp --}}
 
-                                                {{-- @if ($statusName === 'Completed') --}}
-                                                    {{-- ID 6 --}}
-                                                    {{-- <span class="badge bg-success"><i
+                                            {{-- @if ($statusName === 'Completed') --}}
+                                            {{-- ID 6 --}}
+                                            {{-- <span class="badge bg-success"><i
                                                             class="bi bi-check-circle me-1"></i>Selesai</span>
                                                 @elseif($statusName === 'Verifying Cleanliness') --}}
-                                                    {{-- ID 5 --}}
-                                                    {{-- <span class="badge bg-warning text-dark">
+                                            {{-- ID 5 --}}
+                                            {{-- <span class="badge bg-warning text-dark">
                                                         <i class="bi bi-search me-1"></i>Verifikasi Admin
                                                     </span>
                                                 @elseif($statusName === 'Awaiting Cleanliness Photo') --}}
-                                                    {{-- ID 7 --}}
-                                                    {{-- <span class="badge bg-secondary">Menunggu Foto User</span>
+                                            {{-- ID 7 --}}
+                                            {{-- <span class="badge bg-secondary">Menunggu Foto User</span>
                                                 @else
                                                     <span class="text-muted small">-</span>
                                                 @endif
@@ -328,7 +326,19 @@
                 "dom": 'rt',
                 "autoWidth": false,
                 "language": {
-                    "emptyTable": "Belum ada jadwal yang terdaftar."
+                    "emptyTable": `
+                        <div class="text-center py-5">
+                            <i class="bi bi-calendar-x text-muted mb-3" style="font-size: 3rem; opacity: 0.5;"></i>
+                            <h5 class="text-muted">Belum ada jadwal yang terdaftar.</h5>
+                        </div>
+                    `,
+                    "zeroRecords": `
+                        <div class="text-center py-5">
+                            <i class="bi bi-search text-muted mb-3" style="font-size: 3rem; opacity: 0.5;"></i>
+                            <h5 class="text-muted">Pencarian tidak ditemukan.</h5>
+                            <p class="small text-muted">Tidak ada jadwal yang cocok dengan kata kunci Anda.</p>
+                        </div>
+                    `
                 },
                 // Tambahkan ini agar kolom action tidak bisa disortir (opsional)
                 "columnDefs": [{

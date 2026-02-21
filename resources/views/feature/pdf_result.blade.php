@@ -85,10 +85,6 @@
                 {{ number_format($res['result']['fair_range']['max'], 0, ',', '.') }}
             </td>
         </tr>
-        <tr>
-            <td><strong>Margin Error (MAE)</strong></td>
-            <td>± Rp {{ number_format($res['metadata']['mae_margin'], 0, ',', '.') }}</td>
-        </tr>
     </table>
 
     <div class="footer">

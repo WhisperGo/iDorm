@@ -4,14 +4,16 @@
     <div class="row justify-content-center">
         <div class="col-sm-12">
             <div class="card shadow-sm border-0">
-                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                    {{-- PERBAIKAN: Typo 'Riwayast' menjadi 'Riwayat' --}}
-                    <h4 class="fw-bold mb-0 text-primary">
-                        <i class="bi bi-calendar-check me-2"></i>Riwayat Peminjaman Saya
-                    </h4>
-                    <a href="{{ route('booking.create') }}" class="btn btn-primary shadow-sm">
-                        <i class="bi bi-plus-lg"></i> Booking Baru
-                    </a>
+                <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div class="header-title">
+                        <h4 class="card-title mb-0 fw-bold">Riwayat Peminjaman Saya</h4>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <div id="filter-container"></div>
+                        <a href="{{ route('booking.create') }}" class="btn btn-primary shadow-sm text-nowrap">
+                            <i class="bi bi-plus-lg"></i> Booking Baru
+                        </a>
+                    </div>
                 </div>
                 <div class="card-body">
                     {{-- Alert Pesan Sukses/Error --}}
@@ -23,7 +25,7 @@
                     @endif
 
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle border">
+                        <table id="tabelPersonalBookings" class="table table-bordered align-middle">
                             <thead class="bg-light">
                                 <tr>
                                     <th class="text-center" width="5%">No.</th>
@@ -34,22 +36,23 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($groupedBookings as $groupKey => $group)
+                                @foreach ($groupedBookings as $groupKey => $group)
                                     @php
                                         $b = $group->first();
                                         // Mengambil status real-time dari Accessor Model
                                         $status = $b->calculated_status;
 
                                         // Mapping Warna Badge
-                                        $badgeColor = [
-                                            'Booked' => 'info',
-                                            'Accepted' => 'primary',
-                                            'On Going' => 'warning',
-                                            'Canceled' => 'danger',
-                                            'Verifying Cleanliness' => 'dark',
-                                            'Completed' => 'success',
-                                            'Awaiting Cleanliness Photo' => 'secondary',
-                                        ][$status] ?? 'light';
+                                        $badgeColor =
+                                            [
+                                                'Booked' => 'info',
+                                                'Accepted' => 'primary',
+                                                'On Going' => 'warning',
+                                                'Canceled' => 'danger',
+                                                'Verifying Cleanliness' => 'dark',
+                                                'Completed' => 'success',
+                                                'Awaiting Cleanliness Photo' => 'secondary',
+                                            ][$status] ?? 'light';
                                     @endphp
                                     <tr>
                                         <td class="text-center">{{ $loop->iteration }}</td>
@@ -80,7 +83,8 @@
                                         </td>
 
                                         <td class="text-center">
-                                            <span class="badge bg-{{ $badgeColor }} text-uppercase shadow-xs" style="font-size: 0.75rem;">
+                                            <span class="badge bg-{{ $badgeColor }} text-uppercase shadow-xs"
+                                                style="font-size: 0.75rem;">
                                                 {{ $status }}
                                             </span>
                                         </td>
@@ -90,50 +94,58 @@
 
                                                 {{-- 1. LOGIKA TOMBOL SELESAI AWAL --}}
                                                 @if ($status === 'On Going' && !$b->is_early_release)
-                                                    <form action="{{ route('booking.earlyRelease', $b->id) }}" method="POST"
+                                                    <form action="{{ route('booking.earlyRelease', $b->id) }}"
+                                                        method="POST"
                                                         onsubmit="return confirm('Apakah Anda sudah selesai menggunakan fasilitas?')">
                                                         @csrf
-                                                        <button type="submit" class="btn btn-sm btn-outline-warning fw-bold">
+                                                        <button type="submit"
+                                                            class="btn btn-sm btn-outline-warning fw-bold">
                                                             <i class="bi bi-stop-circle me-1"></i> Selesai Sekarang
                                                         </button>
                                                     </form>
 
-                                                {{-- 2. LOGIKA UPLOAD FOTO (Waktu Habis ATAU Selesai Awal, dan belum ada foto) --}}
+                                                    {{-- 2. LOGIKA UPLOAD FOTO (Waktu Habis ATAU Selesai Awal, dan belum ada foto) --}}
                                                 @elseif($status === 'Awaiting Cleanliness Photo' && !$b->photo_proof_path)
                                                     <div class="card p-2 bg-light border-dashed w-100">
-                                                        <form action="{{ route('booking.upload', $b->id) }}" method="POST" enctype="multipart/form-data">
+                                                        <form action="{{ route('booking.upload', $b->id) }}" method="POST"
+                                                            enctype="multipart/form-data">
                                                             @csrf
-                                                            <label class="form-label small fw-bold mb-1">Unggah Foto Kebersihan:</label>
+                                                            <label class="form-label small fw-bold mb-1">Unggah Foto
+                                                                Kebersihan:</label>
                                                             <div class="input-group input-group-sm">
-                                                                <input type="file" name="photo" class="form-control" required>
-                                                                <button class="btn btn-primary" type="submit">Kirim</button>
+                                                                <input type="file" name="photo" class="form-control"
+                                                                    required>
+                                                                <button class="btn btn-primary"
+                                                                    type="submit">Kirim</button>
                                                             </div>
                                                         </form>
                                                     </div>
 
-                                                {{-- 3. LOGIKA MENUNGGU VERIFIKASI ADMIN --}}
+                                                    {{-- 3. LOGIKA MENUNGGU VERIFIKASI ADMIN --}}
                                                 @elseif($status === 'Verifying Cleanliness')
                                                     <div class="text-center">
                                                         <span class="text-muted small">
-                                                            <i class="bi bi-hourglass-split me-1"></i> Menunggu Verifikasi Kebersihan oleh Admin
+                                                            <i class="bi bi-hourglass-split me-1"></i> Menunggu Verifikasi
+                                                            Kebersihan oleh Admin
                                                         </span>
                                                         <br>
-                                                        <a href="{{ asset('storage/' . $b->photo_proof_path) }}" target="_blank" class="badge bg-info text-decoration-none">
+                                                        <a href="{{ asset('storage/' . $b->photo_proof_path) }}"
+                                                            target="_blank" class="badge bg-info text-decoration-none">
                                                             Lihat Foto Anda
                                                         </a>
                                                     </div>
 
-                                                {{-- 4. LOGIKA SELESAI (COMPLETED) --}}
+                                                    {{-- 4. LOGIKA SELESAI (COMPLETED) --}}
                                                 @elseif($status === 'Completed')
                                                     <div class="text-success text-center">
                                                         <i class="bi bi-patch-check-fill fs-4"></i>
                                                         <div class="small fw-bold">Selesai & Bersih</div>
                                                     </div>
 
-                                                {{-- 5. LOGIKA BOOKED (BELUM MULAI) --}}
+                                                    {{-- 5. LOGIKA BOOKED (BELUM MULAI) --}}
                                                 @elseif($status === 'Booked')
-                                                    <small class="text-muted fst-italic">Menunggu persetujuan admin...</small>
-                                                
+                                                    <small class="text-muted fst-italic">Menunggu persetujuan
+                                                        admin...</small>
                                                 @elseif($status === 'Accepted')
                                                     <small class="text-primary fw-bold">
                                                         <i class="bi bi-info-circle me-1"></i> Silakan datang saat jam mulai
@@ -143,14 +155,7 @@
                                             </div>
                                         </td>
                                     </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="text-center py-5 text-muted">
-                                            <i class="bi bi-inbox fs-1 d-block mb-3 opacity-25"></i>
-                                            Belum ada riwayat peminjaman.
-                                        </td>
-                                    </tr>
-                                @endforelse
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -160,11 +165,77 @@
     </div>
 
     <style>
-        .bg-soft-success { background-color: #e8fadf; }
-        .bg-soft-primary { background-color: #e7f1ff; }
-        .bg-soft-danger { background-color: #fce8e8; }
-        .bg-soft-info { background-color: #e1f5fe; }
-        .bg-soft-warning { background-color: #fff9db; }
-        .border-dashed { border: 1px dashed #dee2e6; }
+        .bg-soft-success {
+            background-color: #e8fadf;
+        }
+
+        .bg-soft-primary {
+            background-color: #e7f1ff;
+        }
+
+        .bg-soft-danger {
+            background-color: #fce8e8;
+        }
+
+        .bg-soft-info {
+            background-color: #e1f5fe;
+        }
+
+        .bg-soft-warning {
+            background-color: #fff9db;
+        }
+
+        .border-dashed {
+            border: 1px dashed #dee2e6;
+        }
     </style>
 @endsection
+
+@push('scripts')
+    <script>
+        $(document).ready(function() {
+            const table = $('#tabelPersonalBookings').DataTable({
+                "paging": false,
+                "info": false,
+                "searching": true,
+                "ordering": true,
+                "dom": 'rt',
+                "autoWidth": false,
+                "language": {
+                    "emptyTable": `
+                        <div class="text-center py-5">
+                            <i class="bi bi-calendar-x text-muted mb-3" style="font-size: 3rem; opacity: 0.5;"></i>
+                            <h5 class="text-muted">Belum ada riwayat peminjaman.</h5>
+                            <p class="small text-muted">Klik tombol "Booking Baru" untuk membuat reservasi.</p>
+                        </div>
+                    `,
+                    "zeroRecords": `
+                        <div class="text-center py-5">
+                            <i class="bi bi-search text-muted mb-3" style="font-size: 3rem; opacity: 0.5;"></i>
+                            <h5 class="text-muted">Pencarian tidak ditemukan.</h5>
+                            <p class="small text-muted">Tidak ada riwayat peminjaman yang cocok dengan pencarian Anda.</p>
+                        </div>
+                    `
+                },
+                "columnDefs": [{
+                    "orderable": false,
+                    "targets": -1
+                }]
+            });
+
+            // Search manual
+            const searchHtml = `
+            <div class="dataTables_filter d-flex align-items-center justify-content-end" id="custom-search-input">
+                <label class="mb-0 d-flex align-items-center gap-2">
+                    <span>Search:</span>
+                    <input type="search" class="form-control form-control-sm" placeholder="">
+                </label>
+            </div>`;
+
+            $('#filter-container').append(searchHtml);
+            $('#custom-search-input input').on('keyup', function() {
+                table.search(this.value).draw();
+            });
+        });
+    </script>
+@endpush
