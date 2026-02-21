@@ -68,7 +68,7 @@
                     <div class="row align-items-center mb-4">
                         <div class="col-md-6 d-flex align-items-center flex-wrap gap-2">
                             @if ($category == 'dapur' || $category == 'sergun' || $category == 'mesin cuci')
-                                <label class="mb-0 text-dark">Filter Unit:</label>
+                                <label class="mb-0">Filter Unit:</label>
                                 <form action="{{ url()->current() }}" method="GET" id="manual-filter-form" class="m-0">
                                     <select name="item" class="form-select form-select-sm" onchange="this.form.submit()" style="width: auto;">
                                         <option value="">-- Semua Unit --</option>
@@ -341,7 +341,7 @@
             const searchHtml = `
             <div class="dataTables_filter d-flex align-items-center justify-content-end" id="custom-search-input">
                 <label class="mb-0 d-flex align-items-center gap-2">
-                    <span class="text-dark">Search:</span>
+                    <span>Search:</span>
                     <input type="search" class="form-control form-control-sm" placeholder="">
                 </label>
             </div>`;
