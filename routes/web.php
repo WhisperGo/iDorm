@@ -43,7 +43,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/announcements/{id}', [AnnouncementController::class, 'show'])->name('announcements.show');
 
     Route::get('/prediction', [PredictionController::class, 'index'])->name('prediction.index');
-    Route::post('/prediction', [PredictionController::class, 'store'])->name('prediction.store');
+    Route::post('/prediction/store', [PredictionController::class, 'store'])->name('prediction.store');
+    Route::get('/prediction/result', [PredictionController::class, 'showResult'])->name('prediction.result');
+    Route::get('/prediction/download-pdf', [PredictionController::class, 'downloadPdf'])->name('prediction.download');
 
     // 4.5. Chatbot
     Route::post('/chatbot/send', [ChatbotController::class, 'sendMessage'])->name('chatbot.send');

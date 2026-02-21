@@ -2,7 +2,7 @@
 
 @section('content')
     <style>
-        /* Styling untuk Custom Radio Tipe Kos */
+        /* Styling untuk Custom Radio Tipe Kos - TETAP SESUAI KODEMU */
         .tipe-kos-option {
             cursor: pointer;
             transition: all 0.3s ease;
@@ -20,22 +20,17 @@
             box-shadow: 0 5px 15px rgba(58, 87, 232, 0.2);
         }
 
-        /* CUSTOM BORDER UNTUK CHECKBOX/SWITCH */
         .form-check-input {
             border: 2px solid #3a57e8 !important;
-            /* Border biru primer */
             cursor: pointer;
         }
 
         #selectWilayah {
             text-align: center;
             text-align-last: center;
-            /* Ini kunci buat nengahin teks di dalam select */
             moz-text-align-last: center;
-            /* Untuk Firefox */
         }
 
-        /* Opsional: Biar opsi di dalamnya juga ikutan tengah (hanya jalan di beberapa browser) */
         #selectWilayah option {
             text-align: center;
         }
@@ -45,7 +40,6 @@
             border-color: #3a57e8 !important;
         }
 
-        /* Styling List Fasilitas */
         .facility-item {
             padding: 15px;
             border-radius: 12px;
@@ -70,18 +64,21 @@
             font-family: Roboto;
             font-size: 15px;
             font-weight: 300;
-            /* margin-left: 5px; */
             padding: 0 11px 0 13px;
             text-overflow: ellipsis;
             width: 400px;
             position: absolute;
-            /* Melayang */
             top: 100px;
             left: 43px;
             z-index: 5;
             height: 40px;
             border: 1px solid #ccc;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        #spinnerPredict {
+            margin-left: 10px;
+            vertical-align: middle;
         }
     </style>
 
@@ -90,10 +87,26 @@
             <div class="col-lg-10">
                 <div class="card border-0 shadow-lg">
                     <div class="card-header bg-primary py-3">
-                        <h5 class="text-white mb-0 text-center"></i>Smart Prediction Kos</h5>
+                        <h5 class="text-white mb-0 text-center">Smart Prediction Kos</h5>
                     </div>
                     <div class="card-body p-4">
-                        <form action="{{ route('prediction.store') }}" method="POST">
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <ul class="mb-0">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
+                        @if (session('error'))
+                            <div class="alert alert-warning">
+                                {{ session('error') }}
+                            </div>
+                        @endif
+
+                        <form action="{{ route('prediction.store') }}" method="POST" id="formPrediction">
                             @csrf
 
                             {{-- Step 1: Pilih Wilayah --}}
@@ -101,7 +114,7 @@
                                 <label class="form-label h6 fw-bold mb-3">Mau Cari Kos di Daerah Mana?</label>
                                 <div class="col-md-6 mx-auto">
                                     <select name="region" id="selectWilayah"
-                                        class="form-select form-select-lg border-primary shadow-none justify-content-center text-align-last: center">
+                                        class="form-select form-select-lg border-primary shadow-none justify-content-center text-center">
                                         <option value="" selected disabled>-- Pilih Wilayah --</option>
                                         <option value="Jakarta Pusat">Jakarta Pusat</option>
                                         <option value="Jakarta Selatan">Jakarta Selatan</option>
@@ -113,12 +126,12 @@
 
                             <div id="formSection" style="display: none;">
                                 <div class="row g-4">
-                                    {{-- Tipe Kos --}}
+                                    {{-- Tipe Kos - FIX: Value disesuaikan dengan Python --}}
                                     <div class="col-12">
                                         <label class="form-label fw-bold d-block text-center mb-3">Tipe Penghuni Kos</label>
                                         <div class="row g-3">
                                             <div class="col-md-4">
-                                                <input type="radio" class="btn-check" name="tipe_kos" value="cowo"
+                                                <input type="radio" class="btn-check" name="tipe_kos" value="putra"
                                                     id="r1" required>
                                                 <label class="tipe-kos-option shadow-sm" for="r1">
                                                     <i class="bi bi-gender-male text-primary"></i>
@@ -126,7 +139,7 @@
                                                 </label>
                                             </div>
                                             <div class="col-md-4">
-                                                <input type="radio" class="btn-check" name="tipe_kos" value="cewe"
+                                                <input type="radio" class="btn-check" name="tipe_kos" value="putri"
                                                     id="r2">
                                                 <label class="tipe-kos-option shadow-sm" for="r2">
                                                     <i class="bi bi-gender-female text-danger"></i>
@@ -164,6 +177,7 @@
                                             <span class="input-group-text bg-white border-primary">m²</span>
                                         </div>
                                     </div>
+
                                     <div class="card">
                                         <div class="card-header">
                                             <h4 class="fw-bold">Cari Lokasi Kost</h4>
@@ -173,17 +187,12 @@
                                                 <input id="pac-input" class="form-control" type="text"
                                                     placeholder="Masukkan alamat atau nama tempat...">
                                             </div>
-
                                             <div id="map" style="height: 500px; width: 100%; border-radius: 10px;">
                                             </div>
-
-                                            <input type="hidden" name="latitude" id="lat">
-                                            <input type="hidden" name="longitude" id="lng">
                                         </div>
                                     </div>
 
-                                    {{-- Geolokasi --}}
-                                    {{-- Ganti bagian Geolokasi kamu dengan ini --}}
+                                    {{-- Geolokasi - FIX: Hapus input lat/lng duplikat, pakai satu set saja --}}
                                     <div
                                         class="col-12 bg-soft-primary p-4 rounded-3 border border-primary border-opacity-25">
                                         <label class="form-label fw-bold mb-1">
@@ -194,8 +203,7 @@
                                         <div class="row g-2">
                                             <div class="col-md-5">
                                                 <input type="text" id="lat" name="latitude"
-                                                    class="form-control border-0" placeholder="Latitude" readonly
-                                                    required>
+                                                    class="form-control border-0" placeholder="Latitude" readonly required>
                                             </div>
                                             <div class="col-md-5">
                                                 <input type="text" id="lng" name="longitude"
@@ -208,34 +216,39 @@
                                             </div>
                                         </div>
                                     </div>
+
                                     {{-- Checklist Fasilitas Bordered --}}
                                     <div class="col-12">
                                         <label class="form-label fw-bold text-dark h5 mb-3">Fasilitas & Layanan
-                                            Tambahan</label>
+                                            yang Diharapkan</label>
                                         <div class="row">
                                             {{-- KM Dalam --}}
                                             <div class="col-md-6 facility-item d-flex align-items-start">
                                                 <div class="form-check form-switch me-3">
                                                     <input class="form-check-input" type="checkbox" name="is_km_dalam">
                                                 </div>
+
                                                 <div>
                                                     <label class="fw-bold mb-0">Kamar Mandi Dalam</label>
                                                     <small class="d-block text-muted">Kamar mandi pribadi di dalam kamar
                                                         (Bukan KM Luar/Bersama).</small>
                                                 </div>
                                             </div>
+
                                             {{-- Water Heater --}}
                                             <div class="col-md-6 facility-item d-flex align-items-start">
                                                 <div class="form-check form-switch me-3">
                                                     <input class="form-check-input" type="checkbox"
                                                         name="is_water_heater">
                                                 </div>
+
                                                 <div>
                                                     <label class="fw-bold mb-0">Water Heater</label>
                                                     <small class="d-block text-muted">Tersedia pemanas air mandi
                                                         elektrik/gas di dalam kamar mandi.</small>
                                                 </div>
                                             </div>
+
                                             {{-- Furnished --}}
                                             <div class="col-md-6 facility-item d-flex align-items-start">
                                                 <div class="form-check form-switch me-3">
@@ -243,10 +256,11 @@
                                                 </div>
                                                 <div>
                                                     <label class="fw-bold mb-0">Fully Furnished</label>
-                                                    <small class="d-block text-muted">Sudah termasuk Kasur, Lemari, Meja,
-                                                        dan Kursi minimalis.</small>
+                                                    <small class="d-block text-muted">Sudah termasuk Kasur dan
+                                                        Lemari</small>
                                                 </div>
                                             </div>
+
                                             {{-- Listrik --}}
                                             <div class="col-md-6 facility-item d-flex align-items-start">
                                                 <div class="form-check form-switch me-3">
@@ -283,13 +297,39 @@
                                                         Laundry internal kos.</small>
                                                 </div>
                                             </div>
+                                            {{-- Internet/WiFi --}}
+                                            <div class="col-md-6 facility-item d-flex align-items-start">
+                                                <div class="form-check form-switch me-3">
+                                                    <input class="form-check-input" type="checkbox" name="is_internet">
+                                                </div>
+                                                <div>
+                                                    <label class="fw-bold mb-0">Internet / WiFi</label>
+                                                    <small class="d-block text-muted">Tersedia koneksi internet kecepatan
+                                                        tinggi.</small>
+                                                </div>
+                                            </div>
+
+                                            {{-- AC --}}
+                                            <div class="col-md-6 facility-item d-flex align-items-start">
+                                                <div class="form-check form-switch me-3">
+                                                    <input class="form-check-input" type="checkbox" name="is_ac">
+                                                </div>
+                                                <div>
+                                                    <label class="fw-bold mb-0">Air Conditioning (AC)</label>
+                                                    <small class="d-block text-muted">Kamar dilengkapi dengan unit
+                                                        AC.</small>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
+
                                     <div class="col-12 mt-5 text-center">
-                                        <button type="submit"
+                                        <button type="submit" id="btnPredict"
                                             class="btn btn-primary btn-lg px-5 shadow rounded-pill fw-bold mb-3">
-                                            MULAI PREDIKSI SEKARANG
+                                            <span id="textPredict">MULAI PREDIKSI SEKARANG</span>
+                                            <div id="spinnerPredict" class="spinner-border spinner-border-sm d-none"
+                                                role="status"></div>
                                         </button>
                                     </div>
                                 </div>
@@ -305,17 +345,14 @@
         <script async
             src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.api_key') }}&libraries=places&callback=initMap">
         </script>
-
         <script>
             let map, marker, autocomplete;
 
             function initMap() {
-                // Koordinat default
                 const defaultLocation = {
-                    lat: -6.200000,
-                    lng: 106.816666
+                    lat: -6.2000,
+                    lng: 106.8166
                 };
-
                 map = new google.maps.Map(document.getElementById("map"), {
                     center: defaultLocation,
                     zoom: 13,
@@ -324,26 +361,22 @@
                 marker = new google.maps.Marker({
                     position: defaultLocation,
                     map: map,
-                    draggable: true, // Biar bisa digeser manual kalau GPS kurang akurat
+                    draggable: true,
                     animation: google.maps.Animation.DROP
                 });
 
-                // Isi kotak pertama kali
                 updateInputs(defaultLocation.lat, defaultLocation.lng);
 
-                // EVENT 1: Saat PIN digeser manual
                 marker.addListener("dragend", function() {
                     const pos = marker.getPosition();
                     updateInputs(pos.lat(), pos.lng());
                 });
 
-                // EVENT 2: Saat Cari Alamat (Autocomplete)
                 const input = document.getElementById("pac-input");
                 autocomplete = new google.maps.places.Autocomplete(input);
                 autocomplete.addListener("place_changed", () => {
                     const place = autocomplete.getPlace();
                     if (!place.geometry) return;
-
                     map.setCenter(place.geometry.location);
                     map.setZoom(17);
                     marker.setPosition(place.geometry.location);
@@ -351,78 +384,55 @@
                 });
             }
 
-            // EVENT 3: Tombol GPS Klik
             function getLocation() {
                 if (navigator.geolocation) {
-                    // Tampilkan loading dikit biar user tau lagi nyari sinyal
-                    console.log("Mencari lokasi...");
-
                     navigator.geolocation.getCurrentPosition(pos => {
                         const myLoc = {
                             lat: pos.coords.latitude,
                             lng: pos.coords.longitude
                         };
-
-                        // Pindahkan Peta & Marker ke lokasi asli HP/Laptop
                         map.setCenter(myLoc);
                         map.setZoom(17);
                         marker.setPosition(myLoc);
-
-                        // ISI KOTAK INPUT!
                         updateInputs(myLoc.lat, myLoc.lng);
-                    }, (error) => {
-                        alert("Gagal ambil GPS: " + error.message);
-                    });
-                } else {
-                    alert("Browser kamu nggak support GPS bos!");
+                    }, (error) => alert("Gagal ambil GPS: " + error.message));
                 }
             }
 
-            // Fungsi Sakti buat ngisi kotak
             function updateInputs(lat, lng) {
                 document.getElementById('lat').value = lat;
                 document.getElementById('lng').value = lng;
-                console.log("Input terisi:", lat, lng);
             }
+
+            // Tampilkan form saat wilayah dipilih
+            document.getElementById('selectWilayah').addEventListener('change', function() {
+                document.getElementById('formSection').style.display = 'block';
+            });
+
+            // Format Harga Rupiah
+            const inputHarga = document.getElementById('inputHarga');
+            const hargaMurni = document.getElementById('hargaMurni');
+
+            inputHarga.addEventListener('keyup', function() {
+                let val = this.value.replace(/[^,\d]/g, '').toString();
+                let split = val.split(',');
+                let sisa = split[0].length % 3;
+                let rupiah = split[0].substr(0, sisa);
+                let ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+                if (ribuan) {
+                    rupiah += (sisa ? '.' : '') + ribuan.join('.');
+                }
+                this.value = rupiah;
+                hargaMurni.value = val.replace(/\./g, '');
+            });
+
+            // Animasi Loading saat Submit
+            document.getElementById('formPrediction').addEventListener('submit', function() {
+                document.getElementById('btnPredict').disabled = true;
+                document.getElementById('textPredict').innerText = "Sedang Menganalisis...";
+                document.getElementById('spinnerPredict').classList.remove('d-none');
+            });
         </script>
     @endpush
-
-    <script>
-        // JS Logic tetap sama, saya hanya rapikan variabelnya
-        document.getElementById('selectWilayah').addEventListener('change', function() {
-            document.getElementById('formSection').style.display = 'block';
-            window.scrollBy({
-                top: 300,
-                behavior: 'smooth'
-            });
-        });
-
-        function getLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(pos => {
-                    document.getElementById('lat').value = pos.coords.latitude;
-                    document.getElementById('lng').value = pos.coords.longitude;
-                });
-            }
-        }
-
-        const inputHarga = document.getElementById('inputHarga');
-        const hargaMurni = document.getElementById('hargaMurni');
-
-        inputHarga.addEventListener('keyup', function() {
-            let val = this.value.replace(/[^,\d]/g, '').toString();
-            let split = val.split(',');
-            let sisa = split[0].length % 3;
-            let rupiah = split[0].substr(0, sisa);
-            let ribuan = split[0].substr(sisa).match(/\d{3}/gi);
-
-            if (ribuan) {
-                let separator = sisa ? '.' : '';
-                rupiah += separator + ribuan.join('.');
-            }
-
-            this.value = rupiah;
-            hargaMurni.value = val.replace(/\./g, '');
-        });
-    </script>
 @endsection
