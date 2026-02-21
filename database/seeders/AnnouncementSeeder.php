@@ -11,7 +11,7 @@ class AnnouncementSeeder extends Seeder
 {
     public function run(): void
     {
-        // Ini akan otomatis bikin 500 data pengumuman bahasa Indonesia
-        Announcement::factory()->count(500)->create();
+        // Ini akan otomatis bikin 25 data pengumuman bahasa Indonesia
+        Announcement::factory()->count(25)->create();
     }
 }

@@ -138,7 +138,34 @@ class BookingController extends Controller
                 $rules['jumlah_orang'] = 'required|numeric|min:1|max:50';
             }
         }
-        $request->validate($rules);
+
+        $messages = [
+            'required' => ':attribute wajib diisi.',
+            'exists' => ':attribute yang dipilih tidak valid.',
+            'in' => ':attribute yang dipilih tidak valid.',
+            'date' => ':attribute bukan tanggal yang valid.',
+            'after_or_equal' => ':attribute tidak boleh di masa lalu.',
+            'array' => ':attribute harus berupa array.',
+            'min' => ':attribute minimal :min.',
+            'max' => ':attribute maksimal :max.',
+            'date_format' => 'Format :attribute tidak valid.',
+            'after' => ':attribute harus setelah waktu mulai.',
+            'numeric' => ':attribute harus berupa angka.',
+        ];
+
+        $customAttributes = [
+            'facility_id' => 'Fasilitas',
+            'kategori' => 'Kategori',
+            'booking_date' => 'Tanggal peminjaman',
+            'facility_item_id' => 'Item fasilitas',
+            'slot_id' => 'Sesi waktu',
+            'start_time' => 'Jam mulai',
+            'end_time' => 'Jam selesai',
+            'jumlah_orang' => 'Jumlah orang',
+            'description' => 'Deskripsi / judul',
+        ];
+
+        $request->validate($rules, $messages, $customAttributes);
         
 
          // === 2. PERSIAPAN DATA WAKTU ===

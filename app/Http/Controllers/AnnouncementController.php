@@ -9,12 +9,17 @@ use Illuminate\Support\Facades\Auth;
 class AnnouncementController extends Controller
 {
     // 1. Menampilkan daftar pengumuman (Bisa diakses SEMUA role)
-    public function index()
+    public function index(Request $request)
     {
-        // Ambil semua data pengumuman
-        $announcements = Announcement::with('author')->latest()->paginate(10);
+        $query = Announcement::with('author')->latest();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('title', 'like', '%' . $search . '%');
+        }
+
+        $announcements = $query->paginate(10)->withQueryString();
         
-        // Kirim ke SATU file yang sama
         return view('feature.announcements.announcement', compact('announcements'));
     }
 

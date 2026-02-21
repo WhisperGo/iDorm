@@ -48,41 +48,6 @@
                     <div class="header-title">
                         <h4 class="card-title mb-0 fw-bold">Schedule: {{ $title }}</h4>
                     </div>
-
-                    <div id="filter-container" class="d-flex align-items-center gap-2">
-                        @if ($category == 'dapur' || $category == 'sergun')
-                            <form action="{{ url()->current() }}" method="GET" id="manual-filter-form">
-                                <select name="item" class="form-select form-select-sm" onchange="this.form.submit()">
-                                    <option value="">-- Semua Unit --</option>
-                                    @php
-                                        // Kita tentukan keyword pencarian yang pas buat database
-                                        $dbKeyword = match ($category) {
-                                            'sergun' => 'Serba Guna',
-                                            'dapur' => 'Dapur',
-                                            'cws' => 'Co-Working',
-                                            default => str_replace('-', ' ', $category),
-                                        };
-
-                                        $filterItems = \App\Models\FacilityItem::whereHas('facility', function (
-                                            $q,
-                                        ) use ($dbKeyword) {
-                                            $q->where('name', 'LIKE', '%' . $dbKeyword . '%');
-                                        })->get();
-                                    @endphp
-                                    @foreach ($filterItems as $fi)
-                                        <option value="{{ $fi->id }}"
-                                            {{ request('item') == $fi->id ? 'selected' : '' }}>
-                                            {{ $fi->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </form>
-                        @endif
-
-                        @if (request('item') || request('search'))
-                            <a href="{{ url()->current() }}" class="btn btn-secondary btn-sm">Reset</a>
-                        @endif
-                    </div>
                 </div>
 
                 <div class="card-body">
@@ -99,6 +64,48 @@
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     @endif
+
+                    <div class="row align-items-center mb-4">
+                        <div class="col-md-6 d-flex align-items-center flex-wrap gap-2">
+                            @if ($category == 'dapur' || $category == 'sergun' || $category == 'mesin cuci')
+                                <label class="mb-0 text-dark">Filter Unit:</label>
+                                <form action="{{ url()->current() }}" method="GET" id="manual-filter-form" class="m-0">
+                                    <select name="item" class="form-select form-select-sm" onchange="this.form.submit()" style="width: auto;">
+                                        <option value="">-- Semua Unit --</option>
+                                        @php
+                                            // Kita tentukan keyword pencarian yang pas buat database
+                                            $dbKeyword = match ($category) {
+                                                'sergun' => 'Serba Guna',
+                                                'dapur' => 'Dapur',
+                                                'cws' => 'Co-Working',
+                                                'mesin cuci' => 'Mesin Cuci',
+                                                default => str_replace('-', ' ', $category),
+                                            };
+
+                                            $filterItems = \App\Models\FacilityItem::whereHas('facility', function (
+                                                $q,
+                                            ) use ($dbKeyword) {
+                                                $q->where('name', 'LIKE', '%' . $dbKeyword . '%');
+                                            })->get();
+                                        @endphp
+                                        @foreach ($filterItems as $fi)
+                                            <option value="{{ $fi->id }}"
+                                                {{ request('item') == $fi->id ? 'selected' : '' }}>
+                                                {{ $fi->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </form>
+                            @endif
+
+                            @if (request('item') || request('search'))
+                                <a href="{{ url()->current() }}" class="btn btn-soft-danger btn-sm m-0">Reset</a>
+                            @endif
+                        </div>
+                        <div class="col-md-6 d-flex justify-content-end">
+                            <div id="filter-container"></div>
+                        </div>
+                    </div>
 
                     <div class="table-responsive">
                         <table id="schedule-final-table" class="table table-bordered align-middle">
@@ -300,10 +307,8 @@
                                 @endforeach
                             </tbody>
                         </table>
-                        <div class="d-flex justify-content-between align-items-center mt-3 px-3">
-                            <div>
-                                {{ $bookings->appends(request()->query())->links() }}
-                            </div>
+                        <div class="mt-4 px-3">
+                            {{ $bookings->appends(request()->query())->links() }}
                         </div>
                     </div>
                 </div>
@@ -334,10 +339,10 @@
 
             // Search manual
             const searchHtml = `
-            <div class="dataTables_filter d-flex align-items-center" id="custom-search-input">
+            <div class="dataTables_filter d-flex align-items-center justify-content-end" id="custom-search-input">
                 <label class="mb-0 d-flex align-items-center gap-2">
-                    <span class="fw-bold small text-dark">Search:</span>
-                    <input type="search" class="form-control form-control-sm border-primary" placeholder="Type to filter...">
+                    <span class="text-dark">Search:</span>
+                    <input type="search" class="form-control form-control-sm" placeholder="">
                 </label>
             </div>`;
 
