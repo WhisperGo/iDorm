@@ -105,8 +105,8 @@
                                     style="letter-spacing: 0.5px;">Mau Cari Kos di Daerah Mana?</label>
                                 <div class="col-md-6 col-lg-5 mx-auto">
                                     <select name="region" id="selectWilayah"
-                                        class="form-select form-select-lg shadow-sm border-2 text-center rounded-3 bg-light"
-                                        style="cursor: pointer;">
+                                        class="form-select form-select-lg shadow-sm border-2 rounded-3 bg-light"
+                                        style="cursor: pointer; text-align: center; text-align: center;">
                                         <option value="" selected disabled>-- Pilih Wilayah --</option>
                                         <option value="Jakarta Pusat">Jakarta Pusat</option>
                                         <option value="Jakarta Selatan">Jakarta Selatan</option>
