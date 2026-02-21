@@ -1,88 +1,162 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container-fluid py-5">
+    <style>
+        .hover-elevate {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .hover-elevate:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15) !important;
+        }
+
+        .icon-shape {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .icon-shape-lg {
+            width: 80px;
+            height: 80px;
+        }
+    </style>
+
+    <div class="container py-4">
         <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="card border-0 shadow-sm rounded-4 mb-4">
-                    <div class="card-body text-center py-4 px-5">
-                        <h2 class="fw-bold text-dark mb-2" style="letter-spacing: -0.5px;">
-                            Hasil Analisis iDorm AI
-                        </h2>
-                        <p class="text-secondary mb-0 fw-medium">
+            <!-- Increased column width to prevent clipping -->
+            <div class="col-xl-10 col-lg-11">
+                <!-- Header -->
+                <div class="card mb-4 shadow-sm border-0 rounded-4">
+                    <div class="card-body py-4 px-4 text-center">
+                        <h4 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">iDorm AI Analysis Result</h4>
+                        <p class="text-muted mb-0 small">
                             Laporan Prediksi Harga Wajar Wilayah
-                            <span class="text-primary text-uppercase">
+                            <span class="text-primary fw-bold text-uppercase ms-1">
                                 {{ str_replace('_', ' ', $res['metadata']['region']) }}
                             </span>
                         </p>
                     </div>
                 </div>
 
-                <div class="card border-0 shadow-lg overflow-hidden" style="border-radius: 20px;">
-                    <div class="card-body p-0">
-                        <div class="row g-0">
-                            {{-- Sisi Kiri: Status Besar --}}
+                <div class="row g-4 mb-4">
+                    <!-- Status Kewajaran Harga -->
+                    <div class="col-md-5">
+                        <div
+                            class="card h-100 shadow-sm border-0 rounded-4 hover-elevate overflow-hidden position-relative">
+                            <!-- Top decorative bar matching color -->
+                            <div class="bg-{{ $res['result']['analysis']['color_code'] }} w-100" style="height: 6px;"></div>
                             <div
-                                class="col-md-5 bg-{{ $res['result']['analysis']['color_code'] }} p-5 text-center text-white d-flex align-items-center justify-content-center">
-                                <div>
-                                    <i class="bi bi-shield-check display-1 mb-3"></i>
-                                    <h1 class="fw-bold display-5">{{ $res['result']['analysis']['verdict'] }}</h1>
-                                    <p class="lead opacity-75">Status Kewajaran Harga</p>
+                                class="card-body d-flex flex-column align-items-center justify-content-center text-center p-4">
+                                <div
+                                    class="bg-{{ $res['result']['analysis']['color_code'] }}-subtle p-4 rounded-circle mb-4 shadow-sm">
+                                    <div class="bg-{{ $res['result']['analysis']['color_code'] }} text-white rounded-circle icon-shape-lg d-flex align-items-center justify-content-center shadow"
+                                        style="width: 100px; height: 100px;">
+                                        <i class="bi bi-shield-check" style="font-size: 3.5rem;"></i>
+                                    </div>
+                                </div>
+                                <h1 class="text-{{ $res['result']['analysis']['color_code'] }} fw-bold mb-2">
+                                    {{ $res['result']['analysis']['verdict'] }}
+                                </h1>
+                                <p class="text-muted mb-0 text-uppercase fw-medium" style="letter-spacing: 0.5px;">Status Kewajaran Harga</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Statistik Harga -->
+                    <div class="col-md-7">
+                        <div class="row g-4 h-100">
+                            <!-- Harga Ditawarkan -->
+                            <div class="col-12">
+                                <div class="card shadow-sm border-0 rounded-4 hover-elevate h-100">
+                                    <div class="card-body p-4 p-lg-5 d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <p class="text-muted mb-2 text-uppercase fw-medium"
+                                                style="letter-spacing: 0.5px;">
+                                                Harga yang Ditawarkan
+                                            </p>
+                                            <h2 class="fw-bold mb-0 text-dark">Rp
+                                                {{ number_format($res['result']['offered_price'], 0, ',', '.') }}</h2>
+                                        </div>
+                                        <div class="bg-primary-subtle rounded-3 p-3 text-primary d-flex align-items-center justify-content-center shadow-sm"
+                                            style="width: 72px; height: 72px;">
+                                            <i class="bi bi-tag-fill fs-1"></i>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            {{-- Sisi Kanan: Detail Statistik --}}
-                            <div class="col-md-7 p-5 bg-white">
-                                <h4 class="fw-bold mb-4 text-dark">Ringkasan Properti</h4>
-
-                                <div class="mb-4">
-                                    <label class="text-muted small d-block">Harga yang Ditawarkan</label>
-                                    <h2 class="fw-bold text-dark">Rp
-                                        {{ number_format($res['result']['offered_price'], 0, ',', '.') }}</h2>
-                                </div>
-
-                                <div class="row g-4 mb-4">
-                                    <div class="col-6">
-                                        <div class="p-3 bg-light rounded-3">
-                                            <small class="text-muted d-block italic">Batas Bawah (Min)</small>
-                                            <span class="fw-bold">Rp
-                                                {{ number_format($res['result']['fair_range']['min'], 0, ',', '.') }}</span>
+                            <!-- Batas Bawah -->
+                            <div class="col-md-6">
+                                <div class="card h-100 shadow-sm border-0 rounded-4 hover-elevate overflow-hidden">
+                                    <div
+                                        class="card-body p-4 text-center position-relative h-100 d-flex flex-column justify-content-center">
+                                        <div class="mb-3 d-flex justify-content-center">
+                                            <div class="bg-info-subtle text-info rounded-circle icon-shape shadow-sm mx-auto"
+                                                style="width: 56px; height: 56px;">
+                                                <i class="bi bi-graph-down-arrow fs-4"></i>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="p-3 bg-light rounded-3">
-                                            <small class="text-muted d-block">Batas Atas (Max)</small>
-                                            <span class="fw-bold">Rp
-                                                {{ number_format($res['result']['fair_range']['max'], 0, ',', '.') }}</span>
-                                        </div>
+                                        <p class="text-muted mb-2 text-uppercase fw-medium" style="letter-spacing: 0.5px;">
+                                            Batas Bawah</p>
+                                        <h4 class="fw-bold mb-0 text-dark text-nowrap fs-4">Rp
+                                            {{ number_format($res['result']['fair_range']['min'], 0, ',', '.') }}</h4>
+                                        <div class="position-absolute bottom-0 start-0 w-100 bg-info opacity-75"
+                                            style="height: 4px;"></div>
                                     </div>
                                 </div>
+                            </div>
 
-                                <hr class="my-4">
-
-                                <div class="d-flex justify-content-start align-items-center gap-3 flex-column">
-                                    {{-- Tombol Cek Lagi --}}
-                                    <a href="{{ route('prediction.index') }}"
-                                        class="btn btn-outline-secondary rounded-pill px-4">
-                                        <i class="bi bi-arrow-left me-2"></i>Cek Lagi
-                                    </a>
-
-                                    {{-- TOMBOL DOWNLOAD PDF --}}
-                                    <a href="{{ route('prediction.download') }}"
-                                        class="btn btn-danger rounded-pill px-4 shadow">
-                                        <i class="bi bi-file-earmark-pdf-fill me-2"></i>Download Laporan PDF
-                                    </a>
+                            <!-- Batas Atas -->
+                            <div class="col-md-6">
+                                <div class="card h-100 shadow-sm border-0 rounded-4 hover-elevate overflow-hidden">
+                                    <div
+                                        class="card-body p-4 text-center position-relative h-100 d-flex flex-column justify-content-center">
+                                        <div class="mb-3 d-flex justify-content-center">
+                                            <div class="bg-warning-subtle text-warning rounded-circle icon-shape shadow-sm mx-auto"
+                                                style="width: 56px; height: 56px;">
+                                                <i class="bi bi-graph-up-arrow fs-4"></i>
+                                            </div>
+                                        </div>
+                                        <p class="text-muted mb-2 text-uppercase fw-medium" style="letter-spacing: 0.5px;">
+                                            Batas Atas</p>
+                                        <h4 class="fw-bold mb-0 text-dark text-nowrap fs-4">Rp
+                                            {{ number_format($res['result']['fair_range']['max'], 0, ',', '.') }}</h4>
+                                        <div class="position-absolute bottom-0 start-0 w-100 bg-warning opacity-75"
+                                            style="height: 4px;"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                <!-- Tombol Aksi -->
+                <div class="card shadow-sm border-0 rounded-4 mb-3 mt-2">
+                    <div class="card-body p-4">
+                        <div class="d-flex flex-column flex-sm-row justify-content-center align-items-center gap-3">
+                            <a href="{{ route('prediction.index') }}"
+                                class="btn btn-light border rounded-pill px-5 py-2 fw-medium hover-elevate text-dark">
+                                <i class="bi bi-arrow-left me-2"></i> Check Again
+                            </a>
+                            <a href="{{ route('prediction.download') }}"
+                                class="btn btn-primary rounded-pill px-5 py-2 shadow-sm fw-medium hover-elevate">
+                                <i class="bi bi-file-earmark-pdf-fill me-2"></i> Download PDF Report
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
                 {{-- Info Tambahan --}}
-                <div class="mt-4 text-center">
-                    <p class="text-muted small">
-                        Data ini dihasilkan secara otomatis oleh Artificial Intelligence iDorm berdasarkan tren pasar di
-                        {{ str_replace('_', ' ', $res['metadata']['region']) }}.
+                <div class="text-center opacity-75 mt-4">
+                    <p class="text-muted small mb-0">
+                        <i class="bi bi-info-circle me-1"></i> This data is automatically generated by iDorm AI based on
+                        market trends in
+                        <span class="fw-bold">{{ str_replace('_', ' ', $res['metadata']['region']) }}</span>.
                     </p>
                 </div>
             </div>
