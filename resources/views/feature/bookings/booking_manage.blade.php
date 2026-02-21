@@ -51,21 +51,23 @@
                                         <td class="text-center fw-bold">{{ $b->facility->name }}</td>
                                         <td class="text-center">
                                             {{-- LOGIKA AKSES ADMIN PIC --}}
-                                        <td class="text-center">
                                             @php
                                                 $roleName = Auth::user()->role->role_name;
+                                                $statusColor = match (strtoupper($b->status->status_name)) {
+                                                    'BOOKED', 'SCHEDULED' => 'primary',
+                                                    'APPROVED', 'COMPLETED', 'ACCEPTED' => 'success',
+                                                    'REJECTED', 'CANCELED', 'CANCELLED' => 'danger',
+                                                    'VERIFYING CLEANLINESS', 'PENDING' => 'warning',
+                                                    'AWAITING CLEANLINESS PHOTO' => 'secondary',
+                                                    default => 'info',
+                                                };
                                             @endphp
 
                                             {{-- 1. JIKA USER ADALAH PENGHUNI (RESIDENT) --}}
                                             @if ($roleName === 'Resident')
-                                                @if ($b->status->status_name === 'Booked')
-                                                    <span class="badge bg-soft-primary text-primary">Scheduled</span>
-                                                @else
-                                                    <span
-                                                        class="badge bg-{{ $b->status->status_name == 'Cancelled' ? 'danger' : 'success' }}">
-                                                        {{ $b->status->status_name }}
-                                                    </span>
-                                                @endif
+                                                <span class="badge bg-{{ $statusColor }} text-uppercase px-3 py-2">
+                                                    {{ $b->status->status_name }}
+                                                </span>
 
                                                 {{-- 2. JIKA USER ADALAH MANAGER ATAU ADMIN PIC YANG BERWENANG --}}
                                             @elseif ($roleName === 'Manager' || in_array($b->facility_id, $managedIds))
@@ -87,8 +89,7 @@
                                                         </form>
                                                     </div>
                                                 @else
-                                                    <span
-                                                        class="badge bg-{{ $b->status->status_name == 'Cancelled' ? 'danger' : 'success' }}">
+                                                    <span class="badge bg-{{ $statusColor }} text-uppercase px-3 py-2">
                                                         {{ $b->status->status_name }}
                                                     </span>
                                                 @endif
