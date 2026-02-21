@@ -168,17 +168,17 @@
                                     <div class="card-header">
                                         <h4 class="fw-bold">Cari Lokasi Kost</h4>
                                     </div>
-                                    <!-- <div class="card-body">
+                                    <div class="card-body">
                                             <div class="mb-3">
                                                 <input id="pac-input" class="form-control" type="text"
                                                     placeholder="Masukkan alamat atau nama tempat...">
-                                            </div> -->
+                                            </div>
 
                                     <div id="map" style="height: 500px; width: 100%; border-radius: 10px;">
                                     </div>
 
-                                    <input type="hidden" name="latitude" id="lat">
-                                    <input type="hidden" name="longitude" id="lng">
+                                    <input type="hidden" name="latitude" id="latitude">
+                                    <input type="hidden" name="longitude" id="longitude">
                                 </div>
                             </div>
 

@@ -232,7 +232,7 @@ $facilities = \App\Models\Facility::all();
             }
         },
 
-        @if($user - > residentDetails ? - > photo_path)
+        @if($user->residentDetails?->photo_path)
         files: [{
             source: "{{ asset('storage/' . $user->residentDetails->photo_path) }}"
         }],
