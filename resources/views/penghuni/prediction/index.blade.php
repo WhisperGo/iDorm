@@ -169,14 +169,14 @@
 
                                     {{-- Budget & Luas --}}
                                     <div class="col-md-6">
-                                        <label class="form-label fw-bold text-dark">Maksimal Budget (Rp)</label>
+                                        <label class="form-label fw-bold text-dark">Harga Asli Kos (Rp)</label>
                                         <div class="input-group input-group-lg shadow-sm rounded-3">
                                             <span
                                                 class="input-group-text bg-white border-2 border-end-0 text-muted">Rp</span>
                                             <input type="text" id="inputHarga"
                                                 class="form-control border-2 border-start-0 shadow-none px-2"
                                                 placeholder="Contoh: 2.000.000" required>
-                                            <div class="invalid-feedback text-start px-2">Maksimal budget wajib diisi.</div>
+                                            <div class="invalid-feedback text-start px-2">Harga Asli Kos wajib diisi.</div>
                                             <input type="hidden" name="harga" id="hargaMurni">
                                         </div>
                                     </div>
