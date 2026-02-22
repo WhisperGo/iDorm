@@ -62,7 +62,8 @@
                                 <h1 class="text-{{ $res['result']['analysis']['color_code'] }} fw-bold mb-2">
                                     {{ $res['result']['analysis']['verdict'] }}
                                 </h1>
-                                <p class="text-muted mb-0 text-uppercase fw-medium" style="letter-spacing: 0.5px;">Status Kewajaran Harga</p>
+                                <p class="text-muted mb-0 text-uppercase fw-medium" style="letter-spacing: 0.5px;">Status
+                                    Kewajaran Harga</p>
                             </div>
                         </div>
                     </div>
@@ -70,64 +71,89 @@
                     <!-- Statistik Harga -->
                     <div class="col-md-7">
                         <div class="row g-4 h-100">
-                            <!-- Harga Ditawarkan -->
+                            <!-- Prediksi AI -->
                             <div class="col-12">
-                                <div class="card shadow-sm border-0 rounded-4 hover-elevate h-100">
+                                <div
+                                    class="card shadow-sm border-0 rounded-4 hover-elevate h-100 bg-primary-subtle text-primary">
                                     <div class="card-body p-4 p-lg-5 d-flex align-items-center justify-content-between">
                                         <div>
-                                            <p class="text-muted mb-2 text-uppercase fw-medium"
+                                            <p class="text-primary mb-2 text-uppercase fw-bold"
                                                 style="letter-spacing: 0.5px;">
-                                                Harga yang Ditawarkan
+                                                PREDIKSI AI
                                             </p>
-                                            <h2 class="fw-bold mb-0 text-dark">Rp
-                                                {{ number_format($res['result']['offered_price'], 0, ',', '.') }}</h2>
+                                            <h2 class="fw-bold mb-0 text-primary">Rp
+                                                {{ number_format($res['result']['base_prediction'], 0, ',', '.') }}</h2>
                                         </div>
-                                        <div class="bg-primary-subtle rounded-3 p-3 text-primary d-flex align-items-center justify-content-center shadow-sm"
+                                        <div class="bg-primary text-white rounded-3 p-3 d-flex align-items-center justify-content-center shadow-sm"
                                             style="width: 72px; height: 72px;">
-                                            <i class="bi bi-tag-fill fs-1"></i>
+                                            <i class="bi bi-robot fs-1"></i>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Batas Bawah -->
-                            <div class="col-md-6">
+                            <div class="col-lg-4 col-md-6">
                                 <div class="card h-100 shadow-sm border-0 rounded-4 hover-elevate overflow-hidden">
                                     <div
                                         class="card-body p-4 text-center position-relative h-100 d-flex flex-column justify-content-center">
-                                        <div class="mb-3 d-flex justify-content-center">
+                                        <div class="mb-4 d-flex justify-content-center">
                                             <div class="bg-info-subtle text-info rounded-circle icon-shape shadow-sm mx-auto"
-                                                style="width: 56px; height: 56px;">
-                                                <i class="bi bi-graph-down-arrow fs-4"></i>
+                                                style="width: 64px; height: 64px;">
+                                                <i class="bi bi-graph-down-arrow fs-3"></i>
                                             </div>
                                         </div>
-                                        <p class="text-muted mb-2 text-uppercase fw-medium" style="letter-spacing: 0.5px;">
+                                        <p class="text-muted mb-2 text-uppercase fw-bold"
+                                            style="letter-spacing: 0.8px; font-size: 0.75rem;">
                                             Batas Bawah</p>
-                                        <h4 class="fw-bold mb-0 text-dark text-nowrap fs-4">Rp
-                                            {{ number_format($res['result']['fair_range']['min'], 0, ',', '.') }}</h4>
+                                        <h5 class="fw-bold mb-0 text-dark text-nowrap fs-6">Rp
+                                            {{ number_format($res['result']['fair_range']['min'], 0, ',', '.') }}</h5>
                                         <div class="position-absolute bottom-0 start-0 w-100 bg-info opacity-75"
-                                            style="height: 4px;"></div>
+                                            style="height: 6px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Budget Kamu -->
+                            <div class="col-lg-4 col-md-12 order-lg-0 order-first">
+                                <div class="card h-100 shadow-sm border-0 rounded-4 hover-elevate overflow-hidden">
+                                    <div
+                                        class="card-body p-4 text-center position-relative h-100 d-flex flex-column justify-content-center">
+                                        <div class="mb-4 d-flex justify-content-center">
+                                            <div class="bg-primary-subtle text-primary rounded-circle icon-shape shadow-sm mx-auto"
+                                                style="width: 64px; height: 64px;">
+                                                <i class="bi bi-tag-fill fs-3"></i>
+                                            </div>
+                                        </div>
+                                        <p class="text-muted mb-2 text-uppercase fw-bold"
+                                            style="letter-spacing: 0.8px; font-size: 0.75rem;">
+                                            Budget Kamu</p>
+                                        <h5 class="fw-bold mb-0 text-dark text-nowrap fs-6">Rp
+                                            {{ number_format($res['result']['offered_price'], 0, ',', '.') }}</h5>
+                                        <div class="position-absolute bottom-0 start-0 w-100 bg-secondary opacity-25"
+                                            style="height: 6px;"></div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Batas Atas -->
-                            <div class="col-md-6">
+                            <div class="col-lg-4 col-md-6">
                                 <div class="card h-100 shadow-sm border-0 rounded-4 hover-elevate overflow-hidden">
                                     <div
                                         class="card-body p-4 text-center position-relative h-100 d-flex flex-column justify-content-center">
-                                        <div class="mb-3 d-flex justify-content-center">
+                                        <div class="mb-4 d-flex justify-content-center">
                                             <div class="bg-warning-subtle text-warning rounded-circle icon-shape shadow-sm mx-auto"
-                                                style="width: 56px; height: 56px;">
-                                                <i class="bi bi-graph-up-arrow fs-4"></i>
+                                                style="width: 64px; height: 64px;">
+                                                <i class="bi bi-graph-up-arrow fs-3"></i>
                                             </div>
                                         </div>
-                                        <p class="text-muted mb-2 text-uppercase fw-medium" style="letter-spacing: 0.5px;">
+                                        <p class="text-muted mb-2 text-uppercase fw-bold"
+                                            style="letter-spacing: 0.8px; font-size: 0.75rem;">
                                             Batas Atas</p>
-                                        <h4 class="fw-bold mb-0 text-dark text-nowrap fs-4">Rp
-                                            {{ number_format($res['result']['fair_range']['max'], 0, ',', '.') }}</h4>
+                                        <h5 class="fw-bold mb-0 text-dark text-nowrap fs-6">Rp
+                                            {{ number_format($res['result']['fair_range']['max'], 0, ',', '.') }}</h5>
                                         <div class="position-absolute bottom-0 start-0 w-100 bg-warning opacity-75"
-                                            style="height: 4px;"></div>
+                                            style="height: 6px;"></div>
                                     </div>
                                 </div>
                             </div>
