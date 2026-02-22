@@ -57,12 +57,12 @@ class ResidentSeeder extends Seeder
 
         for ($i = 0; $i < 100; $i++) {
             $gender = $faker->randomElement(['Male', 'Female']);
-            
+
             // 1. Buat User
             $user = User::create([
                 'role_id' => 3, // Role Resident
                 // Card ID unik mulai dari 3001 agar tidak bentrok dengan Admin/Manager
-                'card_id' => str_pad(3001 + $i, 4, '0', STR_PAD_LEFT), 
+                'card_id' => str_pad(3001 + $i, 4, '0', STR_PAD_LEFT),
                 'password' => Hash::make('password'),
                 'account_status' => 'active',
             ]);
@@ -79,6 +79,7 @@ class ResidentSeeder extends Seeder
                 'gender' => $gender,
                 'class_name' => $faker->randomElement($classes),
                 'room_number' => $roomNumber,
+                'phone_number' => '8' . $faker->numberBetween(1000000000, 9999999999),
             ]);
         }
     }

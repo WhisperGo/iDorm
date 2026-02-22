@@ -18,7 +18,7 @@ class ResidentController extends Controller
     public function index(Request $request)
     {
         $currentUser = Auth::user();
-        
+
         // Eager load role untuk efisiensi
         if (!$currentUser->relationLoaded('role')) {
             $currentUser->load('role');
@@ -35,9 +35,9 @@ class ResidentController extends Controller
         $search = $request->get('search');
         $isManager = $currentRoleName === self::ROLE_MANAGER;
         $isAdmin = $currentRoleName === self::ROLE_ADMIN;
-        
+
         // Ambil detail admin sekali saja
-        $adminDetails = $currentUser->adminDetails; 
+        $adminDetails = $currentUser->adminDetails;
         $myFacilityId = $adminDetails?->facility_id;
         $myFacilityName = strtolower($adminDetails?->facilities?->name ?? '');
         $adminGender = $adminDetails?->gender;
@@ -59,9 +59,9 @@ class ResidentController extends Controller
         if ($search) {
             $query->whereHas('residentDetails', function ($q) use ($search) {
                 $q->where('full_name', 'LIKE', "%{$search}%")
-                  ->orWhere('room_number', 'LIKE', "%{$search}%")
-                  ->orWhere('card_id', 'LIKE', "%{$search}%"); // Tambahan cari by ID
-            });
+                    ->orWhere('room_number', 'LIKE', "%{$search}%")
+                    ->orWhere('phone_number', 'LIKE', "%{$search}%");
+            })->orWhere('card_id', 'LIKE', "%{$search}%");
         }
 
         // 4b. Apply Logic "Safe Mode" (Filter di Database Level)
@@ -76,10 +76,10 @@ class ResidentController extends Controller
         $residents = $query->latest()->paginate(10);
 
         return view('feature.resident_management', compact(
-            'residents', 
-            'facilities', 
-            'isManager', 
-            'isAdmin', 
+            'residents',
+            'facilities',
+            'isManager',
+            'isAdmin',
             'isLaundryAdmin',
             'myFacilityId',
             'myFacilityName',
