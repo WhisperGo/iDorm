@@ -30,8 +30,8 @@
                                 <tr>
                                     <th class="text-center" width="5%">No.</th>
                                     <th>Fasilitas & Detail</th>
-                                    <th class="text-center">Waktu Pfeminjaman</th>
-                                    <th class="text-center">Status Sistem</th>
+                                    <th class="text-center">Waktu Peminjaman</th>
+                                    <th class="text-center">Status</th>
                                     <th class="text-center" width="30%">Aksi / Bukti Kebersihan</th>
                                 </tr>
                             </thead>
@@ -101,6 +101,7 @@
                                                     </form>
 
                                                     {{-- 2. LOGIKA UPLOAD FOTO (Waktu Habis ATAU Selesai Awal, dan belum ada foto) --}}
+                                                @elseif($status === 'Awaiting Cleanliness Photo' && !$b->photo_proof_path)
                                                     <div
                                                         class="card p-3 bg-soft-primary border-0 rounded-3 shadow-none w-100">
                                                         <form action="{{ route('booking.upload', $b->id) }}" method="POST"
@@ -136,9 +137,11 @@
 
                                                     {{-- 4. LOGIKA SELESAI (COMPLETED) --}}
                                                 @elseif($status === 'Completed')
-                                                    <div class="text-success text-center">
-                                                        <i class="bi bi-patch-check-fill fs-4"></i>
-                                                        <div class="small fw-bold">Selesai & Bersih</div>
+                                                    <div class="text-center p-2 rounded-3 bg-soft-success w-100">
+                                                        <span class="text-success small fw-bold d-block">
+                                                            <i class="bi bi-patch-check-fill fs-6 me-1"></i> Selesai &
+                                                            Bersih
+                                                        </span>
                                                     </div>
                                                 @elseif($status === 'Booked')
                                                     <div class="text-center p-2 rounded-3 bg-soft-secondary w-100">
