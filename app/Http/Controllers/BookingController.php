@@ -207,19 +207,25 @@ class BookingController extends Controller
         // RULE 5 & 6 & 7: Batas Waktu Booking (H-1 dsb)
 
         if ($kategori == 'dapur') {
-            // Rule 6: Fasilitas dapur harus dibooking di H-1 (Paling cepat 24 jam sebelumnya, paling lambat 1 jam sebelumnya)
+            // Rule 6: Fasilitas dapur harus dibooking di H-1 (Paling cepat untuk besok, paling lambat 1 jam sebelumnya)
             if ($bookingStartDateTime->isPast()) {
                 return back()->with('error', 'Waktu booking sudah lewat.')->withInput();
             }
 
-            $hoursUntilBooking = $carbonNow->diffInHours($bookingStartDateTime, false); // false agar bisa negatif jika di masa lalu
+            // Gunakan timezone Asia/Jakarta secara eksplisit agar perhitungan menit akurat
+            $carbonNow = now('Asia/Jakarta');
+            $bookingStartTimeCurrent = Carbon::parse("$bookingDate $startTime", 'Asia/Jakarta');
 
-            if ($hoursUntilBooking < 1) {
+            $minutesUntilBooking = $carbonNow->diffInMinutes($bookingStartTimeCurrent, false); // false agar bisa negatif jika di masa lalu
+
+            if ($minutesUntilBooking < 60) {
                 return back()->with('error', 'Fasilitas dapur harus dibooking paling lambat 1 jam sebelum digunakan.')->withInput();
             }
 
-            if ($hoursUntilBooking > 24) {
-                return back()->with('error', 'Fasilitas dapur hanya bisa dibooking maksimal H-1 (24 jam) sebelum digunakan.')->withInput();
+            // H-1 Hari: bookingDate maksimal besok (tidak boleh lusa)
+            $jamMaksimalBooking = $carbonNow->copy()->addDay()->endOfDay();
+            if ($bookingStartTimeCurrent->greaterThan($jamMaksimalBooking)) {
+                return back()->with('error', 'Fasilitas dapur hanya bisa dibooking maksimal H-1 (untuk digunakan besok).')->withInput();
             }
         } else {
             // Rule 5: H-1 (Besok baru bisa booking, kecuali hari ini masih H-1 nya besok? 

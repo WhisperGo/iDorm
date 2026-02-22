@@ -198,6 +198,13 @@
                                                             ? str_replace('.', ':', $endTime)
                                                             : null" />
                                                 </div>
+                                                <div class="col-12">
+                                                    <small class="text-danger mt-1 d-block mb-3">
+                                                        * Catatan: Fasilitas dapur hanya dapat dibooking maksimal <strong>1
+                                                            hari (H-1)</strong> dan paling lambat <strong>1 jam</strong>
+                                                        sebelum waktu penggunaan.
+                                                    </small>
+                                                </div>
                                             </div>
 
                                             {{-- TAMBAHAN: Checklist Alat Masak (Khusus Dapur) --}}
@@ -305,6 +312,10 @@
                                             <div class="mb-3">
                                                 <label class="form-label fw-bold">Pilih Nomor Mesin: <span
                                                         class="text-danger">*</span></label>
+                                                <div id="max-selection-alert" class="alert alert-warning d-none mb-2 py-2"
+                                                    role="alert">
+                                                    Maksimal hanya bisa memilih 2 mesin!
+                                                </div>
                                                 <div class="row g-2 text-center mb-3 justify-content-between"
                                                     id="washing-machine-group" data-max="2">
                                                     @forelse ($items as $item)
@@ -442,3 +453,72 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const group = document.getElementById('washing-machine-group');
+            if (!group) return;
+
+            const maxLimit = parseInt(group.getAttribute('data-max')) || 2;
+            const checkboxes = document.querySelectorAll('.machine-checkbox');
+            const alertBox = document.getElementById('max-selection-alert');
+
+            function updateVisuals() {
+                checkboxes.forEach(box => {
+                    const label = document.querySelector(`label[for="${box.id}"]`);
+                    if (!label) return;
+
+                    if (box.checked) {
+                        label.classList.remove('btn-outline-primary');
+                        label.classList.add('btn-primary');
+                    } else {
+                        label.classList.remove('btn-primary');
+                        label.classList.add('btn-outline-primary');
+                    }
+                });
+
+                const checkedCount = document.querySelectorAll('.machine-checkbox:checked').length;
+
+                if (checkedCount >= maxLimit) {
+                    checkboxes.forEach(box => {
+                        if (!box.checked) {
+                            box.disabled = true;
+                            const label = document.querySelector(`label[for="${box.id}"]`);
+                            if (label) label.classList.add('opacity-50');
+                        }
+                    });
+                } else {
+                    checkboxes.forEach(box => {
+                        box.disabled = false;
+                        const label = document.querySelector(`label[for="${box.id}"]`);
+                        if (label) label.classList.remove('opacity-50');
+                    });
+                }
+            }
+
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const checkedCount = document.querySelectorAll('.machine-checkbox:checked')
+                        .length;
+
+                    if (checkedCount > maxLimit) {
+                        this.checked = false;
+
+                        if (alertBox) {
+                            alertBox.classList.remove('d-none');
+                            setTimeout(() => {
+                                alertBox.classList.add('d-none');
+                            }, 3000);
+                        }
+                    }
+
+                    updateVisuals();
+                    this.blur();
+                });
+            });
+
+            updateVisuals();
+        });
+    </script>
+@endpush
