@@ -15,7 +15,7 @@ class ProfileController extends Controller
     public function edit()
     {
         $user = User::with(['residentDetails', 'adminDetails', 'managerDetails'])->findOrFail(Auth::id());
-        
+
         return view('feature.edit_profile', compact('user'));
     }
 
@@ -27,14 +27,14 @@ class ProfileController extends Controller
         $targetRole = $targetUser->role->role_name;
 
         // Tambahkan tanda tanya (?) setelah role untuk jaga-jaga kalau user gak punya role
-        if (($currentUser->role?->role_name !== 'Manager') && ($currentUser->id !== (int)$id)) {
+        if (($currentUser->role?->role_name !== 'Manager') && ($currentUser->id !== (int) $id)) {
             abort(403, 'Anda tidak punya izin mengedit data orang lain.');
         }
 
         // Cek yang login apakah merupakan admin atau user
         $currentUserRole = $currentUser->role->role_name ?? '';
         $isRestricted = in_array($currentUserRole, ['Resident', 'Admin']);
-        
+
         $rules = [
             'password' => 'nullable|min:8|confirmed', // Nullable = Opsional
         ];
@@ -42,7 +42,7 @@ class ProfileController extends Controller
         // Jika yang login MANAGER, dia bisa edit profil
         if ($currentUser->role->role_name === 'Manager') {
             $rules['full_name'] = 'required|string|max:255';
-            $rules['phone'] = 'nullable|string|max:15';
+            $rules['phone_number'] = 'nullable|string|max:15';
 
             // HANYA wajibkan kelas jika yang DIEDIT adalah Resident
             if ($targetRole === 'Resident') {
@@ -61,12 +61,12 @@ class ProfileController extends Controller
         if ($request->filled('password')) {
             $targetUser->update([
                 'password' => Hash::make($request->password),
-                ]);
-            }
+            ]);
+        }
 
         // 4. Update Detail Berdasarkan Tabel Masing-masing
         if ($currentUser->role->role_name === 'Manager') {
-            $data = $request->only(['full_name', 'phone']);
+            $data = $request->only(['full_name', 'phone_number']);
 
             // Handle Foto
             if ($request->hasFile('photo')) {

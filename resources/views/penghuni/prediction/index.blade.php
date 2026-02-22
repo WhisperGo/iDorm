@@ -96,7 +96,7 @@
                     </div>
 
                     <div class="card-body p-4 p-md-5">
-                        <form action="{{ route('prediction.store') }}" method="POST">
+                        <form action="{{ route('prediction.store') }}" method="POST" id="predictionForm" novalidate>
                             @csrf
 
                             {{-- Step 1: Pilih Wilayah --}}
@@ -113,6 +113,7 @@
                                         <option value="Jakarta Utara">Jakarta Utara</option>
                                         <option value="Yogyakarta">Yogyakarta</option>
                                     </select>
+                                    <div class="invalid-feedback text-start mt-2 px-2">Wilayah wajib dipilih.</div>
                                 </div>
                             </div>
 
@@ -158,6 +159,8 @@
                                                 </label>
                                             </div>
                                         </div>
+                                        <div class="invalid-feedback mt-3 px-2" id="tipeKosError">Tipe penghuni kos wajib
+                                            dipilih.</div>
                                     </div>
 
                                     <div class="col-12">
@@ -173,17 +176,19 @@
                                             <input type="text" id="inputHarga"
                                                 class="form-control border-2 border-start-0 shadow-none px-2"
                                                 placeholder="Contoh: 2.000.000" required>
+                                            <div class="invalid-feedback text-start px-2">Maksimal budget wajib diisi.</div>
                                             <input type="hidden" name="harga" id="hargaMurni">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label fw-bold text-dark">Luas Kamar (m²)</label>
                                         <div class="input-group input-group-lg shadow-sm rounded-3">
-                                            <input type="number" name="luas_kamar"
+                                            <input type="number" name="luas_kamar" id="inputLuas"
                                                 class="form-control border-2 border-end-0 shadow-none"
                                                 placeholder="Contoh: 12" required>
                                             <span
                                                 class="input-group-text bg-white border-2 border-start-0 text-muted">m²</span>
+                                            <div class="invalid-feedback text-start px-2">Luas kamar wajib diisi.</div>
                                         </div>
                                     </div>
 
@@ -207,6 +212,8 @@
                                             <input type="hidden" name="latitude" id="latitude">
                                             <input type="hidden" name="longitude" id="longitude">
                                         </div>
+                                        <div class="invalid-feedback text-start px-2 mb-3" id="mapError">Titik lokasi
+                                            acuan (Peta GPS) wajib dipilih.</div>
 
                                         <div
                                             class="bg-light p-4 rounded-4 border-0 d-flex flex-column flex-md-row gap-3 align-items-md-center justify-content-between">
@@ -467,6 +474,99 @@
 
             this.value = rupiah;
             hargaMurni.value = val.replace(/\./g, '');
+        });
+
+        document.getElementById('predictionForm').addEventListener('submit', function(e) {
+            let isValid = true;
+            let firstInvalidEl = null;
+
+            // Region Validation
+            const selectWilayah = document.getElementById('selectWilayah');
+            if (!selectWilayah.value) {
+                selectWilayah.classList.add('is-invalid');
+                isValid = false;
+                if (!firstInvalidEl) firstInvalidEl = selectWilayah;
+            } else {
+                selectWilayah.classList.remove('is-invalid');
+            }
+
+            // Tipe Kos Validation
+            const tipeKosChecked = document.querySelector('input[name="tipe_kos"]:checked');
+            const tipeKosError = document.getElementById('tipeKosError');
+            if (!tipeKosChecked) {
+                tipeKosError.classList.add('d-block');
+                isValid = false;
+                if (!firstInvalidEl) firstInvalidEl = tipeKosError.parentElement;
+            } else {
+                tipeKosError.classList.remove('d-block');
+            }
+
+            // Harga Validation
+            const inputHarga = document.getElementById('inputHarga');
+            const hargaMurni = document.getElementById('hargaMurni').value;
+            if (!hargaMurni || hargaMurni == '0') {
+                inputHarga.classList.add('is-invalid');
+                isValid = false;
+                if (!firstInvalidEl) firstInvalidEl = inputHarga;
+            } else {
+                inputHarga.classList.remove('is-invalid');
+            }
+
+            // Luas Kamar Validation
+            const inputLuas = document.getElementById('inputLuas');
+            if (!inputLuas.value) {
+                inputLuas.classList.add('is-invalid');
+                isValid = false;
+                if (!firstInvalidEl) firstInvalidEl = inputLuas;
+            } else {
+                inputLuas.classList.remove('is-invalid');
+            }
+
+            // Map/Lat Lng Validation
+            const lat = document.getElementById('lat');
+            const mapError = document.getElementById('mapError');
+            if (!lat.value) {
+                mapError.classList.add('d-block');
+                lat.classList.add('is-invalid');
+                document.getElementById('lng').classList.add('is-invalid');
+                isValid = false;
+                if (!firstInvalidEl) firstInvalidEl = document.getElementById('pac-input');
+            } else {
+                mapError.classList.remove('d-block');
+                lat.classList.remove('is-invalid');
+                document.getElementById('lng').classList.remove('is-invalid');
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+
+                // Scroll to the first element that failed validation
+                if (firstInvalidEl) {
+                    firstInvalidEl.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }
+            }
+        });
+
+        // Add input listeners to quickly remove the red borders when the user types
+        document.getElementById('selectWilayah').addEventListener('change', function() {
+            this.classList.remove('is-invalid');
+        });
+
+        document.querySelectorAll('input[name="tipe_kos"]').forEach(elm => {
+            elm.addEventListener('change', function() {
+                document.getElementById('tipeKosError').classList.remove('d-block');
+            });
+        });
+
+        document.getElementById('inputHarga').addEventListener('input', function() {
+            this.classList.remove('is-invalid');
+        });
+
+        document.getElementById('inputLuas').addEventListener('input', function() {
+            this.classList.remove('is-invalid');
         });
     </script>
 @endsection

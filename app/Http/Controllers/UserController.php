@@ -15,23 +15,23 @@ class UserController extends Controller
     // 1. Menampilkan Form Tambah Resident
     public function createResident()
     {
-        return view('feature.create_resident'); 
+        return view('feature.create_resident');
     }
-    
+
     // 2. Memproses Simpan Data Resident
     public function storeResident(Request $request)
     {
         // Validasi Input
         $request->validate([
-            'card_id'      => 'required|string|size:4|unique:users,card_id',
-            'full_name'    => 'required|string|max:255',
-            'gender'       => 'required|in:Male,Female',
-            'room_number'  => 'required|string',
-            'class_name'   => 'required|string|max:100',
+            'card_id' => 'required|string|size:4|unique:users,card_id',
+            'full_name' => 'required|string|max:255',
+            'gender' => 'required|in:Male,Female',
+            'room_number' => 'required|string',
+            'class_name' => 'required|string|max:100',
             'phone_number' => 'nullable|string',
             // 'password'     => 'required|min:8|confirmed',
         ]);
-    
+
         // A. Simpan ke Tabel Users (Akun Login)
         $user = User::create([
             'card_id' => $request->card_id,
@@ -39,16 +39,16 @@ class UserController extends Controller
             'password' => Hash::make('password'),
             'account_status' => 'active',
         ]);
-    
+
         // B. Simpan ke Tabel ResidentDetails (Profil)
         $user->residentDetails()->create([
-            'full_name'    => $request->full_name,
-            'gender'       => $request->gender,
-            'room_number'  => $request->room_number,
-            'class_name'  => $request->class_name,
+            'full_name' => $request->full_name,
+            'gender' => $request->gender,
+            'room_number' => $request->room_number,
+            'class_name' => $request->class_name,
             'phone_number' => $request->phone_number,
         ]);
-    
+
         // Kembali ke halaman daftar resident dengan pesan sukses
         return redirect()->route('pengelola.resident')->with('success', 'Resident ' . $request->full_name . ' berhasil ditambahkan!');
     }
@@ -63,7 +63,7 @@ class UserController extends Controller
         return view('pengelola.users.index', [
             'residents' => $residents,
             'isManager' => Auth::user()->role_id == 1,
-            'isAdmin'   => Auth::user()->role_id == 2,
+            'isAdmin' => Auth::user()->role_id == 2,
             'facilities' => Facility::all(),
             'myFacilityId' => Auth::user()->adminDetails?->facility_id,
             'myFacilityName' => Auth::user()->adminDetails?->facility?->name,
@@ -78,37 +78,46 @@ class UserController extends Controller
         // Eager load semua kemungkinan detail
         $user = User::with(['residentDetails', 'adminDetails.facility'])->findOrFail($id);
         $facilities = Facility::all(); // Dibutuhkan untuk dropdown di view edit
-        
+
         return view('pengelola.users.edit', compact('user', 'facilities'));
     }
 
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
-    
+
         $request->validate([
-            'full_name'    => 'required|string|max:255',
-            'gender'       => 'required|in:Male,Female',
+            'full_name' => 'required|string|max:255',
+            'gender' => 'required|in:Male,Female',
             'phone_number' => 'nullable|string',
-            'password'     => 'nullable|min:8|confirmed',
-            'room_number'  => 'nullable|string',
-            'facility_id'  => 'nullable|exists:facilities,id',
+            'password' => 'nullable|min:8|confirmed',
+            'room_number' => 'nullable|string',
+            'facility_id' => 'nullable|exists:facilities,id',
         ]);
-    
+
         // 1. Update Password Jika diisi
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
             $user->save();
         }
-    
+
         // 2. LOGIKA UPDATE DETAIL (Berdasarkan Role)
-        if ($user->role_id == 2) { 
+        $photoPath = null;
+        if ($request->hasFile('photo')) {
+            $photoPath = $request->file('photo')->store('profiles', 'public');
+        }
+
+        if ($user->role_id == 2) {
             // JIKA ADMIN
             $adminData = [
-                'full_name'    => $request->full_name,
-                'gender'       => $request->gender,
+                'full_name' => $request->full_name,
+                'gender' => $request->gender,
                 'phone_number' => $request->phone_number,
             ];
+
+            if ($photoPath) {
+                $adminData['photo_path'] = $photoPath;
+            }
 
             // PENTING: Hanya update facility_id jika ada di request (mencegah error null saat input disabled)
             if ($request->has('facility_id')) {
@@ -122,17 +131,23 @@ class UserController extends Controller
 
         } else {
             // JIKA RESIDENT (Role 3)
+            $residentData = [
+                'full_name' => $request->full_name,
+                'gender' => $request->gender,
+                'phone_number' => $request->phone_number,
+                'room_number' => $request->room_number,
+            ];
+
+            if ($photoPath) {
+                $residentData['photo_path'] = $photoPath;
+            }
+
             $user->residentDetails()->updateOrCreate(
                 ['user_id' => $user->id],
-                [
-                    'full_name'    => $request->full_name,
-                    'gender'       => $request->gender,
-                    'phone_number' => $request->phone_number,
-                    'room_number'  => $request->room_number,
-                ]
+                $residentData
             );
         }
-    
+
         // 3. Redirect sesuai role_id
         $routeName = ($user->role_id == 2) ? 'manager.admins.index' : 'pengelola.resident';
         return redirect()->route($routeName)->with('success', 'Data ' . $request->full_name . ' berhasil diperbarui!');
@@ -143,7 +158,7 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         $user->delete();
-        
+
         if ($user->residentDetails) {
             $user->residentDetails()->delete();
         }
@@ -162,7 +177,7 @@ class UserController extends Controller
         return view('feature.resident_management', [
             'residents' => $residents,
             'isManager' => Auth::user()->role_id == 1,
-            'isAdmin'   => Auth::user()->role_id == 2,
+            'isAdmin' => Auth::user()->role_id == 2,
             'facilities' => Facility::all(),
             'myFacilityId' => Auth::user()->adminDetails?->facility_id,
             'myFacilityName' => Auth::user()->adminDetails?->facility?->name,
@@ -182,14 +197,14 @@ class UserController extends Controller
     public function storeAdmin(Request $request)
     {
         $request->validate([
-            'card_id'      => 'required|string|size:4|unique:users,card_id',
-            'full_name'    => 'required|string|max:255',
-            'gender'       => 'required|in:Male,Female',
-            'class_name'   => 'required|string|max:100',
-            'room_number'  => 'required|string', // Tambahkan ini
-            'facility_id'  => 'required|exists:facilities,id',
+            'card_id' => 'required|string|size:4|unique:users,card_id',
+            'full_name' => 'required|string|max:255',
+            'gender' => 'required|in:Male,Female',
+            'class_name' => 'required|string|max:100',
+            'room_number' => 'required|string', // Tambahkan ini
+            'facility_id' => 'required|exists:facilities,id',
             'phone_number' => 'nullable|string',
-            ]);
+        ]);
 
         // 1. Buat User (Role 2 = Admin)
         $user = User::create([
@@ -201,11 +216,11 @@ class UserController extends Controller
 
         // 2. Buat Admin Details
         $user->adminDetails()->create([
-            'full_name'    => $request->full_name,
-            'gender'       => $request->gender,
-            'class_name'   => $request->class_name,
-            'room_number'  => $request->room_number, // PASTIKAN DISIMPAN DI SINI
-            'facility_id'  => $request->facility_id,
+            'full_name' => $request->full_name,
+            'gender' => $request->gender,
+            'class_name' => $request->class_name,
+            'room_number' => $request->room_number, // PASTIKAN DISIMPAN DI SINI
+            'facility_id' => $request->facility_id,
             'phone_number' => $request->phone_number,
         ]);
 
@@ -237,7 +252,7 @@ class UserController extends Controller
         return view('feature.admin_management', [
             'admins' => $admins,
             'isManager' => Auth::user()->role_id == 1,
-            'isAdmin'   => Auth::user()->role_id == 2,
+            'isAdmin' => Auth::user()->role_id == 2,
             'title' => 'Facility Admin Management'
         ]);
     }

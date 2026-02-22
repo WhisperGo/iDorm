@@ -48,46 +48,62 @@
                     <li class="nav-item dropdown custom-drop">
                         <a class="py-0 nav-link d-flex align-items-center" href="#" id="navbarDropdown"
                             role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="{{ asset('hopeui/images/avatars/01.png') }}" alt="User-Profile"
+                            @php
+                                $user = Auth::user();
+                                $photoPath = null;
+                                if ($user) {
+                                    if ($user->role_id == 2) {
+                                        $photoPath = $user->adminDetails?->photo_path;
+                                    } elseif ($user->role_id == 3) {
+                                        $photoPath = $user->residentDetails?->photo_path;
+                                    } elseif ($user->role_id == 1) {
+                                        $photoPath = $user->managerDetails?->photo_path;
+                                    }
+                                }
+                                $avatarUrl = $photoPath
+                                    ? asset('storage/' . $photoPath)
+                                    : asset('hopeui/images/avatars/01.png');
+                            @endphp
+                            <img src="{{ $avatarUrl }}" alt="User-Profile" style="object-fit: cover;"
                                 class="theme-color-default-img img-fluid avatar avatar-50 avatar-rounded">
 
                             {{-- BAGIAN NAMA & ROLE --}}
                             <div class="caption ms-3">
                                 @if (Auth::user()->role->role_name == 'Resident')
-                                <h6 class="mb-0 caption-title fw-bold">
-                                    {{ Auth::user()->residentDetails->full_name ?? Auth::user()->name }}
-                                </h6>
+                                    <h6 class="mb-0 caption-title fw-bold">
+                                        {{ Auth::user()->residentDetails->full_name ?? Auth::user()->name }}
+                                    </h6>
                                 @elseif (Auth::user()->role->role_name == 'Admin')
-                                <h6 class="mb-0 caption-title fw-bold">
-                                    {{ Auth::user()->adminDetails->full_name ?? Auth::user()->name }}
-                                </h6>
+                                    <h6 class="mb-0 caption-title fw-bold">
+                                        {{ Auth::user()->adminDetails->full_name ?? Auth::user()->name }}
+                                    </h6>
                                 @elseif (Auth::user()->role->role_name == 'Manager')
-                                <h6 class="mb-0 caption-title fw-bold">
-                                    {{ Auth::user()->managerDetails->full_name ?? Auth::user()->name }}
-                                </h6>
+                                    <h6 class="mb-0 caption-title fw-bold">
+                                        {{ Auth::user()->managerDetails->full_name ?? Auth::user()->name }}
+                                    </h6>
                                 @else
-                                <h6 class="mb-0 caption-title fw-bold">
-                                    {{ Auth::user()->name }}
-                                </h6>
+                                    <h6 class="mb-0 caption-title fw-bold">
+                                        {{ Auth::user()->name }}
+                                    </h6>
                                 @endif
                                 {{-- BAGIAN NAMA & ROLE --}}
 
                                 {{-- Role Name Display --}}
                                 @if (Auth::user()->role->role_name == 'Resident')
-                                <p class="mb-0 caption-sub-title text-muted" style="font-size: 0.75rem;">
-                                    {{ Auth::user()->role->role_name }}
-                                    {{-- kalo penghuni rolenya penghuni, kalo admin rolenya admin, kalau penhelola rolenya pengelola --}}
-                                </p>
+                                    <p class="mb-0 caption-sub-title text-muted" style="font-size: 0.75rem;">
+                                        {{ Auth::user()->role->role_name }}
+                                        {{-- kalo penghuni rolenya penghuni, kalo admin rolenya admin, kalau penhelola rolenya pengelola --}}
+                                    </p>
                                 @elseif (Auth::user()->role->role_name == 'Admin')
-                                <p class="mb-0 caption-sub-title text-muted" style="font-size: 0.75rem;">
-                                    {{ Auth::user()->role->role_name }}
-                                </p>
+                                    <p class="mb-0 caption-sub-title text-muted" style="font-size: 0.75rem;">
+                                        {{ Auth::user()->role->role_name }}
+                                    </p>
                                 @elseif (Auth::user()->role->role_name == 'Manager')
-                                <p class="mb-0 caption-sub-title text-muted"
-                                    style="font-size:
+                                    <p class="mb-0 caption-sub-title text-muted"
+                                        style="font-size:
                                         0.75rem;">
-                                    {{ Auth::user()->role->role_name }}
-                                </p>
+                                        {{ Auth::user()->role->role_name }}
+                                    </p>
                                 @endif
                                 {{-- Role Name Display --}}
                             </div>

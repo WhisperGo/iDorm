@@ -10,16 +10,17 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class ResidentDetail extends Model
 {
     use SoftDeletes;
-    
+
     protected $guarded = ['id'];
 
     protected $fillable = [
-    'user_id', 
-    'full_name', 
-    'gender', 
-    'room_number', 
-    'class_name', 
-    'phone_number'
+        'user_id',
+        'full_name',
+        'gender',
+        'room_number',
+        'class_name',
+        'phone_number',
+        'photo_path'
     ];
 
     protected $dates = ['deleted_at'];
