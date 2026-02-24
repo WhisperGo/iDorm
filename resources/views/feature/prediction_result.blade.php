@@ -106,7 +106,7 @@
                                         <p class="text-muted mb-2 text-uppercase fw-bold"
                                             style="letter-spacing: 0.8px; font-size: 0.75rem;">
                                             Batas Bawah</p>
-                                        <h5 class="fw-bold mb-0 text-dark text-nowrap fs-6">Rp
+                                        <h5 class="fw-bold mb-0 text-dark fs-6 text-break">Rp
                                             {{ number_format($res['result']['fair_range']['min'], 0, ',', '.') }}</h5>
                                         <div class="position-absolute bottom-0 start-0 w-100 bg-info opacity-75"
                                             style="height: 6px;"></div>
@@ -128,7 +128,7 @@
                                         <p class="text-muted mb-2 text-uppercase fw-bold"
                                             style="letter-spacing: 0.8px; font-size: 0.75rem;">
                                             Budget Kamu</p>
-                                        <h5 class="fw-bold mb-0 text-dark text-nowrap fs-6">Rp
+                                        <h5 class="fw-bold mb-0 text-dark fs-6 text-break">Rp
                                             {{ number_format($res['result']['offered_price'], 0, ',', '.') }}</h5>
                                         <div class="position-absolute bottom-0 start-0 w-100 bg-secondary opacity-25"
                                             style="height: 6px;"></div>
@@ -150,7 +150,7 @@
                                         <p class="text-muted mb-2 text-uppercase fw-bold"
                                             style="letter-spacing: 0.8px; font-size: 0.75rem;">
                                             Batas Atas</p>
-                                        <h5 class="fw-bold mb-0 text-dark text-nowrap fs-6">Rp
+                                        <h5 class="fw-bold mb-0 text-dark fs-6 text-break">Rp
                                             {{ number_format($res['result']['fair_range']['max'], 0, ',', '.') }}</h5>
                                         <div class="position-absolute bottom-0 start-0 w-100 bg-warning opacity-75"
                                             style="height: 6px;"></div>
