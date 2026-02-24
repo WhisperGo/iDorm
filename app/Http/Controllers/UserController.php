@@ -93,6 +93,9 @@ class UserController extends Controller
             'password' => 'nullable|min:8|confirmed',
             'room_number' => 'nullable|string',
             'facility_id' => 'nullable|exists:facilities,id',
+        ], [
+            'password.confirmed' => 'Konfirmasi password tidak cocok dengan password baru.',
+            'password.min' => 'Password minimal harus terdiri dari 8 karakter.'
         ]);
 
         // 1. Update Password Jika diisi
@@ -103,6 +106,8 @@ class UserController extends Controller
 
         // 2. LOGIKA UPDATE DETAIL (Berdasarkan Role)
         $photoPath = null;
+        $removePhoto = $request->input('remove_photo') == '1';
+
         if ($request->hasFile('photo')) {
             $photoPath = $request->file('photo')->store('profiles', 'public');
         }
@@ -117,6 +122,8 @@ class UserController extends Controller
 
             if ($photoPath) {
                 $adminData['photo_path'] = $photoPath;
+            } elseif ($removePhoto) {
+                $adminData['photo_path'] = null;
             }
 
             // PENTING: Hanya update facility_id jika ada di request (mencegah error null saat input disabled)
@@ -140,6 +147,8 @@ class UserController extends Controller
 
             if ($photoPath) {
                 $residentData['photo_path'] = $photoPath;
+            } elseif ($removePhoto) {
+                $residentData['photo_path'] = null;
             }
 
             $user->residentDetails()->updateOrCreate(

@@ -55,7 +55,12 @@ class ProfileController extends Controller
         //     $rules['class_name'] = 'required|string|max:50';
         // }
 
-        $request->validate($rules);
+        $messages = [
+            'password.confirmed' => 'Konfirmasi password tidak cocok dengan password baru.',
+            'password.min' => 'Password minimal harus terdiri dari 8 karakter.'
+        ];
+
+        $request->validate($rules, $messages);
 
         // 2. Logika Update Password (Berlaku untuk SEMUA Role)
         if ($request->filled('password')) {
@@ -72,6 +77,8 @@ class ProfileController extends Controller
             if ($request->hasFile('photo')) {
                 $path = $request->file('photo')->store('profiles', 'public');
                 $data['photo_path'] = $path;
+            } elseif ($request->input('remove_photo') == '1') {
+                $data['photo_path'] = null;
             }
 
             // Simpan ke tabel yang sesuai
@@ -98,6 +105,9 @@ class ProfileController extends Controller
         if ($currentUser->hasRole(['resident', 'admin'])) {
             $request->validate([
                 'password' => 'nullable|min:8|confirmed',
+            ], [
+                'password.confirmed' => 'Konfirmasi password tidak cocok dengan password baru.',
+                'password.min' => 'Password minimal harus terdiri dari 8 karakter.'
             ]);
 
             if ($request->filled('password')) {

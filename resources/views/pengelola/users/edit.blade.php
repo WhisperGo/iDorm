@@ -46,6 +46,7 @@
                             @method('PUT')
                             {{-- Section Foto Profil --}}
                             <div class="text-center mb-4">
+                                <input type="hidden" name="remove_photo" id="remove_photo" value="0">
                                 <input type="file" name="photo" id="photo" accept="image/*">
                                 <p class="text-muted small mt-2">Klik atau seret foto untuk mengganti profil user</p>
                             </div>
@@ -153,6 +154,12 @@
             imagePreviewHeight: 150,
             stylePanelLayout: 'compact circle',
             storeAsFile: true,
+            onremovefile: (error, file) => {
+                document.getElementById('remove_photo').value = '1';
+            },
+            onaddfile: (error, file) => {
+                document.getElementById('remove_photo').value = '0';
+            },
 
             @if ($user->role_id == 2 && $user->adminDetails?->photo_path)
                 files: [{

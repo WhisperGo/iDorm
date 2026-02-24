@@ -41,12 +41,11 @@
 
 @section('content')
     @if ($errors->any())
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <ul class="mb-0">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+        <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
+            <i class="bi bi-exclamation-circle-fill me-2"></i>
+            <div>
+                {{ $errors->first() }}
+            </div>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
@@ -78,6 +77,7 @@
 
                             {{-- Section Foto Profil --}}
                             <div class="text-center mb-4">
+                                <input type="hidden" name="remove_photo" id="remove_photo" value="0">
                                 <input type="file" name="photo" id="photo" accept="image/*"
                                     {{ $isRestricted ? 'disabled' : '' }}>
                                 @if ($isRestricted)
@@ -106,40 +106,41 @@
                                     </div>
                                 </div>
 
-                                {{-- Email & Kamar selalu readonly untuk semua kecuali SuperAdmin --}}
                                 <div class="col-md-6 mb-3">
                                     <div class="form-group">
-                                        <label for="email" class="form-label">Card ID:</label>
-                                        <input type="text" id="email" class="form-control bg-light"
+                                        <label for="card_id" class="form-label">Card ID:</label>
+                                        <input type="text" id="card_id" class="form-control bg-light"
                                             value="{{ $user->card_id }}" readonly>
                                     </div>
                                 </div>
 
-                                <div class="col-md-6 mb-3">
-                                    <div class="form-group">
-                                        <label for="room_number" class="form-label">Nomor Kamar:</label>
-                                        <input type="text" id="room_number" class="form-control bg-light"
-                                            value="{{ $user->residentDetails?->room_number ?? 'N/A' }}" readonly>
+                                @if ($user->role->role_name !== 'Manager')
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-group">
+                                            <label for="room_number" class="form-label">Nomor Kamar:</label>
+                                            <input type="text" id="room_number" class="form-control bg-light"
+                                                value="{{ $user->residentDetails?->room_number ?? 'N/A' }}" readonly>
+                                        </div>
                                     </div>
-                                </div>
 
-                                {{-- Detail Tambahan - Readonly jika Restricted --}}
-                                <div class="col-md-6 mb-3">
-                                    <div class="form-group">
-                                        <label for="class_name" class="form-label">Kelas:</label>
-                                        <input type="text" id="class_name" name="class_name"
-                                            class="form-control {{ $isRestricted ? 'bg-light' : '' }}"
-                                            value="{{ old('class_name', $user->residentDetails?->class_name) }}"
-                                            {{ $isRestricted ? 'readonly' : '' }}>
+                                    {{-- Detail Tambahan - Readonly jika Restricted --}}
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-group">
+                                            <label for="class_name" class="form-label">Kelas:</label>
+                                            <input type="text" id="class_name" name="class_name"
+                                                class="form-control {{ $isRestricted ? 'bg-light' : '' }}"
+                                                value="{{ old('class_name', $user->residentDetails?->class_name) }}"
+                                                {{ $isRestricted ? 'readonly' : '' }}>
+                                        </div>
                                     </div>
-                                </div>
+                                @endif
 
                                 <div class="col-md-6 mb-4">
                                     <div class="form-group">
                                         <label for="phone_number" class="form-label">Nomor Telepon:</label>
                                         <div class="input-group">
                                             <span
-                                                class="input-group-text border-0 {{ $isRestricted ? 'bg-light' : '' }}">(+62)</span>
+                                                class="input-group-text border-1 {{ $isRestricted ? 'bg-light' : '' }}">(+62)</span>
                                             <input type="text" id="phone_number" name="phone_number"
                                                 class="form-control {{ $isRestricted ? 'bg-light' : '' }}"
                                                 value="{{ old('phone_number', $user->residentDetails?->phone_number ?? ($user->adminDetails?->phone_number ?? $user->managerDetails?->phone_number)) }}"
@@ -186,30 +187,30 @@
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <div class="form-group">
-                                        <label for="password" class="form-label text-danger">Password Baru:</label>
+                                        <label for="password" class="form-label">Password Baru:</label>
                                         <input type="password" name="password" id="password"
-                                            class="form-control border-danger border-opacity-25" onpaste="return false;"
-                                            oncopy="return false;" placeholder="Isi hanya jika ingin ganti">
-                                        @error('password')
+                                            class="form-control border-opacity-25" onpaste="return false;"
+                                            oncopy="return false;" placeholder="Masukkan password baru">
+                                        {{-- @error('password')
                                             <div class="invalid-feedback d-block">Password yang diberikan berbeda dengan
                                                 password yang di
                                                 konfirmasi</div>
-                                        @enderror
+                                        @enderror --}}
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <div class="form-group">
-                                        <label for="password_confirmation" class="form-label text-danger">Konfirmasi
+                                        <label for="password_confirmation" class="form-label">Konfirmasi
                                             Password:</label>
                                         <input type="password" name="password_confirmation" id="password_confirmation"
-                                            class="form-control border-danger border-opacity-25" onpaste="return false;"
-                                            oncopy="return false;" placeholder="Ketik ulang password">
+                                            class="form-control border-opacity-25" onpaste="return false;"
+                                            oncopy="return false;" placeholder="Ketik ulang password baru">
                                     </div>
                                 </div>
                             </div>
 
                             <div class="mt-4">
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
                                     Simpan Perubahan
                                 </button>
 
@@ -217,7 +218,7 @@
                                     <a href="{{ url('/') }}" class="btn btn-soft-danger ms-2">Kembali ke
                                         Beranda</a>
                                 @else
-                                    <a href="{{ url()->previous() }}" class="btn btn-soft-danger ms-2">Kembali</a>
+                                    <a href="{{ route('dashboard') }}" class="btn btn-soft-danger ms-2">Kembali</a>
                                 @endif
                             </div>
                         </form>
@@ -247,6 +248,15 @@
             disabled: {{ $isRestricted ? 'true' : 'false' }},
             allowBrowse: {{ $isRestricted ? 'false' : 'true' }},
             allowDrop: {{ $isRestricted ? 'false' : 'true' }},
+            onremovefile: (error, file) => {
+                document.getElementById('remove_photo').value = '1';
+                if (window.checkFormChanged) window.checkFormChanged();
+            },
+            onaddfile: (error, file) => {
+                document.getElementById('remove_photo').value = '0';
+                const btn = document.getElementById('submitBtn');
+                if (btn) btn.disabled = false;
+            },
 
             @if ($user->role_id == 2 && $user->adminDetails?->photo_path)
                 files: [{
@@ -261,6 +271,41 @@
                         source: "{{ asset('storage/' . $user->managerDetails->photo_path) }}"
                     }],
             @endif
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('.acc-edit form');
+            const submitBtn = document.getElementById('submitBtn');
+            const initialData = new FormData(form);
+
+            window.checkFormChanged = function() {
+                const currentData = new FormData(form);
+                let changed = false;
+
+                for (let [key, value] of currentData.entries()) {
+                    if (key === 'photo') continue; // FilePond ditangani terpisah
+                    if (key === 'password' || key === 'password_confirmation') {
+                        if (value.trim() !== '') {
+                            changed = true;
+                            break;
+                        }
+                        continue;
+                    }
+                    if (initialData.get(key) !== value) {
+                        changed = true;
+                        break;
+                    }
+                }
+
+                if (document.getElementById('remove_photo').value === '1') {
+                    changed = true;
+                }
+
+                submitBtn.disabled = !changed;
+            };
+
+            form.addEventListener('input', window.checkFormChanged);
+            form.addEventListener('change', window.checkFormChanged);
         });
     </script>
 @endpush

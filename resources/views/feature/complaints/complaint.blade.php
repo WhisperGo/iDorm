@@ -52,8 +52,8 @@
                                             @endif
                                         </td>
 
-                                        <td>
-                                            <small class="text-muted">{{ Str::limit($item->description, 50) }}</small>
+                                        <td style="max-width: 300px;" class="text-wrap text-break">
+                                            <small class="text-muted">{{ $item->description }}</small>
                                         </td>
                                         <td>
                                             <div>
@@ -64,8 +64,11 @@
                                         </td>
                                         <td>
                                             @if ($item->photo_path)
-                                                <img src="{{ asset('storage/' . $item->photo_path) }}" class="rounded"
-                                                    style="width: 50px; height: 50px; object-fit: cover;">
+                                                <img src="{{ asset('storage/' . $item->photo_path) }}"
+                                                    class="rounded shadow-sm"
+                                                    style="width: 50px; height: 50px; object-fit: cover; cursor: pointer;"
+                                                    data-bs-toggle="modal" data-bs-target="#photoModal"
+                                                    onclick="document.getElementById('modalImagePreview').src='{{ asset('storage/' . $item->photo_path) }}'">
                                             @else
                                                 <span class="text-muted small">No Photo</span>
                                             @endif
@@ -112,6 +115,22 @@
                             {{ $complaints->appends(request()->query())->links() }}
                         @endif
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal untuk Preview Foto -->
+    <div class="modal fade" id="photoModal" tabindex="-1" aria-labelledby="photoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="photoModalLabel"><i class="bi bi-image me-2 text-primary"></i>Detail Foto
+                        Keluhan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center p-0">
+                    <img id="modalImagePreview" src="" alt="Complaint Photo" class="img-fluid w-100 rounded-bottom">
                 </div>
             </div>
         </div>
