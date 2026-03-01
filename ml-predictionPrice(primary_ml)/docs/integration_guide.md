@@ -1,6 +1,6 @@
 # idorm-ml Laravel Integration Guide
 
-This guide is designed for the hybrid-cloud setup connecting Laravel (Azure) to FastAPI (Hugging Face / Internal Server). It outlines how to consume the model inference safely across different regions regardless of their exact feature requirements.
+This guide is designed for the hybrid-cloud setup connecting Laravel to FastAPI (Internal Server). It outlines how to consume the model inference safely across different regions regardless of their exact feature requirements.
 
 ## Universal JSON Payload
 
@@ -48,27 +48,16 @@ $predictedPrice = $response->json('predicted_price');
 
 ## MLflow Training Template
 
-The local physical versions map (`models/`) has been removed in favor of native MLflow operations.
+The local physical versions map (`models/`) has been removed in favor of native MLflow operations via a MySQL backend.
 
 To train a new model or region:
-1. Run your regular Scikit-Learn training pipelines in Jupyter Notebook.
-2. Ensure you import the updated `train_and_log_model` from `mlflow_training/utils.py`.
-3. Use the updated cell function replacing `joblib.dump`:
+1. Run your regular Scikit-Learn training pipelines in Jupyter Notebook to experiment and find the best Hyperparameters.
+2. Open `scripts/retrain_all.py` and input your exact new Hyperparameters into the `REGION_CONFIGS` dictionary.
+3. Stop your backend (`docker-compose down`) and restart the entire system with `gas.bat` (or `docker-compose up --build`).
 
-```python
-from utils import train_and_log_model
+The startup sequence will automatically:
+1. Connect to the MLflow MySQL database.
+2. Train your models on the exact preset parameters.
+3. Register the trained models directly into the `mlflow_db` and tag them with `@production`.
 
-# Let MLflow calculate the required columns dynamically based on your trained DataFrame
-# and register the model straight to the "production" alias in the local registry
-model_uri = train_and_log_model(
-    region="jakarta_pusat",
-    model=final_model,
-    X_train=X_train,
-    y_pred=y_pred,
-    metrics={"MAE": final_mae, "R2": final_r2, "RMSE": final_rmse, "MAPE": final_mape}
-)
-
-print(f"Model saved to registry successfully at: {model_uri}")
-```
-
-Your FastAPI app will dynamically load whatever is tagged `@production` for that region in the registry without requiring a rebuild!
+Your FastAPI app will dynamically load whatever is tagged `@production` for that region in the registry upon startup. Ensure the FastAPI container is restarted if you tag a new model in production via the MLflow UI (`http://localhost:5000`).
