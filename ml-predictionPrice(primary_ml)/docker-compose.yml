@@ -13,6 +13,18 @@ services:
       timeout: 5s
       retries: 10
 
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: idorm_phpmyadmin
+    environment:
+      PMA_HOST: idorm_db_ml
+      PMA_USER: root
+      PMA_PASSWORD: password
+    ports:
+      - "8081:80"
+    depends_on:
+      - db_ml
+
   mlflow:
     build: .
     container_name: idorm_mlflow
