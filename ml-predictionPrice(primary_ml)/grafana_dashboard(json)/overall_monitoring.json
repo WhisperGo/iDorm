@@ -1,0 +1,78 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "title": "Quick Overview (Total Requests vs Errors)",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 0 },
+      "targets": [
+        { "expr": "sum(prediction_requests_total)", "legendFormat": "Requests" },
+        { "expr": "sum(prediction_errors_total)", "legendFormat": "Errors" }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "System Latency P95 (Real-time Experience)",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 8, "x": 8, "y": 0 },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, sum by (le) (rate(prediction_latency_seconds_bucket[5m])))" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "s", "mappings": [], "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 0.5 }, { "color": "red", "value": 1.5 }] } }
+      }
+    },
+    {
+      "title": "Model Load Status per Region",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 8, "x": 16, "y": 0 },
+      "targets": [
+        { "expr": "model_load_status", "legendFormat": "{{region}}" }
+      ],
+      "options": { "colorMode": "background", "graphMode": "none", "textMode": "name" },
+      "fieldConfig": {
+        "defaults": { "mappings": [{ "options": { "0": { "color": "red", "text": "DOWN" }, "1": { "color": "green", "text": "READY" } }, "type": "value" }] }
+      }
+    },
+    {
+      "title": "Throughput by Region (Requests/sec)",
+      "type": "timeseries",
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 6 },
+      "targets": [
+        { "expr": "sum by (region) (rate(prediction_requests_total[1m]))", "legendFormat": "{{region}}" }
+      ],
+      "options": { "legend": { "displayMode": "table", "placement": "right" } }
+    },
+    {
+      "title": "Prediction Value Distribution (Monitoring Drift)",
+      "type": "histogram",
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 15 },
+      "targets": [
+        { "expr": "prediction_value_summary_sum / prediction_value_summary_count", "legendFormat": "Average Predicted Price" }
+      ]
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["iDorm", "MLOps", "PPTI-BCA"],
+  "time": { "from": "now-30m", "to": "now" },
+  "title": "iDorm MLOps Final Dashboard",
+  "uid": "idorm_pro_v1"
+}

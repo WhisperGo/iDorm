@@ -1,0 +1,93 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "title": "Mean Latency per Region",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 0 },
+      "targets": [
+        { "expr": "(sum by (region) (rate(prediction_latency_seconds_sum[1m])) / sum by (region) (rate(prediction_latency_seconds_count[1m]))) * 1000", "legendFormat": "{{region}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ms", "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 200 }, { "color": "red", "value": 500 }] } } }
+    },
+    {
+      "title": "Median Latency (P50) per Region",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 0 },
+      "targets": [
+        { "expr": "histogram_quantile(0.50, sum by (le, region) (rate(prediction_latency_seconds_bucket[1m]))) * 1000", "legendFormat": "{{region}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ms", "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 200 }, { "color": "red", "value": 500 }] } } }
+    },
+    {
+      "title": "Tail Latency (P90) per Region",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 0 },
+      "targets": [
+        { "expr": "histogram_quantile(0.90, sum by (le, region) (rate(prediction_latency_seconds_bucket[1m]))) * 1000", "legendFormat": "{{region}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ms", "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 300 }, { "color": "red", "value": 800 }] } } }
+    },
+    {
+      "title": "Worst Latency (P95) per Region",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 0 },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, sum by (le, region) (rate(prediction_latency_seconds_bucket[1m]))) * 1000", "legendFormat": "{{region}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ms", "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 400 }, { "color": "red", "value": 1000 }] } } }
+    },
+    {
+      "title": "Mean Latency Trend by Region",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 5 },
+      "targets": [
+        { "expr": "(sum by (region) (rate(prediction_latency_seconds_sum[1m])) / sum by (region) (rate(prediction_latency_seconds_count[1m]))) * 1000", "legendFormat": "{{region}} Mean" }
+      ],
+      "options": { "legend": { "displayMode": "table", "placement": "bottom" } },
+      "fieldConfig": { "defaults": { "unit": "ms" } }
+    },
+    {
+      "title": "P50 Latency Trend by Region",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 5 },
+      "targets": [
+        { "expr": "histogram_quantile(0.50, sum by (le, region) (rate(prediction_latency_seconds_bucket[1m]))) * 1000", "legendFormat": "{{region}} P50" }
+      ],
+      "options": { "legend": { "displayMode": "table", "placement": "bottom" } },
+      "fieldConfig": { "defaults": { "unit": "ms" } }
+    },
+    {
+      "title": "P90 Latency Trend by Region",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 13 },
+      "targets": [
+        { "expr": "histogram_quantile(0.90, sum by (le, region) (rate(prediction_latency_seconds_bucket[1m]))) * 1000", "legendFormat": "{{region}} P90" }
+      ],
+      "options": { "legend": { "displayMode": "table", "placement": "bottom" } },
+      "fieldConfig": { "defaults": { "unit": "ms" } }
+    },
+    {
+      "title": "P95 Latency Trend by Region",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 13 },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, sum by (le, region) (rate(prediction_latency_seconds_bucket[1m]))) * 1000", "legendFormat": "{{region}} P95" }
+      ],
+      "options": { "legend": { "displayMode": "table", "placement": "bottom" } },
+      "fieldConfig": { "defaults": { "unit": "ms" } }
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["iDorm", "MLOps", "Latency"],
+  "time": { "from": "now-1m", "to": "now" },
+  "title": "iDorm MLOps - Regional Latency Monitoring",
+  "uid": "idorm_regional_latency"
+}
