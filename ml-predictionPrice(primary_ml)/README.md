@@ -1,209 +1,116 @@
-# 🏠 Kos Price Prediction API
+# 🏠 iDorm MLOps Prediction Service
 
-> **MLOps-powered API** for predicting boarding house (kos) rental prices across Indonesian regions, with full model lifecycle management, observability, and production governance.
+> **Enterprise-grade MLOps Prediction API** for predicting boarding house (kos) rental prices across Indonesian regions. This service features fully containerized model training, MLflow model registry, and a FastAPI serving layer with Prometheus observability.
 
 ---
 
 ## 📋 Table of Contents
-
 - [Overview](#overview)
 - [Architecture](#architecture)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-- [API Documentation](#api-documentation)
+- [Getting Started (For Evaluators)](#getting-started-for-evaluators)
+- [Integration Guide (For Main Web App)](#integration-guide-for-main-web-app)
 - [MLflow Model Lifecycle](#mlflow-model-lifecycle)
 - [Observability Stack](#observability-stack)
-- [Training Pipeline](#training-pipeline)
-- [Semantic Versioning](#semantic-versioning)
-- [Production Governance](#production-governance)
 
 ---
 
 ## Overview
 
-This system predicts fair monthly rental prices for **kos** (Indonesian boarding houses) based on room attributes such as size, amenities, location proximity, and kos type. It supports **4 regional models**:
+This microservice predicts fair monthly rental prices for **kos** based on room attributes. It supports **4 independent regional models**:
+- `jakarta_pusat` (Random Forest)
+- `jakarta_selatan` (Random Forest)
+- `jakarta_utara` (Linear Regression)
+- `yogyakarta` (Random Forest)
 
-| Region | Description |
-|--------|-------------|
-| `jakarta_pusat` | Central Jakarta |
-| `jakarta_selatan` | South Jakarta |
-| `jakarta_utara` | North Jakarta |
-| `yogyakarta` | Yogyakarta |
-
-Each region has its own independently trained and versioned ML model, served through a unified FastAPI endpoint.
+The entire ML lifecycle—from model training and registration to serving and monitoring—is entirely automated and encapsulated within Docker. **No local Python environment or dependencies are required.**
 
 ---
 
 ## Architecture
 
-```
+```text
 ┌─────────────────────────────────────────────────────────┐
-│                    CLIENT (Laravel / Postman)            │
-│                POST /predict/{region}                    │
+│                    CLIENT (Main Web App)                │
+│                POST /predict/{region}                   │
 └──────────────────────┬──────────────────────────────────┘
                        │
                        ▼
 ┌──────────────────────────────────────────────────────────┐
-│                  FastAPI Application                     │
-│  ┌──────────┐  ┌────────────┐  ┌─────────────────────┐  │
-│  │  Router  │→ │  Schema    │→ │  Smart Feature      │  │
-│  │ /predict │  │ Validation │  │  Alignment Engine   │  │
-│  └──────────┘  └────────────┘  └──────────┬──────────┘  │
-│                                           │              │
-│  ┌────────────────────────────────────────▼───────────┐  │
-│  │          ModelProvider (Singleton)                  │  │
-│  │  jakarta_pusat  │ jakarta_selatan │ jakarta_utara  │  │
-│  │                 │   yogyakarta    │                │  │
-│  └────────────────────────┬──────────────────────────┘  │
-│                           │                              │
-│  ┌────────────────────────▼──────────────────────────┐  │
-│  │  Prometheus Metrics  │  Structured JSON Logging   │  │
-│  └───────────────────────────────────────────────────┘  │
+│                  FastAPI Service                         │
+│  Loads models tagged with '@production' alias from MLflow│
+├──────────────────────────────────────────────────────────┤
+│  Prometheus Metrics  │  JSON Logging  │ Health Endpoints │
 └──────────────────────┬───────────────────────────────────┘
                        │
-          ┌────────────┴──────────────┐
-          ▼                           ▼
+           ┌───────────┴──────────────┐
+           ▼                          ▼
 ┌──────────────────┐      ┌────────────────────┐
-│  MLflow Registry │      │  Docker Compose     │
-│  notebooks/      │      │  ┌──────────────┐   │
-│  ├── mlflow.db   │      │  │  Prometheus  │   │
-│  └── mlruns/     │      │  │  :9090       │   │
-│                  │      │  └──────┬───────┘   │
-│  @production     │      │  ┌──────▼───────┐   │
-│  alias per model │      │  │   Grafana    │   │
-└──────────────────┘      │  │   :3001      │   │
-                          │  └──────────────┘   │
+│  MLflow Registry │      │  Monitoring Layer  │
+│  (MySQL backend) │      │  ┌──────────────┐  │
+│                  │      │  │  Prometheus  │  │
+│  @production     │      │  └──────┬───────┘  │
+│  alias per model │      │  ┌──────▼───────┐  │
+└──────────────────┘      │  │   Grafana    │  │
+                          │  └──────────────┘  │
                           └────────────────────┘
 ```
 
----
-
-## Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| **API Framework** | FastAPI + Uvicorn |
-| **ML Models** | Scikit-learn (RandomForest, GradientBoosting, Ridge) |
-| **Model Registry** | MLflow (SQLite backend) |
-| **Validation** | Pydantic v2 |
-| **Monitoring** | Prometheus + Grafana (Docker) |
-| **Logging** | Structured JSON (python-json-logger) |
-| **Data Processing** | Pandas, NumPy |
+The system uses dedicated ports to prevent any conflicts with your main web application:
+- `3307`: ML MySQL Database (`mlflow_db`)
+- `5000`: MLflow Tracking Server UI
+- `8002`: FastAPI Prediction Server
+- `9092`: Prometheus
+- `3002`: Grafana
 
 ---
 
-## Project Structure
+## Getting Started (For Evaluators)
 
-```
-Kos Estimation Project/
-├── app/                          # FastAPI application
-│   ├── main.py                   # App entrypoint, exception handlers
-│   ├── router.py                 # Prediction & monitoring endpoints
-│   ├── schema.py                 # Pydantic request/response models
-│   ├── model_loader.py           # MLflow model loading (singleton)
-│   ├── metrics.py                # Prometheus metric definitions
-│   ├── middleware.py              # Request ID & latency middleware
-│   ├── logging_config.py         # JSON logging setup
-│   └── prometheus_metrics.py     # Additional Prometheus metrics
-│
-├── notebooks/                    # Training notebooks & MLflow data
-│   ├── jakarta_pusat.ipynb       # Training notebook - Jakarta Pusat
-│   ├── jakarta_selatan.ipynb     # Training notebook - Jakarta Selatan
-│   ├── jakarta_utara.ipynb       # Training notebook - Jakarta Utara
-│   ├── yogyakarta.ipynb          # Training notebook - Yogyakarta
-│   ├── mlflow.db                 # MLflow tracking database
-│   └── mlruns/                   # MLflow model artifacts
-│
-├── datasets/                     # Raw CSV datasets per region
-│   ├── jakarta_pusat.csv
-│   ├── jakarta_selatan.csv
-│   ├── jakarta_utara.csv
-│   └── yogyakarta.csv
-│
-├── src/training/
-│   └── utils.py                  # MLflow train & register utility
-│
-├── scripts/                      # Helper & test scripts
-│   ├── retrain_all.py            # Retrain all models (CLI)
-│   ├── test_model.py             # API prediction test
-│   └── test_all_endpoints.py     # Full endpoint verification
-│
-├── docs/                         # Documentation
-│   ├── integration_guide.md      # Laravel integration guide
-│   └── production_governance.md  # Governance framework
-│
-├── logs/                         # Runtime logs
-│   ├── inference.log             # Inference event logs
-│   └── error.log                 # Error logs
-│
-├── docker-compose.yml            # Prometheus + Grafana
-├── prometheus.yml                # Prometheus scrape config
-└── requirements.txt              # Python dependencies
-```
-
----
-
-## Getting Started
+This project has been engineered to be **100% plug-and-play**. You do not need Python, Jupyter, or any ML libraries installed on your host machine.
 
 ### Prerequisites
+- **Docker Desktop** must be running.
 
-- **Python** 3.10+
-- **Docker Desktop** (for monitoring stack)
-- **pip** package manager
+### 1. Launch the Environment
+Open your terminal in this repository folder and execute:
 
-### 1. Install Dependencies
-
-```bash
-pip install -r requirements.txt
-pip install watchfiles   # Required for --reload to work properly
+**Windows:**
+```bat
+gas.bat
 ```
 
-### 2. Start the API Server
+**What happens automatically:**
+1. Spins up the `mlflow_db` MySQL container.
+2. Spins up the `mlflow` server.
+3. Spins up the `retrain` container which:
+   - Reads the raw CSV datasets.
+   - Cleans data and executes the feature engineering pipeline.
+   - Trains all 4 regional models mathematically perfectly.
+   - Registers them into MLflow and tags them as `@production`.
+   - Safely exits.
+4. Spins up the `fastapi_app` container, which waits for the models to be ready, loads them into high-speed memory, and begins listening for requests.
+5. Spins up `prometheus` and `grafana`.
 
-```bash
-uvicorn app.main:app --reload --port 8000
-```
+### 2. Verify the Deployment
+Once `gas.bat` finishes and you see `Uvicorn running on http://0.0.0.0:8000` in the terminal logs:
 
-> **Important:** The `watchfiles` package must be installed for `--reload` to work correctly. Without it, the file watcher monitors all files (including logs and DB) causing restart loops.
-
-### 3. Start Monitoring Stack (Optional)
-
-```bash
-docker compose up -d
-```
-
-| Service | URL | Credentials |
-|---------|-----|-------------|
-| **API** | http://localhost:8000 | — |
-| **Prometheus** | http://localhost:9090 | — |
-| **Grafana** | http://localhost:3001 | admin / admin |
-
-### 4. Verify Installation
-
-```bash
-python scripts/test_model.py
-```
-
-Expected output:
-```
-Testing API Endpoints...
-
-jakarta_utara: Rp 2,374,581 (Status: 200)
-jakarta_pusat: Rp 2,920,512 (Status: 200)
-jakarta_selatan: Rp 2,909,030 (Status: 200)
-yogyakarta: Rp 1,813,426 (Status: 200)
-```
+1. **Verify API Health:** [http://localhost:8002/healthy](http://localhost:8002/healthy) 
+   *(Should return status "healthy" and list all 4 regions)*
+2. **Explore MLflow Registry:** [http://localhost:5000](http://localhost:5000)
+   *(Navigate to "Models" to see the registered versions and parameters)*
+3. **View API Documentation:** [http://localhost:8002/docs](http://localhost:8002/docs)
+   *(Interactive Swagger UI where you can test predictions directly)*
 
 ---
 
-## API Documentation
+## Integration Guide (For Main Web App)
 
-### `POST /predict/{region}`
+To integrate this ML service into your main web application (e.g., Laravel, Node.js), simply make a `POST` request to the FastAPI container running on port `8002`.
 
-Predict kos rental price for a given region.
+**Endpoint:** `POST http://localhost:8002/predict/{region}`
+*(Valid regions: `jakarta_pusat`, `jakarta_selatan`, `jakarta_utara`, `yogyakarta`)*
 
-**Request Body:**
+**Example Payload:**
 ```json
 {
   "luas_kamar": 15.0,
@@ -218,258 +125,207 @@ Predict kos rental price for a given region.
 }
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `luas_kamar` | float | Room size in m² (0–100) |
-| `jarak_ke_bca` | float | Distance to nearest BCA in km (0–50) |
-| `tipe_kos` | string | `putra`, `putri`, or `campur` |
-| `is_km_dalam` | 0/1 | Has private bathroom |
-| `is_water_heater` | 0/1 | Has water heater |
-| `is_furnished` | 0/1 | Is furnished |
-| `is_listrik_free` | 0/1 | Free electricity |
-| `is_parkir_mobil` | 0/1 | Has car parking |
-| `is_mesin_cuci` | 0/1 | Has washing machine |
-
-**Response:**
+**Example Response:**
 ```json
 {
   "region": "jakarta_pusat",
   "predicted_price": 2920511.76,
-  "model_version": "v1.0.0"
+  "model_version": "1"
 }
 ```
-
-### `GET /health`
-
-Health check with loaded model status.
-
-```json
-{
-  "status": "healthy",
-  "models_loaded": ["jakarta_pusat", "jakarta_selatan", "jakarta_utara", "yogyakarta"]
-}
-```
-
-### `GET /model-info/{region}`
-
-Returns model version, metadata, and signature.
-
-### `GET /prediction-monitor/{region}`
-
-Rolling prediction statistics (mean, p50, p90, p95, min, max).
-
-### `GET /anomaly-monitor/{region}`
-
-Anomaly detection results.
-
-### `GET /internal-metrics`
-
-Internal latency percentiles and error counts.
-
-### `GET /metrics`
-
-Prometheus-compatible metrics endpoint (auto-instrumented).
 
 ---
 
 ## MLflow Model Lifecycle
 
-Models are managed through **MLflow Model Registry** with a local SQLite backend.
+This project utilizes **MLflow** for robust lifecycle governance:
+1. Every time `gas.bat` is run, the script `scripts/retrain_all.py` executes inside an isolated container.
+2. It trains the models using the exact parameters determined in the experimental phase. 
+3. The newly trained models are uploaded into the MLflow MySQL database and attached with the `@production` alias.
+4. The FastAPI application queries MLflow exclusively for the `@production` alias, ensuring it always loads the correct version.
 
-### How It Works
-
-1. **Training** → Jupyter notebooks in `notebooks/` train regional models
-2. **Registration** → `train_and_register()` logs the model to MLflow with signature & metrics
-3. **Alias** → The `@production` alias is automatically set on the new version
-4. **Serving** → FastAPI loads whatever version has the `@production` alias
-
-### Model Registry Commands
-
-```python
-# Check registered models
-from mlflow.tracking import MlflowClient
-client = MlflowClient()
-print([m.name for m in client.search_registered_models()])
-
-# Check production alias
-client.get_model_version_by_alias("jakarta_pusat_model", "production")
-```
-
-### Retrain All Models
-
-```bash
-python scripts/retrain_all.py
-```
-
-This retrains all 4 regional models with the current scikit-learn version and re-registers them in MLflow.
+*Note: `gas.bat` runs `docker-compose down -v` first. This purposefully wipes the Docker Volumes to guarantee a completely fresh, deterministic training run starting from Version 1 every single time it is evaluated.*
 
 ---
 
 ## Observability Stack
 
-### Prometheus Metrics
+The FastAPI service exposes Prometheus metrics which are automatically scraped and can be visualized in Grafana. 
 
-| Metric | Type | Description |
-|--------|------|-------------|
-| `prediction_requests_total` | Counter | Total requests per region |
-| `prediction_errors_total` | Counter | Total errors per region |
-| `prediction_latency_seconds` | Histogram | Request latency per region |
-| `latest_prediction_value` | Gauge | Most recent prediction |
-| `model_load_status` | Gauge | Model load status (1=ok, 0=fail) |
-| `prediction_value_summary` | Summary | Prediction distribution for drift detection |
+### Accessing Grafana
+1. Open [http://localhost:3002](http://localhost:3002) in your browser.
+2. Login with `admin` / `admin`.
+3. Add a **Prometheus** Data Source.
+4. When prompted for the connection URL, enter: `http://prometheus:9090` *(Grafana resolves the internal Docker network name).*
 
-### Grafana Setup
-
-1. Open Grafana at http://localhost:3001
-2. Add data source → **Prometheus** → URL: `http://prometheus:9090`
-3. Create dashboards using the metrics above
-
-### Structured Logging
-
-All logs are JSON-formatted with request tracing:
-```json
+Recomended JSON for GRAFANA (by developer):
+OVERALL MONITORING:
 {
-  "asctime": "2026-02-22 00:14:20",
-  "levelname": "INFO",
-  "name": "inference",
-  "message": "inference_event",
-  "region": "yogyakarta",
-  "model_version": "v1.0.0",
-  "request_id": "99f25a6d-...",
-  "latency_sec": 0.102
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "title": "Quick Overview (Total Requests vs Errors)",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 0 },
+      "targets": [
+        { "expr": "sum(prediction_requests_total)", "legendFormat": "Requests" },
+        { "expr": "sum(prediction_errors_total)", "legendFormat": "Errors" }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "System Latency P95 (Real-time Experience)",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 8, "x": 8, "y": 0 },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, sum by (le) (rate(prediction_latency_seconds_bucket[5m])))" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "s", "mappings": [], "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 0.5 }, { "color": "red", "value": 1.5 }] } }
+      }
+    },
+    {
+      "title": "Model Load Status per Region",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 8, "x": 16, "y": 0 },
+      "targets": [
+        { "expr": "model_load_status", "legendFormat": "{{region}}" }
+      ],
+      "options": { "colorMode": "background", "graphMode": "none", "textMode": "name" },
+      "fieldConfig": {
+        "defaults": { "mappings": [{ "options": { "0": { "color": "red", "text": "DOWN" }, "1": { "color": "green", "text": "READY" } }, "type": "value" }] }
+      }
+    },
+    {
+      "title": "Throughput by Region (Requests/sec)",
+      "type": "timeseries",
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 6 },
+      "targets": [
+        { "expr": "sum by (region) (rate(prediction_requests_total[1m]))", "legendFormat": "{{region}}" }
+      ],
+      "options": { "legend": { "displayMode": "table", "placement": "right" } }
+    },
+    {
+      "title": "Prediction Value Distribution (Monitoring Drift)",
+      "type": "histogram",
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 15 },
+      "targets": [
+        { "expr": "prediction_value_summary_sum / prediction_value_summary_count", "legendFormat": "Average Predicted Price" }
+      ]
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["iDorm", "MLOps", "PPTI-BCA"],
+  "time": { "from": "now-30m", "to": "now" },
+  "title": "iDorm MLOps Final Dashboard",
+  "uid": "idorm_pro_v1"
 }
-```
 
----
+LATENCY FOCUS MONITORING:
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "title": "Total Requests vs Errors",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
+      "targets": [
+        { "expr": "sum(prediction_requests_total)", "legendFormat": "Req" },
+        { "expr": "sum(prediction_errors_total)", "legendFormat": "Err" }
+      ],
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] } }
+      }
+    },
+    {
+      "title": "Median Latency (P50)",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 0 },
+      "targets": [
+        { "expr": "histogram_quantile(0.50, sum by (le) (rate(prediction_latency_seconds_bucket[5m])))" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "s", "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 0.2 }, { "color": "red", "value": 0.5 }] } }
+      }
+    },
+    {
+      "title": "Tail Latency (P90)",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 0 },
+      "targets": [
+        { "expr": "histogram_quantile(0.90, sum by (le) (rate(prediction_latency_seconds_bucket[5m])))" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "s", "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 0.5 }, { "color": "red", "value": 1.0 }] } }
+      }
+    },
+    {
+      "title": "Worst Latency (P95)",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 0 },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, sum by (le) (rate(prediction_latency_seconds_bucket[5m])))" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "s", "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 0.8 }, { "color": "red", "value": 1.5 }] } }
+      }
+    },
+    {
+      "title": "Latency Percentiles Trend",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 6 },
+      "targets": [
+        { "expr": "histogram_quantile(0.50, sum by (le) (rate(prediction_latency_seconds_bucket[5m])))", "legendFormat": "P50 (Median)" },
+        { "expr": "histogram_quantile(0.90, sum by (le) (rate(prediction_latency_seconds_bucket[5m])))", "legendFormat": "P90" },
+        { "expr": "histogram_quantile(0.95, sum by (le) (rate(prediction_latency_seconds_bucket[5m])))", "legendFormat": "P95" }
+      ],
+      "options": { "legend": { "displayMode": "table", "placement": "right" } },
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    },
+    {
+      "title": "Model Status",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 24, "x": 0, "y": 14 },
+      "targets": [ { "expr": "model_load_status", "legendFormat": "{{region}}" } ],
+      "options": { "colorMode": "background", "textMode": "name" },
+      "fieldConfig": {
+        "defaults": { "mappings": [{ "options": { "0": { "color": "red", "text": "DOWN" }, "1": { "color": "green", "text": "READY" } }, "type": "value" }] }
+      }
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["iDorm", "MLOps", "Binus"],
+  "time": { "from": "now-15m", "to": "now" },
+  "title": "iDorm MLOps Final - Multi-Percentile",
+  "uid": "idorm_multi_p"
+}
 
-## Training Pipeline
-
-Each notebook follows this standardized pipeline:
-
-```
-Raw CSV Data
-    │
-    ▼
-Data Loading & EDA
-    │  └── Shape validation, data quality checks
-    ▼
-Outlier Handling
-    │  └── IQR analysis, 99th percentile capping
-    ▼
-Feature Engineering
-    │  ├── amenities_count (sum of 6 binary features)
-    │  └── luas_kamar clipping
-    ▼
-Feature Selection
-    │  └── Correlation analysis, drop non-informative features
-    ▼
-Stratified Train/Test Split
-    │  └── Best seed search across 8 candidates
-    ▼
-Preprocessing (ColumnTransformer)
-    │  ├── RobustScaler → continuous features
-    │  ├── Passthrough → binary features
-    │  └── OneHotEncoder → categorical (tipe_kos)
-    ▼
-Model Training & Tuning
-    │  ├── Random Forest (RandomizedSearchCV)
-    │  ├── Gradient Boosting (RandomizedSearchCV)
-    │  └── Overfitting guard (gap threshold)
-    ▼
-Model Selection & Evaluation
-    │  └── R², MAE, RMSE, MAPE
-    ▼
-MLflow Registration
-    └── train_and_register() → @production alias
-```
-
-### Dataset Schema
-
-| Column | Type | Description |
-|--------|------|-------------|
-| `nama_kos` | string | Kos name (dropped before training) |
-| `harga` | int | Monthly price in Rupiah (target) |
-| `luas_kamar` | float | Room size (m²) |
-| `jarak_ke_bca` | float | Distance to BCA (km) |
-| `tipe_kos` | string | putra / putri / campur |
-| `is_ac` | 0/1 | Has AC (typically dropped — zero variance) |
-| `is_km_dalam` | 0/1 | Private bathroom |
-| `is_water_heater` | 0/1 | Water heater |
-| `is_furnished` | 0/1 | Furnished |
-| `is_internet` | 0/1 | Internet (typically dropped — zero variance) |
-| `is_listrik_free` | 0/1 | Free electricity |
-| `is_parkir_mobil` | 0/1 | Car parking |
-| `is_mesin_cuci` | 0/1 | Washing machine |
-
----
-
-## Semantic Versioning
-
-Models follow **semantic versioning** (`vMAJOR.MINOR.PATCH`):
-
-| Bump | When | Example |
-|------|------|---------|
-| **MAJOR** | Model architecture change | `v1.0.0 → v2.0.0` |
-| **MINOR** | Performance improvement | `v1.0.0 → v1.1.0` |
-| **PATCH** | Bug fix / preprocessing tweak | `v1.0.0 → v1.0.1` |
-
-### Usage in Training
-
-```python
-from utils import train_and_register
-
-model_uri = train_and_register(
-    region="jakarta_pusat",
-    model=final_model,
-    X_train=X_train, y_train=y_train,
-    X_test=X_test, y_test=y_test,
-    params={"model_type": "RandomForestRegressor"},
-    metrics={"MAE": mae, "R2": r2, "RMSE": rmse, "MAPE": mape},
-    bump="minor"  # "major", "minor", or "patch"
-)
-```
-
-The semantic version is stored as a tag on the MLflow model version and displayed in API responses.
-
----
-
-## Production Governance
-
-See [`docs/production_governance.md`](docs/production_governance.md) for the full governance framework covering:
-
-- Model ownership & responsibilities
-- Version increment rules
-- Metadata governance & validation
-- Manual promotion strategy
-- Monitoring & observability layers
-- Rollback strategy
-- Retraining policy
-- Security considerations
-
----
-
-## Laravel Integration
-
-See [`docs/integration_guide.md`](docs/integration_guide.md) for connecting this API to a Laravel backend. Key points:
-
-- **Send everything** — the API auto-filters features per model signature
-- **Region-agnostic** — same payload structure for all regions
-- **Zero config** — no feature mapping needed on Laravel side
-
-```php
-$response = Http::post(env('FASTAPI_MODEL_URL') . "/predict/{$kos->region}", [
-    'luas_kamar' => $kos->room_size,
-    'jarak_ke_bca' => $kos->bca_distance ?? 0.0,
-    'tipe_kos' => $kos->type,
-    'is_km_dalam' => $kos->has_internal_bathroom ? 1 : 0,
-    // ... other fields
-]);
-
-$predictedPrice = $response->json('predicted_price');
-```
-
----
-
-## License
-
-This project is developed for academic purposes at Bina Nusantara University.
+### Internal Endpoints
+The FastAPI server also exposes these internal status endpoints:
+- `GET /internal-metrics`: Returns latency percentiles (mean, p50, p90, p95) and error counts.
+- `GET /model-info/{region}`: Details the currently loaded MLflow Run ID and version.

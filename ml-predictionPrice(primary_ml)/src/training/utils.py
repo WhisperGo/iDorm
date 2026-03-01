@@ -3,9 +3,7 @@ from mlflow.models.signature import infer_signature
 from mlflow.tracking import MlflowClient
 import os
 
-_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-_MLFLOW_DB = os.path.join(_PROJECT_ROOT, "notebooks", "mlflow.db")
-_MLFLOW_URI = "sqlite:///" + _MLFLOW_DB.replace("\\", "/")
+_MLFLOW_URI = os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000")
 
 
 def _get_current_semver(client, model_name):
@@ -53,7 +51,7 @@ def train_and_register(region, model, X_train, y_train, X_test, y_test, params, 
       - patch: bug fix or preprocessing adjustment
     """
     mlflow.set_tracking_uri(_MLFLOW_URI)
-    model_name = f"{region}_model"
+    model_name = region
 
     client = MlflowClient()
 

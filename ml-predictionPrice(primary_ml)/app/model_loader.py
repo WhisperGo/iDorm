@@ -1,34 +1,16 @@
 import mlflow.pyfunc
+from mlflow.tracking import MlflowClient
 import threading
 import logging
 import os
-from pathlib import Path
-from mlflow.tracking import MlflowClient
 
 logger = logging.getLogger("inference")
-
-_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_MLFLOW_DB = os.path.join(_PROJECT_ROOT, "notebooks", "mlflow.db")
-_MLFLOW_URI = "sqlite:///" + _MLFLOW_DB.replace("\\", "/")
-mlflow.set_tracking_uri(_MLFLOW_URI)
-
-# Auto-upgrade MLflow DB schema on import to prevent version mismatch errors.
-# Uses a short timeout so concurrent processes don't block each other.
-try:
-    from mlflow.store.db.utils import _upgrade_db
-    from sqlalchemy import create_engine
-    engine = create_engine(_MLFLOW_URI, connect_args={"timeout": 5})
-    _upgrade_db(engine)
-    engine.dispose()
-except Exception as _e:
-    print(f"[model_loader] MLflow DB auto-upgrade skipped: {_e}")
-
 
 class ModelProvider:
     _instance = None
     _lock = threading.Lock()
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls):
         with cls._lock:
             if cls._instance is None:
                 cls._instance = super(ModelProvider, cls).__new__(cls)
@@ -36,62 +18,67 @@ class ModelProvider:
         return cls._instance
 
     def __init__(self):
-        if self._initialized:
-            return
-        self.models = {}
+        if self._initialized: return
+        self.models = {}  # Struktur: {"region": {"model": obj, "version": "1", "run_id": "abc"}}
         self.models_lock = threading.Lock()
+        
+        self.tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "http://mlflow:5000")
+        mlflow.set_tracking_uri(self.tracking_uri)
+        
+        # Inisialisasi client untuk mengambil metadata
+        try:
+            self.client = MlflowClient()
+        except Exception as e:
+            logger.error(f"Gagal inisialisasi MlflowClient: {e}")
+            self.client = None
+            
         self._initialized = True
 
-    def load_models(self):
-        regions = ["jakarta_pusat", "jakarta_selatan", "jakarta_utara", "yogyakarta"]
+    def load_production_models(self, regions: list, max_retries: int = 5, retry_delay: int = 3):
+        if not self.client:
+            logger.error("MlflowClient tidak tersedia. Gagal memuat model.")
+            return
 
-        with self.models_lock:
-            for region in regions:
-                model_uri = f"models:/{region}_model@production"
+        for region in regions:
+            loaded = False
+            for attempt in range(1, max_retries + 1):
                 try:
-                    logger.info("loading_model", extra={"region": region, "model_uri": model_uri})
-                    model = mlflow.pyfunc.load_model(model_uri=model_uri)
+                    # 1. Ambil info versi dari @production alias
+                    v_info = self.client.get_model_version_by_alias(region, "production")
+                    actual_version = v_info.version
 
-                    # Fetch version info via MLflow client
-                    client = MlflowClient()
+                    # 2. Muat model fisiknya via alias URI
+                    model_uri = f"models:/{region}@production"
+                    model = mlflow.pyfunc.load_model(model_uri)
 
-                    try:
-                        mv = client.get_model_version_by_alias(f"{region}_model", "production")
-                        # Read semantic version from tags, fallback to MLflow integer version
-                        sem_ver = mv.tags.get("semantic_version", None)
-                        version_str = sem_ver if sem_ver else f"v{mv.version}"
-                    except Exception:
-                        version_str = "production"
+                    with self.models_lock:
+                        self.models[region] = {
+                            "model": model,
+                            "version": actual_version,
+                            "run_id": v_info.run_id,
+                            "status": "ready"
+                        }
 
-                    self.models[region] = {
-                        "model": model,
-                        "version": version_str,
-                        "metadata": getattr(model, "metadata", None)
-                    }
-
-                    from app.metrics import MODEL_LOAD_STATUS
-                    MODEL_LOAD_STATUS.labels(region=region).set(1)
-
-                    print(f"[{region}] Successfully loaded model version {version_str}")
+                    logger.info(f"Berhasil memuat model {region} [Version: {actual_version}]")
+                    loaded = True
+                    break
                 except Exception as e:
-                    logger.error("model_load_error", extra={"region": region, "error": str(e)})
-                    print(f"[{region}] FAILED to load: {e}")
-                    from app.metrics import MODEL_LOAD_STATUS
-                    MODEL_LOAD_STATUS.labels(region=region).set(0)
+                    logger.warning(f"Attempt {attempt}/{max_retries} gagal memuat model {region}: {str(e)}")
+                    if attempt < max_retries:
+                        import time
+                        time.sleep(retry_delay)
 
-    def get_model(self, region: str):
+            if not loaded:
+                logger.error(f"Gagal memuat model {region} setelah {max_retries} percobaan.")
+
+    def get_model_data(self, region: str):
+        """Mengambil dictionary lengkap berisi model dan metadata"""
         with self.models_lock:
             return self.models.get(region)
 
-    def get_model_info(self, region: str):
-        with self.models_lock:
-            info = self.models.get(region)
-            if info:
-                return {
-                    "version": info["version"],
-                    "metadata": info["metadata"].to_dict() if info["metadata"] else {}
-                }
-            return None
-
+    def get_model(self, region: str):
+        """Helper untuk mengambil objek model saja (untuk backward compatibility)"""
+        data = self.get_model_data(region)
+        return data["model"] if data else None
 
 model_loader = ModelProvider()

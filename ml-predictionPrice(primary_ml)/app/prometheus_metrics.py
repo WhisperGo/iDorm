@@ -1,29 +1,24 @@
-from prometheus_client import Counter, Histogram, Gauge
+from prometheus_client import Counter, REGISTRY
+from fastapi import APIRouter
+from fastapi.responses import Response
+import prometheus_client
 
-# Total request per region
-REQUEST_COUNT = Counter(
-    "prediction_requests_total",
-    "Total prediction requests",
-    ["region"]
+metrics_router = APIRouter()
+
+def get_or_create_counter(name, documentation, labelnames=()):
+    if name in REGISTRY._names_to_collectors:
+        return REGISTRY._names_to_collectors[name]
+    return Counter(name, documentation, labelnames)
+
+REQUEST_COUNT = get_or_create_counter(
+    'prediction_requests',
+    'Total number of prediction requests',
+    ['region', 'status']
 )
 
-# Error counter
-ERROR_COUNT = Counter(
-    "prediction_errors_total",
-    "Total prediction errors",
-    ["region"]
-)
-
-# Latency histogram
-REQUEST_LATENCY = Histogram(
-    "prediction_latency_seconds",
-    "Prediction latency",
-    ["region"]
-)
-
-# Latest prediction gauge
-LATEST_PREDICTION = Gauge(
-    "latest_prediction_value",
-    "Latest prediction value",
-    ["region"]
-)
+@metrics_router.get("/metrics")
+async def metrics():
+    return Response(
+        content=prometheus_client.generate_latest(REGISTRY),
+        media_type=prometheus_client.CONTENT_TYPE_LATEST
+    )

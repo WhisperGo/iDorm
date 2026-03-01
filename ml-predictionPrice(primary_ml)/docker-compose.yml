@@ -1,29 +1,78 @@
 services:
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
+  db_ml:
+    image: mysql:8.0
+    container_name: idorm_db_ml
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: mlflow_db
     ports:
-      - "9090:9090"
+      - "3307:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-ppassword" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mlflow:
+    build: .
+    container_name: idorm_mlflow
+    depends_on:
+      db_ml:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    volumes:
+      - mlruns_data:/app/mlruns
+    command: >
+      mlflow server  --backend-store-uri mysql+pymysql://root:password@db_ml/mlflow_db --default-artifact-root /app/mlruns --host 0.0.0.0 --port 5000 --allowed-hosts mlflow,mlflow:5000,localhost,localhost:5000,127.0.0.1,127.0.0.1:5000
+
+  retrain:
+    build: .
+    container_name: idorm_retrain
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    depends_on:
+      db_ml:
+        condition: service_healthy
+      mlflow:
+        condition: service_started
+    volumes:
+      - mlruns_data:/app/mlruns
+    command: >
+      sh -c " echo '[retrain] Waiting for MLflow...'; while ! nc -z mlflow 5000; do sleep 1; done; echo '[retrain] MLflow ready! Training models...'; python scripts/retrain_all.py; echo '[retrain] Done! All models registered.'; "
+
+  fastapi_app:
+    build: .
+    container_name: idorm_fastapi
+    ports:
+      - "8002:8000"
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    depends_on:
+      retrain:
+        condition: service_completed_successfully
+    volumes:
+      - mlruns_data:/app/mlruns
+    command: >
+      sh -c " echo 'Menunggu MLflow siap di port 5000...'; while ! nc -z mlflow 5000; do
+        sleep 1;
+      done; echo 'MLflow siap! Memulai FastAPI...'; uvicorn app.main:app --host 0.0.0.0 --port 8000 "
+
+  prometheus:
+    image: prom/prometheus
+    container_name: idorm_prometheus
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    restart: unless-stopped
+    ports:
+      - "9092:9090"
 
   grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
+    image: grafana/grafana
+    container_name: idorm_grafana
     ports:
-      - "3001:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - "3002:3000"
     depends_on:
       - prometheus
-    volumes:
-      - grafana-data:/var/lib/grafana
-    restart: unless-stopped
 
 volumes:
-  grafana-data:
+  mlruns_data:

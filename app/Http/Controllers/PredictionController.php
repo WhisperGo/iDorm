@@ -49,7 +49,7 @@ class PredictionController extends Controller
         $regionInput = str_replace(' ', '_', strtolower($request->region));
 
         try {
-            // 3. TEMBAK API FASTAPI (Port 8001)
+            // 3. TEMBAK API FASTAPI
             // Kita bungkus dengan timeout biar kalau Python-nya mati, Laravel nggak nunggu selamanya
             $response = Http::post("http://127.0.0.1:8002/predict/{$regionInput}", [
                 // 'region'          => $regionInput,
@@ -72,26 +72,58 @@ class PredictionController extends Controller
                 // dd($result = $response->json());
                 $data = $response->json();
 
+                // Base price from MLflow
                 $basePrice = $data['predicted_price'] ?? 0;
+                
+                // Define true MAE (Mean Absolute Error) ranges based on the notebook training results
+                $maeMargins = [
+                    'jakarta_pusat' => 538324,
+                    'jakarta_selatan' => 500346,
+                    'jakarta_utara' => 256533,
+                    'yogyakarta' => 255535
+                ];
+                
+                // Assign MAE or fallback to 300000
+                $margin = $maeMargins[$regionInput] ?? 300000;
+                
+                $offeredPrice = (float) $request->harga;
+                $minPrice = $basePrice - $margin;
+                $maxPrice = $basePrice + $margin;
+
+                // Hitung Verdict Wajar/Overprice/Underprice
+                if ($offeredPrice < $minPrice) {
+                    $verdict = 'Underprice';
+                    $color_code = 'warning';
+                    $description = 'Harga ini sangat murah di bawah standar pasar. Pastikan tidak ada masalah tersembunyi dengan properti.';
+                } elseif ($offeredPrice > $maxPrice) {
+                    $verdict = 'Overprice';
+                    $color_code = 'danger';
+                    $description = 'Harga ini tergolong mahal di atas standar pasar rata-rata. Periksa kembali kelayakan fasilitas yang ditawarkan.';
+                } else {
+                    $verdict = 'Wajar';
+                    $color_code = 'success';
+                    $description = 'Harga penawaran ini tergolong standar/wajar di pasar saat ini.';
+                }
+
                 // KUNCI PERBAIKAN: Kita bungkus ulang datanya agar sesuai dengan variabel di Blade kamu
                 $formattedRes = [
                     'status' => 'success',
                     'metadata' => [
                         'region' => $data['region'] ?? $request->region,
-                        'mae_margin' => $data['metadata']['mae_margin'] ?? 300000,
+                        'mae_margin' => $data['metadata']['mae_margin'] ?? $margin,
                         'calculated_distance' => $data['metadata']['calculated_distance'] ?? 0,
                     ],
                     'result' => [
                         'base_prediction' => $basePrice, // Python ngirim ini, Blade nyari base_prediction
                         'fair_range' => $data['fair_range'] ?? [
-                            'min' => $basePrice - 300000,
-                            'max' => $basePrice + 300000
+                            'min' => $minPrice,
+                            'max' => $maxPrice
                         ],      // Isinya min & max
-                        'offered_price' => (float) $request->harga,   // Ambil dari input awal user
+                        'offered_price' => $offeredPrice,   // Ambil dari input awal user
                         'analysis' => $data['analysis'] ?? [
-                            'verdict' => 'Wajar',
-                            'color_code' => 'success',
-                            'description' => 'Harga tergolong standar pasar.'
+                            'verdict' => $verdict,
+                            'color_code' => $color_code,
+                            'description' => $description
                         ],        // Isinya verdict, color_code, description
                     ]
                 ];
