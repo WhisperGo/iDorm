@@ -33,154 +33,94 @@ Clear ownership ensures accountability during incident handling and model lifecy
 
 ## 3. Model Versioning Policy
 
-The system implements **semantic versioning** for model artifacts:
+The system implements **MLflow-backed semantic registering** for model artifacts. We do not use physical folders anymore; everything is tracked in a centralized MySQL database (`mlflow_db`).
+
+Production models are tracked using **Aliases** instead of stages or explicit folder paths. 
 
 ```
-vMAJOR.MINOR.PATCH
+mlflow.pyfunc.load_model(f"models:/{region}@production")
 ```
 
-### Version Increment Rules
-
-* **MAJOR** → Architecture change (e.g., model type change)
-* **MINOR** → Performance improvement (metric improvement)
-* **PATCH** → Bug fix or minor preprocessing adjustment
-
-Example:
-
-```
-v1.0.0 → v1.1.0 (Improved R² or reduced MAE)
-v1.1.0 → v1.1.1 (Bug fix)
-v1.1.0 → v2.0.0 (Model type change)
-```
-
-Production models are stored in:
-
-```
-models/{region}/vX.Y.Z/
-```
-
-Each version contains:
-
-* `model.pkl`
-* `metadata.json`
+Each run in the MySQL database automatically contains:
+* The `.pkl` artifact (stored in the Docker volume `mlruns_data`)
+* Full hyperparameters (e.g., `n_estimators`, `learning_rate`)
+* Validation metrics (e.g., `MAE`, `R2`, `MAPE`)
+* Training environment requirements
 
 ---
 
 ## 4. Metadata Governance
 
-Each model version must include `metadata.json` containing:
+Because we use a MySQL-backed MLflow tracking server, metadata is natively enforced.
+Each model version automatically includes tracking for:
 
-* `region`
-* `model_version`
-* `params`
-* `metrics`
-* `features`
-* Optional `mlflow_run_id`
+* `region` (via model name registry)
+* `model_version` (auto-incremented by MLflow)
+* `params` (logged via `mlflow.log_params()`)
+* `metrics` (logged via `mlflow.log_metrics()`)
+* `signature` (automatically enforces input schema and data types)
 
 ### Integrity Validation
+During API startup, `App/model_loader.py` validates:
+1. The requested region exists in the MLflow registry.
+2. A model is explicitly tagged with the `@production` alias.
+3. The Input Signature matches the Pydantic schema required by FastAPI.
 
-During API startup, the system validates:
-
-1. Folder version matches `metadata.model_version`
-2. Folder region matches `metadata.region`
-3. Model type matches metadata declaration
-4. Feature schema consistency
-5. Valid semantic version format
-
-If validation fails, the API will not start.
-
-This prevents:
-
-* Corrupted deployments
-* Silent mismatches
-* Human versioning errors
+If validation fails, the API gracefully falls back or throws a designated 404 until the registry is corrected. This prevents corrupted deployments or silent feature mismatches.
 
 ---
 
 ## 5. Model Promotion Process
 
-The system follows a **Manual Promotion Strategy**.
+The system follows an **Alias Promotion Strategy** via MLflow.
 
 ### Steps:
+1. Jupyter Notebooks are used to find optimal algorithms and hyperparameters.
+2. The optimal parameters are hardcoded into `scripts/retrain_all.py`.
+3. The Docker stack is built (`gas.bat`). The retraining script runs automatically, connecting to the MySQL MLflow store.
+4. The system natively registers the new model and tags it with `@production`.
+5. The FastAPI server starts, pulling the newly aliased `@production` model directly into memory.
 
-1. Model is trained and evaluated
-2. Metrics are compared against current production
-3. Candidate model is generated
-4. Manual review is performed
-5. Approved model is moved to production folder
-6. API is restarted
-
-No automatic production promotion is performed.
-
-This ensures:
-
-* Human oversight
-* Risk mitigation
-* Controlled deployment
+To safely test a "Staging" model without breaking production, standard MLflow practices dictate creating a `@staging` alias and routing traffic accordingly.
 
 ---
 
 ## 6. Monitoring & Observability
 
-The system implements multiple monitoring layers:
+The system implements multiple monitoring layers visible via Grafana (`http://localhost:3002`):
 
-### 6.1 Operational Monitoring
+### 6.1 Operational Monitoring & Load Testing
+The API provides deep insights into latency and load handling via Prometheus metrics at `/metrics`, and internal summaries at `/internal-metrics`.
 
 * Request count
 * Error count
-* Latency tracking
-* P50, P90, P95 percentiles
+* Latency tracking (Mean, **P50**, **P90**, **P95**)
 
-Prometheus endpoint:
-
-```
-/metrics
-```
+These metrics are essential for determining the difference between "Model Latency" (internal math speed) and "Client Latency" (the speed the user experiences when predicting a price). A dedicated `scripts/load_test.py` is included to simulate 10,000 concurrent user requests to test Web Server throughput vs CPU latency.
 
 ---
 
 ### 6.2 Prediction Monitoring
+Prometheus Tracks:
+* Latest predicted value (`idorm_latest_prediction_value`)
+* Prediction distribution summary (`idorm_prediction_value_summary`)
 
-Endpoint:
-
-```
-/prediction-monitor/{region}
-```
-
-Tracks:
-
-* Mean prediction
-* Distribution percentiles
-* Min / Max prediction
-
----
-
-### 6.3 Anomaly Monitoring
-
-Endpoint:
-
-```
-/anomaly-monitor/{region}
-```
-
-Detects:
-
-* Hard threshold violations
-* Statistical outliers (IQR-based)
+This allows for real-time drift detection if sudden spikes in Kos prices occur inside the API's requests.
 
 ---
 
 ## 7. Rollback Strategy
 
+Because models are stored in a MySQL relational database managed by MLflow, rollbacks are instant and do not require code changes or file movements.
+
 If production instability is detected:
+1. Open the MLflow UI (`http://localhost:5000`).
+2. Navigate to the failing regional model (e.g., `jakarta_utara`).
+3. Remove the `@production` alias from the current version.
+4. Add the `@production` alias to the previous stable version.
+5. Restart the FastAPI Docker container (`docker restart idorm_fastapi`).
 
-1. Identify problematic version
-2. Remove or revert version folder
-3. Restart API
-4. Verify stability
-5. Investigate root cause
-
-Because the system uses folder-based semantic versioning, rollback is deterministic and fast.
+The system will instantly pull the older, stable model without any downtime in the main proxy.
 
 ---
 
