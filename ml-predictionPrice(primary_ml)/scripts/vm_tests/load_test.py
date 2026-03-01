@@ -8,7 +8,7 @@ import os
 from termcolor import colored
 
 # Configuration from env vars for VM usage
-TARGET_HOST = os.getenv("TARGET_HOST", "https://idorm.site:8002")
+TARGET_HOST = os.getenv("TARGET_HOST", "http://idorm.site:8002")
 URL = f"{TARGET_HOST}/predict/yogyakarta"
 METRICS_URL = f"{TARGET_HOST}/internal-metrics"
 

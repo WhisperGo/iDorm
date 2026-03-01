@@ -9,8 +9,8 @@ import os
 from termcolor import colored
 
 # Configuration from env vars for VM usage
-BASE_URL = os.getenv("TARGET_URL", "https://idorm.site:8002/predict/")
-GRAFANA_URL = os.getenv("GRAFANA_URL", "https://idorm.site:3002")
+BASE_URL = os.getenv("TARGET_URL", "http://idorm.site:8002/predict/")
+GRAFANA_URL = os.getenv("GRAFANA_URL", "http://idorm.site:3002")
 CONCURRENCY = int(os.getenv("CONCURRENCY", "20"))
 REGIONS = ["jakarta_pusat", "jakarta_selatan", "jakarta_utara", "yogyakarta"]
 

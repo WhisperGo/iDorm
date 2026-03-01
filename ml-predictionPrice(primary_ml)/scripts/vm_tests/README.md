@@ -20,12 +20,12 @@ The scripts support configuration via environment variables so you don't need to
 
 ### Running Continuous Load Testing (Default)
 
-Running this command will start the `load_test_continuous.py` script indefinitely to generate background traffic against your API. Since the default environment variables already point to `https://idorm.site`, you can just run this without overriding any URLs (unless you want to target a different IP or change concurrency):
+Running this command will start the `load_test_continuous.py` script indefinitely to generate background traffic against your API. Since the default environment variables already point to `http://idorm.site`, you can just run this without overriding any URLs (unless you want to target a different IP or change concurrency):
 
 ```bash
 docker run -it --rm \
-  -e TARGET_URL="https://idorm.site:8002/predict/" \
-  -e GRAFANA_URL="https://idorm.site:3002" \
+  -e TARGET_URL="http://idorm.site:8002/predict/" \
+  -e GRAFANA_URL="http://idorm.site:3002" \
   -e CONCURRENCY=20 \
   ml-load-tester
 ```
@@ -37,7 +37,7 @@ If you want to run the static `load_test.py` script to generate a fixed number o
 
 ```bash
 docker run -it --rm \
-  -e TARGET_HOST="https://idorm.site:8002" \
+  -e TARGET_HOST="http://idorm.site:8002" \
   -e CONCURRENCY=20 \
   -e NUM_REQUESTS=1000 \
   ml-load-tester python load_test.py
@@ -47,8 +47,8 @@ docker run -it --rm \
 
 | Variable | Script | Default | Description |
 |---|---|---|---|
-| `TARGET_URL` | `load_test_continuous.py` | `https://idorm.site:8002/predict/` | The base URL to which the regions will be appended. |
-| `TARGET_HOST` | `load_test.py` | `https://idorm.site:8002` | The host for static load test endpoints (predict & internal-metrics). |
-| `GRAFANA_URL` | `load_test_continuous.py` | `https://idorm.site:3002` | Used for logging so you know where to view results. |
+| `TARGET_URL` | `load_test_continuous.py` | `http://idorm.site:8002/predict/` | The base URL to which the regions will be appended. |
+| `TARGET_HOST` | `load_test.py` | `http://idorm.site:8002` | The host for static load test endpoints (predict & internal-metrics). |
+| `GRAFANA_URL` | `load_test_continuous.py` | `http://idorm.site:3002` | Used for logging so you know where to view results. |
 | `CONCURRENCY` | Both | `20` | Thread concurrency count. |
 | `NUM_REQUESTS`| `load_test.py` | `1000` | Total number of requests. |

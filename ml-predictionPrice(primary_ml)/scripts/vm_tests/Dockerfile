@@ -13,11 +13,11 @@ COPY load_test_continuous.py /app/load_test_continuous.py
 
 # Set default env variables (can be overridden at runtime)
 # Target base URL for the continuous load test
-ENV TARGET_URL="https://idorm.site:8002/predict/"
+ENV TARGET_URL="http://idorm.site:8002/predict/"
 # Target host for the single load test
-ENV TARGET_HOST="https://idorm.site:8002"
+ENV TARGET_HOST="http://idorm.site:8002"
 # Informational URL for the dashboard
-ENV GRAFANA_URL="https://idorm.site:3002"
+ENV GRAFANA_URL="http://idorm.site:3002"
 # Number of concurrent threads
 ENV CONCURRENCY=20
 # Number of requests for the static load test
