@@ -4,10 +4,14 @@ import json
 import statistics
 import concurrent.futures
 import math
+import os
 from termcolor import colored
 
-# Configuration
-URL = "http://localhost:8002/predict/yogyakarta"
+# Configuration from env vars for VM usage
+TARGET_HOST = os.getenv("TARGET_HOST", "http://idorm.site:8002")
+URL = f"{TARGET_HOST}/predict/yogyakarta"
+METRICS_URL = f"{TARGET_HOST}/internal-metrics"
+
 PAYLOAD = {
     "luas_kamar": 15.0,
     "jarak_ke_bca": 2.5,
@@ -20,8 +24,8 @@ PAYLOAD = {
     "is_mesin_cuci": 1
 }
 HEADERS = {"Content-Type": "application/json"}
-NUM_REQUESTS = 1000
-CONCURRENCY = 20
+NUM_REQUESTS = int(os.getenv("NUM_REQUESTS", "1000"))
+CONCURRENCY = int(os.getenv("CONCURRENCY", "20"))
 
 def send_request(req_id: int):
     """Sends a single POST request and returns latency in milliseconds."""
@@ -62,11 +66,11 @@ def run_load_test():
                 failure_count += 1
                 
             completed += 1
-            if completed % 1000 == 0:
+            if completed % int(NUM_REQUESTS/10 if NUM_REQUESTS >= 10 else 1) == 0:
                 print(f"  ... {completed}/{NUM_REQUESTS} requests completed")
 
     test_duration = time.perf_counter() - test_start
-    throughput = NUM_REQUESTS / test_duration
+    throughput = NUM_REQUESTS / test_duration if test_duration > 0 else 0
     
     print("\n" + "="*50)
     print(colored("--- LOAD TEST RESULTS (Client Side) ---", "yellow", attrs=["bold"]))
@@ -114,8 +118,8 @@ def run_load_test():
     print(colored("--- API INTERNAL METRICS (FastAPI Side) ---", "magenta", attrs=["bold"]))
     print("="*50)
     try:
-        internal_metrics = requests.get("http://localhost:8002/internal-metrics").json()
-        if "jakarta_utara" in internal_metrics["regions"]:
+        internal_metrics = requests.get(METRICS_URL).json()
+        if "jakarta_utara" in internal_metrics.get("regions", {}):
             metrics = internal_metrics["regions"]["jakarta_utara"]
             print(f"API Tracked count: {metrics['count']:>10,}")
             print(f"API Tracked Mean : {metrics['mean_ms']:>10.2f} ms")
@@ -126,7 +130,7 @@ def run_load_test():
         else:
             print(f"Internal metrics for jakarta_utara not found. Raw response: {internal_metrics}")
     except Exception as e:
-        print(f"Could not fetch internal metrics: {e}")
+        print(f"Could not fetch internal metrics from {METRICS_URL}: {e}")
 
 if __name__ == "__main__":
     try:

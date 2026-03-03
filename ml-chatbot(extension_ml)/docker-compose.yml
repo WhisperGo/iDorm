@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  ml-chatbot:
+    build: .
+    container_name: ml-chatbot-container
+    ports:
+      - "8001:8001"
+    volumes:
+      - .:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
