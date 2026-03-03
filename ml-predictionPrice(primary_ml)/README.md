@@ -1,32 +1,124 @@
-# 🏠 iDorm MLOps Prediction Service
+# iDorm - Kos Price Prediction (MLOps Service)
 
-> **Enterprise-grade MLOps Prediction API** for predicting boarding house (kos) rental prices across Indonesian regions. This service features fully containerized model training, MLflow model registry, and a FastAPI serving layer with Prometheus observability.
+> Fully containerized Machine Learning microservice for predicting fair monthly rental prices of boarding houses (kos) across Indonesian regions. Built with **FastAPI**, **MLflow**, **MySQL**, and **Docker Compose**, featuring observability via **Prometheus** and **Grafana**.
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
+
 - [Overview](#overview)
-- [Architecture](#architecture)
-- [Getting Started (For Evaluators)](#getting-started-for-evaluators)
-- [Integration Guide (For Main Web App)](#integration-guide-for-main-web-app)
+- [Project Structure](#project-structure)
+- [Supported Models & Performance](#supported-models--performance)
+- [System Architecture](#system-architecture)
+- [Quick Start Guide](#quick-start-guide)
+  - [First-Time Setup (Full Reset)](#1-first-time-setup--full-reset-gasbat)
+  - [Starting the Server (Daily Use)](#2-starting-the-server-daily-use)
+  - [Stopping the Server](#3-stopping-the-server)
+- [Verifying the Deployment](#verifying-the-deployment)
+- [Integration with Main Web App (Laravel)](#integration-with-main-web-app-laravel)
 - [MLflow Model Lifecycle](#mlflow-model-lifecycle)
-- [Observability Stack](#observability-stack)
+- [Targeted Model Retraining](#targeted-model-retraining)
+- [Load & Latency Testing](#load--latency-testing)
+- [Rerunning Jupyter Notebooks (Local)](#rerunning-jupyter-notebooks-local)
+- [Observability Stack (Grafana & Prometheus)](#observability-stack-grafana--prometheus)
+- [API Internal Endpoints](#api-internal-endpoints)
+- [Live Cloud Deployment (Optional)](#live-cloud-deployment-optional)
+
+---
+
+## Live Cloud Deployment (Optional)
+
+This project is also deployed on **Google Cloud Platform**. If you prefer to access the system directly without running Docker locally, all services are available at the following public URLs:
+
+| Service              | URL                                                                  | Description                                      |
+| -------------------- | -------------------------------------------------------------------- | ------------------------------------------------ |
+| Main Web (iDorm)     | [https://idorm.site](https://idorm.site)                             | The full iDorm web application (Laravel)         |
+| ML API (Swagger)     | [https://prediction.idorm.site/docs](https://prediction.idorm.site/docs) | Interactive API documentation & live testing |
+| MLflow Tracking      | [https://mlflow.idorm.site](https://mlflow.idorm.site)               | Model registry, parameters, metrics, and versions|
+| Grafana Dashboard    | [https://grafana.idorm.site](https://grafana.idorm.site)             | Real-time monitoring (login: `admin` / `admin`)  |
+| ML Database          | [https://db-ml.idorm.site](https://db-ml.idorm.site)                 | phpMyAdmin — browse the MLflow MySQL database    |
+| Prometheus           | [https://prometheus.idorm.site](https://prometheus.idorm.site)       | Raw Prometheus metrics and query interface        |
+
+> **Note:** The cloud deployment mirrors the exact same Docker Compose stack described in this README. All local instructions (prediction endpoints, Grafana setup, etc.) apply identically to the cloud URLs — simply replace `localhost:{port}` with the corresponding domain above.
 
 ---
 
 ## Overview
 
-This microservice predicts fair monthly rental prices for **kos** based on room attributes. It supports **4 independent regional models**:
-- `jakarta_pusat` (Random Forest)
-- `jakarta_selatan` (Random Forest)
-- `jakarta_utara` (Linear Regression)
-- `yogyakarta` (Random Forest)
+This microservice predicts fair monthly rental prices for **kos** based on room attributes such as room size, distance to landmarks, and available amenities. It supports **4 independent regional models**, each trained on region-specific datasets.
 
-The entire ML lifecycle—from model training and registration to serving and monitoring—is entirely automated and encapsulated within Docker. **No local Python environment or dependencies are required.**
+The entire ML lifecycle—from data preprocessing, model training, and MLflow registration to API serving and monitoring—is **fully automated and containerized within Docker**. No local Python environment or ML libraries are required on the host machine.
 
 ---
 
-## Architecture
+## Project Structure
+
+```text
+ml-predictionPrice(primary_ml)/
+│
+├── app/                        # FastAPI application source code
+│   ├── main.py                 # Application entry point
+│   ├── router.py               # API route definitions (/predict, /healthy, etc.)
+│   ├── model_loader.py         # Loads @production models from MLflow registry
+│   ├── schema.py               # Pydantic request/response validation schemas
+│   ├── metrics.py              # Internal latency tracking (P50, P90, P95)
+│   ├── prometheus_metrics.py   # Prometheus metric definitions
+│   ├── middleware.py           # Request logging middleware
+│   └── logging_config.py      # Structured JSON logging configuration
+│
+├── datasets/                   # Raw CSV data used for training
+│   ├── jakarta_pusat.csv
+│   ├── jakarta_selatan.csv
+│   ├── jakarta_utara.csv
+│   └── yogyakarta.csv
+│
+├── notebooks/                  # Jupyter Notebooks for experimentation
+│   ├── jakarta_pusat.ipynb     # Hyperparameter tuning & EDA
+│   ├── jakarta_selatan.ipynb
+│   ├── jakarta_utara.ipynb
+│   └── yogyakarta.ipynb
+│
+├── scripts/                    # Automation & utility scripts
+│   ├── retrain_all.py          # Production retraining script (supports --region flag)
+│   ├── load_test.py            # Load testing script (P50/P90/P95 latency report)
+│   └── ...                     # Other helper/debug scripts
+│
+├── docs/                       # Technical documentation
+│   ├── integration_guide.md    # How to integrate with the main web app
+│   └── production_governance.md # MLOps governance framework
+│
+├── grafana_dashboard(json)/    # Pre-built Grafana dashboard templates
+│   ├── overall_monitoring.json
+│   └── regional_latency_monitoring.json
+│
+├── Dockerfile                  # Container image definition
+├── docker-compose.yml          # Multi-container orchestration
+├── requirements.txt            # Python dependencies (used inside Docker only)
+├── requirements_notebook.txt   # Python dependencies for rerunning notebooks locally
+├── prometheus.yml              # Prometheus scrape configuration
+├── gas.bat                     # Windows one-click launcher (full reset + build)
+└── README.md                   # This file
+```
+
+---
+
+## Supported Models & Performance
+
+Each region uses the best-performing algorithm as determined during the experimental phase (see `notebooks/`):
+
+| Region             | Algorithm              | MAE (Rp)   | R² Score |
+| ------------------ | ---------------------- | ---------- | -------- |
+| `jakarta_pusat`    | Gradient Boosting      | 538,324    | 0.7112   |
+| `jakarta_selatan`  | Random Forest          | 500,346    | 0.6247   |
+| `jakarta_utara`    | Random Forest          | 256,533    | 0.6914   |
+| `yogyakarta`       | Ridge Regression       | 255,535    | 0.7180   |
+
+> **MAE** (Mean Absolute Error) represents the average prediction error in Rupiah.
+> **R²** (R-Squared) represents how well the model explains price variance (1.0 = perfect).
+
+---
+
+## System Architecture
 
 ```text
 ┌─────────────────────────────────────────────────────────┐
@@ -36,7 +128,7 @@ The entire ML lifecycle—from model training and registration to serving and mo
                        │
                        ▼
 ┌──────────────────────────────────────────────────────────┐
-│                  FastAPI Service                         │
+│                  FastAPI Service (:8002)                  │
 │  Loads models tagged with '@production' alias from MLflow│
 ├──────────────────────────────────────────────────────────┤
 │  Prometheus Metrics  │  JSON Logging  │ Health Endpoints │
@@ -55,81 +147,121 @@ The entire ML lifecycle—from model training and registration to serving and mo
                           └────────────────────┘
 ```
 
-The system uses dedicated ports to prevent any conflicts with your main web application:
-- `3307`: ML MySQL Database (`mlflow_db`)
-- `8081`: phpMyAdmin (Direct Database Access)
-- `5000`: MLflow Tracking Server UI
-- `8002`: FastAPI Prediction Server
-- `9092`: Prometheus
-- `3002`: Grafana
+### Port Allocation
+
+All ports are carefully chosen to avoid conflicts with the main web application (Laravel on `:8000`, MySQL on `:3306`):
+
+| Port   | Service                   | URL                                |
+| ------ | ------------------------- | ---------------------------------- |
+| `3307` | ML MySQL Database         | Internal only                      |
+| `8081` | phpMyAdmin                | http://localhost:8081               |
+| `5000` | MLflow Tracking Server    | http://localhost:5000               |
+| `8002` | FastAPI Prediction API    | http://localhost:8002               |
+| `9092` | Prometheus                | http://localhost:9092               |
+| `3002` | Grafana                   | http://localhost:3002               |
 
 ---
 
-## 🧪 Utilities & Testing
-
-### Advanced Model Retraining
-By default, `gas.bat` trains all 4 models from scratch securely. If you want to train **Version 2** of only a specific region (e.g., you updated hyperparameters but want to leave the other 3 regions untouched):
-```bash
-python scripts/retrain_all.py --region yogyakarta
-```
-*Note: The MLflow registry will automatically increment this as Version 2 and set it as `@production`. The FastAPI server will need to be restarted to load the new version into RAM.*
-
-### Load & Latency Testing
-To prove the enterprise stability of the prediction API, you can simulate heavy traffic using the load testing script:
-```bash
-python scripts/load_test.py
-```
-This simulates 10,000 requests using multithreading and provides a full CLI report on the **P50**, **P90**, and **P95** API latencies.
-
----
-
-## Getting Started (For Evaluators)
-
-This project has been engineered to be **100% plug-and-play**. You do not need Python, Jupyter, or any ML libraries installed on your host machine.
+## Quick Start Guide
 
 ### Prerequisites
-- **Docker Desktop** must be running.
 
-### 1. Launch the Environment
-Open your terminal in this repository folder and execute:
+- **Docker Desktop** must be installed and running.
+- No Python, Jupyter, or ML libraries need to be installed on the host machine.
+
+---
+
+### 1. First-Time Setup / Full Reset (`gas.bat`)
+
+> **Use this when:** You are running the project for the very first time, OR you want to completely wipe everything and start fresh (e.g., for evaluation/grading purposes).
 
 **Windows:**
 ```bat
 gas.bat
 ```
 
-**What happens automatically:**
-1. Spins up the `mlflow_db` MySQL container.
-2. Spins up the `mlflow` server.
-3. Spins up the `retrain` container which:
-   - Reads the raw CSV datasets.
-   - Cleans data and executes the feature engineering pipeline.
-   - Trains all 4 regional models mathematically perfectly.
-   - Registers them into MLflow and tags them as `@production`.
-   - Safely exits.
-4. Spins up the `fastapi_app` container, which waits for the models to be ready, loads them into high-speed memory, and begins listening for requests.
-5. Spins up `prometheus` and `grafana`.
+**Mac / Linux:**
 
-### 2. Verify the Deployment
-Once `gas.bat` finishes and you see `Uvicorn running on http://0.0.0.0:8000` in the terminal logs:
+Since `.bat` files are Windows-only, Mac/Linux users should run the two commands inside `gas.bat` manually:
+```bash
+docker-compose down -v
+docker-compose up --build
+```
 
-1. **Verify API Health:** [http://localhost:8002/healthy](http://localhost:8002/healthy) 
-   *(Should return status "healthy" and list all 4 regions)*
-2. **Explore MLflow Registry:** [http://localhost:5000](http://localhost:5000)
-   *(Navigate to "Models" to see the registered versions and parameters)*
-3. **View API Documentation:** [http://localhost:8002/docs](http://localhost:8002/docs)
-   *(Interactive Swagger UI where you can test predictions directly)*
+**What `gas.bat` does internally:**
+1. `docker-compose down -v` — Stops all running containers and **deletes all Docker volumes** (wiping the MySQL database and all previously trained models). This guarantees a clean slate.
+2. `docker-compose up --build` — **Rebuilds** all Docker images from scratch, then starts the entire stack in sequence:
+   - Starts the `db_ml` MySQL container and waits until it is healthy.
+   - Starts the `mlflow` tracking server (backed by MySQL).
+   - Starts the `phpmyadmin` container for database inspection.
+   - Starts the `retrain` container, which automatically reads the CSV datasets, trains all 4 regional models, registers them into MLflow with the `@production` alias, and then safely exits.
+   - Starts the `fastapi_app` container, which connects to MLflow, loads the `@production` models into memory, and begins serving predictions.
+   - Starts `prometheus` and `grafana` for monitoring.
+
+> **Important:** Because `gas.bat` includes `--build`, it rebuilds Docker images every time. This is intentional for first-time setup and evaluation, but is **not necessary for daily use** (see below).
 
 ---
 
-## Integration Guide (For Main Web App)
+### 2. Starting the Server (Daily Use)
 
-To integrate this ML service into your main web application (e.g., Laravel, Node.js), simply make a `POST` request to the FastAPI container running on port `8002`.
+> **Use this when:** The project has already been set up before (you have already run `gas.bat` at least once), and you simply want to turn the server back on without rebuilding or retraining.
+
+**Windows / Mac / Linux:**
+```bash
+docker-compose up -d
+```
+
+**What this does:**
+- Starts all existing containers in the background (`-d` = detached mode).
+- Does **not** rebuild images or retrain models.
+- Your previously trained models and MLflow data are preserved inside the Docker volumes.
+- Takes only a few seconds to start.
+
+> **Tip:** Omit `-d` if you want to see the live server logs in your terminal (useful for debugging).
+
+---
+
+### 3. Stopping the Server
+
+> **Use this when:** You are done testing and want to turn off Docker to free up system resources.
+
+**To stop without deleting data (preserves models and database):**
+```bash
+docker-compose down
+```
+
+**To stop AND delete all data (full wipe, same as resetting):**
+```bash
+docker-compose down -v
+```
+
+> The `-v` flag removes Docker volumes. This means the MySQL database, trained models, and MLflow history will all be deleted. Only use this if you intend to do a full reset.
+
+---
+
+## Verifying the Deployment
+
+Once the server is running and you see `Uvicorn running on http://0.0.0.0:8000` in the terminal logs, verify with:
+
+| Check                    | URL                                             | Expected Result                                  |
+| ------------------------ | ----------------------------------------------- | ------------------------------------------------ |
+| API Health               | http://localhost:8002/healthy                    | Status `healthy`, lists all 4 loaded regions     |
+| MLflow Registry          | http://localhost:5000                            | Navigate to "Models" to inspect versions & params|
+| API Documentation        | http://localhost:8002/docs                       | Interactive Swagger UI for testing predictions   |
+| phpMyAdmin (Database)    | http://localhost:8081                            | Browse the `mlflow_db` tables directly           |
+| Grafana (Monitoring)     | http://localhost:3002                            | Login with `admin` / `admin`                     |
+
+---
+
+## Integration with Main Web App (Laravel)
+
+The main iDorm web application (Laravel, running on port `:8000`) communicates with this ML service by making HTTP `POST` requests to the FastAPI container on port `:8002`.
 
 **Endpoint:** `POST http://localhost:8002/predict/{region}`
-*(Valid regions: `jakarta_pusat`, `jakarta_selatan`, `jakarta_utara`, `yogyakarta`)*
 
-**Example Payload:**
+Valid regions: `jakarta_pusat`, `jakarta_selatan`, `jakarta_utara`, `yogyakarta`
+
+**Example Request Payload:**
 ```json
 {
   "luas_kamar": 15.0,
@@ -153,198 +285,161 @@ To integrate this ML service into your main web application (e.g., Laravel, Node
 }
 ```
 
+The Laravel `PredictionController` then compares the user's offered price against the predicted price using the model's MAE as a dynamic margin to determine whether the price is **Wajar** (fair), **Overprice**, or **Underprice**.
+
 ---
 
 ## MLflow Model Lifecycle
 
-This project utilizes **MLflow** for robust lifecycle governance:
-1. Every time `gas.bat` is run, the script `scripts/retrain_all.py` executes inside an isolated container.
-2. It trains the models using the exact parameters determined in the experimental phase. 
-3. The newly trained models are uploaded into the MLflow MySQL database and attached with the `@production` alias.
-4. The FastAPI application queries MLflow exclusively for the `@production` alias, ensuring it always loads the correct version.
+This project uses **MLflow** with a **MySQL backend** for full model lifecycle governance:
 
-*Note: `gas.bat` runs `docker-compose down -v` first. This purposefully wipes the Docker Volumes to guarantee a completely fresh, deterministic training run starting from Version 1 every single time it is evaluated.*
+1. Models are trained using the exact hyperparameters defined in `scripts/retrain_all.py`, which mirrors the best results from the experimental Jupyter Notebooks.
+2. Trained models are registered into the MLflow Model Registry (stored in `mlflow_db` via MySQL).
+3. Each model is tagged with the `@production` alias upon registration.
+4. The FastAPI application exclusively loads models tagged `@production`, ensuring it always serves the correct, validated version.
+
+> **Note:** `gas.bat` runs `docker-compose down -v` first, which wipes all Docker volumes. This means every run of `gas.bat` produces a fresh, deterministic Version 1 training. This is by design for evaluation purposes. For incremental versioning (e.g., creating Version 2), see [Targeted Model Retraining](#targeted-model-retraining).
 
 ---
 
-## Observability Stack
+## Targeted Model Retraining
 
-The FastAPI service exposes Prometheus metrics which are automatically scraped and can be visualized in Grafana. 
+If you want to retrain **only one region** (e.g., you updated the hyperparameters for Yogyakarta) without affecting the other 3 regions:
 
-### Accessing Grafana
-1. Open [http://localhost:3002](http://localhost:3002) in your browser.
-2. Login with `admin` / `admin`.
-3. Add a **Prometheus** Data Source.
-4. When prompted for the connection URL, enter: `http://prometheus:9090` *(Grafana resolves the internal Docker network name).*
+**Step 1:** Update the hyperparameters in `scripts/retrain_all.py` under the `REGION_CONFIGS` dictionary for the target region.
 
-Recomended JSON for GRAFANA (by developer):
-OVERALL MONITORING:
-{
-  "annotations": { "list": [] },
-  "editable": true,
-  "fiscalYearStartMonth": 0,
-  "graphTooltip": 1,
-  "links": [],
-  "liveNow": false,
-  "panels": [
-    {
-      "title": "Quick Overview (Total Requests vs Errors)",
-      "type": "stat",
-      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 0 },
-      "targets": [
-        { "expr": "sum(prediction_requests_total)", "legendFormat": "Requests" },
-        { "expr": "sum(prediction_errors_total)", "legendFormat": "Errors" }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null },
-              { "color": "red", "value": 1 }
-            ]
-          }
-        }
-      }
-    },
-    {
-      "title": "System Latency P95 (Real-time Experience)",
-      "type": "stat",
-      "gridPos": { "h": 6, "w": 8, "x": 8, "y": 0 },
-      "targets": [
-        { "expr": "histogram_quantile(0.95, sum by (le) (rate(prediction_latency_seconds_bucket[5m])))" }
-      ],
-      "fieldConfig": {
-        "defaults": { "unit": "s", "mappings": [], "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 0.5 }, { "color": "red", "value": 1.5 }] } }
-      }
-    },
-    {
-      "title": "Model Load Status per Region",
-      "type": "stat",
-      "gridPos": { "h": 6, "w": 8, "x": 16, "y": 0 },
-      "targets": [
-        { "expr": "model_load_status", "legendFormat": "{{region}}" }
-      ],
-      "options": { "colorMode": "background", "graphMode": "none", "textMode": "name" },
-      "fieldConfig": {
-        "defaults": { "mappings": [{ "options": { "0": { "color": "red", "text": "DOWN" }, "1": { "color": "green", "text": "READY" } }, "type": "value" }] }
-      }
-    },
-    {
-      "title": "Throughput by Region (Requests/sec)",
-      "type": "timeseries",
-      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 6 },
-      "targets": [
-        { "expr": "sum by (region) (rate(prediction_requests_total[1m]))", "legendFormat": "{{region}}" }
-      ],
-      "options": { "legend": { "displayMode": "table", "placement": "right" } }
-    },
-    {
-      "title": "Prediction Value Distribution (Monitoring Drift)",
-      "type": "histogram",
-      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 15 },
-      "targets": [
-        { "expr": "prediction_value_summary_sum / prediction_value_summary_count", "legendFormat": "Average Predicted Price" }
-      ]
-    }
-  ],
-  "refresh": "5s",
-  "schemaVersion": 38,
-  "style": "dark",
-  "tags": ["iDorm", "MLOps", "PPTI-BCA"],
-  "time": { "from": "now-30m", "to": "now" },
-  "title": "iDorm MLOps Final Dashboard",
-  "uid": "idorm_pro_v1"
-}
+**Step 2:** Run the retraining script with the `--region` flag:
+```bash
+python scripts/retrain_all.py --region yogyakarta
+```
 
-LATENCY FOCUS MONITORING:
-{
-  "annotations": { "list": [] },
-  "editable": true,
-  "fiscalYearStartMonth": 0,
-  "graphTooltip": 1,
-  "links": [],
-  "liveNow": false,
-  "panels": [
-    {
-      "title": "Total Requests vs Errors",
-      "type": "stat",
-      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
-      "targets": [
-        { "expr": "sum(prediction_requests_total)", "legendFormat": "Req" },
-        { "expr": "sum(prediction_errors_total)", "legendFormat": "Err" }
-      ],
-      "fieldConfig": {
-        "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] } }
-      }
-    },
-    {
-      "title": "Median Latency (P50)",
-      "type": "stat",
-      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 0 },
-      "targets": [
-        { "expr": "histogram_quantile(0.50, sum by (le) (rate(prediction_latency_seconds_bucket[5m])))" }
-      ],
-      "fieldConfig": {
-        "defaults": { "unit": "s", "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 0.2 }, { "color": "red", "value": 0.5 }] } }
-      }
-    },
-    {
-      "title": "Tail Latency (P90)",
-      "type": "stat",
-      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 0 },
-      "targets": [
-        { "expr": "histogram_quantile(0.90, sum by (le) (rate(prediction_latency_seconds_bucket[5m])))" }
-      ],
-      "fieldConfig": {
-        "defaults": { "unit": "s", "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 0.5 }, { "color": "red", "value": 1.0 }] } }
-      }
-    },
-    {
-      "title": "Worst Latency (P95)",
-      "type": "stat",
-      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 0 },
-      "targets": [
-        { "expr": "histogram_quantile(0.95, sum by (le) (rate(prediction_latency_seconds_bucket[5m])))" }
-      ],
-      "fieldConfig": {
-        "defaults": { "unit": "s", "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 0.8 }, { "color": "red", "value": 1.5 }] } }
-      }
-    },
-    {
-      "title": "Latency Percentiles Trend",
-      "type": "timeseries",
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 6 },
-      "targets": [
-        { "expr": "histogram_quantile(0.50, sum by (le) (rate(prediction_latency_seconds_bucket[5m])))", "legendFormat": "P50 (Median)" },
-        { "expr": "histogram_quantile(0.90, sum by (le) (rate(prediction_latency_seconds_bucket[5m])))", "legendFormat": "P90" },
-        { "expr": "histogram_quantile(0.95, sum by (le) (rate(prediction_latency_seconds_bucket[5m])))", "legendFormat": "P95" }
-      ],
-      "options": { "legend": { "displayMode": "table", "placement": "right" } },
-      "fieldConfig": { "defaults": { "unit": "s" } }
-    },
-    {
-      "title": "Model Status",
-      "type": "stat",
-      "gridPos": { "h": 4, "w": 24, "x": 0, "y": 14 },
-      "targets": [ { "expr": "model_load_status", "legendFormat": "{{region}}" } ],
-      "options": { "colorMode": "background", "textMode": "name" },
-      "fieldConfig": {
-        "defaults": { "mappings": [{ "options": { "0": { "color": "red", "text": "DOWN" }, "1": { "color": "green", "text": "READY" } }, "type": "value" }] }
-      }
-    }
-  ],
-  "refresh": "5s",
-  "schemaVersion": 38,
-  "style": "dark",
-  "tags": ["iDorm", "MLOps", "Binus"],
-  "time": { "from": "now-15m", "to": "now" },
-  "title": "iDorm MLOps Final - Multi-Percentile",
-  "uid": "idorm_multi_p"
-}
+**What happens:**
+- Only Yogyakarta is retrained. Jakarta Pusat, Jakarta Selatan, and Jakarta Utara remain untouched at their current versions.
+- MLflow automatically creates **Version 2** for Yogyakarta and assigns the `@production` alias to it.
+- Restart the FastAPI container to load the new model:
+  ```bash
+  docker restart idorm_fastapi
+  ```
 
-### Internal Endpoints
-The FastAPI server also exposes these internal status endpoints:
-- `GET /internal-metrics`: Returns latency percentiles (mean, p50, p90, p95) and error counts.
-- `GET /model-info/{region}`: Details the currently loaded MLflow Run ID and version.
+> **Without the `--region` flag**, the script will retrain all 4 regions by default.
+
+---
+
+## Load & Latency Testing
+
+A dedicated load testing script is included to stress-test the API and measure real-world performance:
+
+```bash
+python scripts/load_test.py
+```
+
+**What it does:**
+- Fires 1,000 concurrent HTTP requests at the FastAPI prediction endpoint using 20 parallel threads.
+- Measures and reports:
+  - **P50 (Median):** The latency experienced by the average user.
+  - **P90:** 90% of requests are faster than this.
+  - **P95:** 95% of requests are faster than this (industry SLA benchmark).
+- Also fetches internal FastAPI metrics from `/internal-metrics` for comparison between client-side latency (network + processing) and server-side latency (pure model inference).
+
+> **Prerequisite:** The Docker stack must be running before executing this script. Run `docker-compose up -d` first.
+
+---
+
+## Rerunning Jupyter Notebooks (Local)
+
+The `notebooks/` folder contains the 4 Jupyter Notebooks used during the experimentation and hyperparameter tuning phase. These notebooks are **not required** for running the ML system (Docker handles everything automatically), but if you wish to rerun them locally (e.g., to verify training results or experiment with different parameters), you will need a local Python environment with the correct library versions.
+
+> **Important:** The `requirements.txt` in the project root is used exclusively inside Docker for the production system. It includes server-specific packages (FastAPI, Prometheus, etc.) that are not needed for notebooks. Use `requirements_notebook.txt` instead.
+
+### Step-by-Step Setup
+
+**Step 1:** Create a fresh Python virtual environment (Python 3.10 recommended):
+```bash
+# Using venv
+python -m venv ml_env
+# Activate it:
+# Windows:
+ml_env\Scripts\activate
+# Mac/Linux:
+source ml_env/bin/activate
+```
+
+**Step 2:** Install the notebook dependencies:
+```bash
+pip install -r requirements_notebook.txt
+```
+
+**Step 3:** Register the environment as a Jupyter kernel:
+```bash
+python -m ipykernel install --user --name ml_env --display-name "Python (ml_env)"
+```
+
+**Step 4:** Open Jupyter and run any notebook:
+```bash
+jupyter notebook
+```
+Navigate to the `notebooks/` folder and open any of the 4 regional notebooks. Make sure to select the **"Python (ml_env)"** kernel from the top-right kernel selector.
+
+### Library Version Reference
+
+| Library        | Version  | Purpose                              |
+| -------------- | -------- | ------------------------------------ |
+| `numpy`        | 1.26.4   | Numerical computing                  |
+| `pandas`       | 1.5.3    | Data manipulation & CSV loading      |
+| `scikit-learn` | 1.2.2    | ML algorithms & preprocessing        |
+| `matplotlib`   | 3.8.5    | Visualization & plotting             |
+| `seaborn`      | 0.13.2   | Statistical visualization            |
+| `scipy`        | 1.15.3   | Statistical tests & distributions    |
+| `joblib`       | 1.5.2    | Model serialization                  |
+
+---
+
+## Observability Stack (Grafana & Prometheus)
+
+The FastAPI service exposes Prometheus metrics which are automatically scraped and can be visualized in Grafana.
+
+### Setting Up Grafana
+
+1. Open http://localhost:3002 in your browser.
+2. Login with username `admin` and password `admin`.
+3. Go to **Connections** > **Data Sources** > **Add data source**.
+4. Select **Prometheus**.
+5. In the **Connection URL** field, enter: `http://prometheus:9090`
+   *(This is the internal Docker network address; do not use `localhost` here.)*
+6. Click **Save & Test**.
+
+### Importing Pre-Built Dashboards
+
+Pre-configured Grafana dashboards are provided in the `grafana_dashboard(json)/` folder:
+
+| Dashboard File                        | Purpose                                         |
+| ------------------------------------- | ----------------------------------------------- |
+| `overall_monitoring.json`             | Total requests, errors, model status, throughput |
+| `regional_latency_monitoring.json`    | P50, P90, P95 latency panels per region          |
+
+**To import:**
+1. In Grafana, click the **+** icon > **Import dashboard**.
+2. Copy-paste the JSON content from the respective file.
+3. Select the Prometheus data source you just configured.
+4. Click **Import**.
+
+---
+
+## API Internal Endpoints
+
+Besides the main prediction endpoint, the FastAPI server exposes these utility endpoints:
+
+| Endpoint                      | Method | Description                                                    |
+| ----------------------------- | ------ | -------------------------------------------------------------- |
+| `/healthy`                    | GET    | Health check showing loaded models and their statuses          |
+| `/predict/{region}`           | POST   | Main prediction endpoint                                      |
+| `/docs`                       | GET    | Interactive Swagger API documentation                          |
+| `/metrics`                    | GET    | Prometheus-compatible metrics (scraped automatically)          |
+| `/internal-metrics`           | GET    | Latency percentiles (mean, P50, P90, P95) and error counts    |
+| `/model-info/{region}`        | GET    | Shows the currently loaded MLflow Run ID and model version     |
+
+---
+
+## License
+
+This project is part of the **iDorm** web application, developed for academic purposes at Bina Nusantara University.

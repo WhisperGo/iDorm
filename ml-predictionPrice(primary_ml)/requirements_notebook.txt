@@ -1,0 +1,29 @@
+# ============================================================
+# Requirements for Running Jupyter Notebooks (Local Training)
+# ============================================================
+# This file contains the exact library versions used during
+# the model experimentation phase in the notebooks/ folder.
+#
+# These are DIFFERENT from requirements.txt, which is used
+# exclusively inside Docker for the production ML system.
+#
+# To install:
+#   pip install -r requirements_notebook.txt
+# ============================================================
+
+# Core Data Science
+numpy==1.26.4
+pandas==1.5.3
+scipy==1.15.3
+
+# Machine Learning
+scikit-learn==1.2.2
+joblib==1.5.2
+
+# Visualization
+matplotlib==3.8.5
+seaborn==0.13.2
+
+# Jupyter Notebook
+notebook>=7.0.0
+ipykernel>=6.0.0
