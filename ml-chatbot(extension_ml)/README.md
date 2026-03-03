@@ -166,23 +166,3 @@ Once the container is running, verify the service is healthy:
   }
 }
 ```
-
----
-
-## Integration Guide (For Main Web App)
-
-To integrate this chatbot into your main Laravel application, make a `POST` request to the chatbot container running on port `8001`.
-
-**Endpoint:** `POST http://localhost:8001/predict`
-
-```php
-// Example using Laravel HTTP Client
-$response = Http::post('http://localhost:8001/predict', [
-    'message' => $userMessage,
-]);
-
-$data = $response->json();
-$botReply = $data['data']['bot_reply'];
-$intent = $data['data']['intent'];
-$entities = $data['data']['entities'];
-```
