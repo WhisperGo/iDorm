@@ -276,7 +276,19 @@ def train_region(region, X_train, X_test, y_train, y_test):
 
 
 def main():
-    regions = ["jakarta_pusat", "jakarta_selatan", "jakarta_utara", "yogyakarta"]
+    import argparse
+    parser = argparse.ArgumentParser(description="Retrain idorm ML models")
+    parser.add_argument("--region", type=str, help="Specify a region to train (e.g. yogyakarta). If not specified, trains all regions.")
+    args = parser.parse_args()
+
+    # Determine which regions to train
+    if args.region:
+        regions = [args.region]
+        print(f"\nTARGETED RETRAINING INITIATED FOR: {args.region.upper()}")
+    else:
+        regions = ["jakarta_pusat", "jakarta_selatan", "jakarta_utara", "yogyakarta"]
+        print(f"\nFULL SYSTEM RETRAINING INITIATED FOR {len(regions)} REGIONS")
+
     results = {}
 
     for region in regions:
@@ -285,7 +297,7 @@ def main():
         results[region] = uri
 
     print(f"\n{'='*60}")
-    print("  ALL MODELS RETRAINED SUCCESSFULLY")
+    print("  ALL REQUESTED MODELS RETRAINED SUCCESSFULLY")
     print(f"{'='*60}")
     for region, uri in results.items():
         print(f"  {region}: {uri}")

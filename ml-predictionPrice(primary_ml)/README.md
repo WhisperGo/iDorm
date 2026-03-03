@@ -57,10 +57,29 @@ The entire ML lifecycle—from model training and registration to serving and mo
 
 The system uses dedicated ports to prevent any conflicts with your main web application:
 - `3307`: ML MySQL Database (`mlflow_db`)
+- `8081`: phpMyAdmin (Direct Database Access)
 - `5000`: MLflow Tracking Server UI
 - `8002`: FastAPI Prediction Server
 - `9092`: Prometheus
 - `3002`: Grafana
+
+---
+
+## 🧪 Utilities & Testing
+
+### Advanced Model Retraining
+By default, `gas.bat` trains all 4 models from scratch securely. If you want to train **Version 2** of only a specific region (e.g., you updated hyperparameters but want to leave the other 3 regions untouched):
+```bash
+python scripts/retrain_all.py --region yogyakarta
+```
+*Note: The MLflow registry will automatically increment this as Version 2 and set it as `@production`. The FastAPI server will need to be restarted to load the new version into RAM.*
+
+### Load & Latency Testing
+To prove the enterprise stability of the prediction API, you can simulate heavy traffic using the load testing script:
+```bash
+python scripts/load_test.py
+```
+This simulates 10,000 requests using multithreading and provides a full CLI report on the **P50**, **P90**, and **P95** API latencies.
 
 ---
 
