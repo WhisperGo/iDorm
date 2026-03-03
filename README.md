@@ -14,7 +14,8 @@
   - [3. Environment Configuration](#3-environment-configuration)
   - [4. Database Setup (XAMPP)](#4-database-setup-xampp)
   - [5. Google Maps API Key Setup](#5-google-maps-api-key-setup)
-  - [6. Access the Application (Laravel Herd)](#6-access-the-application-laravel-herd)
+  - [6. ML Modules Setup (Docker)](#6-ml-modules-setup-docker)
+  - [7. Access the Application (Laravel Herd)](#7-access-the-application-laravel-herd)
 - [🌐 Live Deployment](#-live-deployment)
 - [⚖️ License](#️-license)
 
@@ -107,7 +108,7 @@ DB_PASSWORD=
 ```
 4. Run migrations and seed the database with required initial data (Roles, Statuses, and Users):
 ```bash
-php artisan migrate --seed
+php artisan migrate:fresh --seed
 ```
 
 ### 5. Google Maps API Key Setup
@@ -129,7 +130,17 @@ iDorm uses the Google Maps JavaScript API. You need to generate your own API key
 GOOGLE_MAPS_API_KEY="your_api_key_here"
 ```
 
-### 6. Access the Application (Laravel Herd)
+### 6. ML Modules Setup (Docker)
+iDorm integrates two Machine Learning, each fully containerized with Docker. Make sure **Docker Desktop** is running, then refer to their respective documentation for setup:
+
+| Module | Description | Port | Documentation |
+| :---: | :--- | :---: | :---: |
+| **ML Price Prediction (Primary_ML)** | MLOps pipeline for predicting boarding house rental prices across Indonesian regions. Features MLflow model registry, FastAPI serving, and Prometheus + Grafana observability. | `8002` | [📖 README](ml-predictionPrice(primary_ml)/README.md) |
+| **ML Chatbot (Extension_ML_Only)** | NLP-powered intent classification chatbot for facility booking assistance. Supports entity extraction (room, date, time) and slot-filling dialogue. | `8001` | [📖 README](ml-chatbot(extension_ml)/README.md) |
+
+> **Note:** Each module operates on its own dedicated port to avoid conflicts with the main Laravel application.
+
+### 7. Access the Application (Laravel Herd)
 Since you are using Laravel Herd, there is no need to run `php artisan serve`. Simply open your web browser and navigate directly to:
 **[http://idorm.test](http://idorm.test)**
 
