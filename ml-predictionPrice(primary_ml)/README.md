@@ -355,9 +355,8 @@ python scripts/load_test_continuous.py
 - Runs continuously until you press `Ctrl+C`.
 - Sends 20 concurrent requests per batch to random regions (`jakarta_pusat`, `jakarta_selatan`, `jakarta_utara`, `yogyakarta`).
 - Prints throughput updates every 500 requests.
-- When stopped, displays a final summary (total requests, throughput, success/failure count).
 
-> **Tip:** Run this script in one terminal, then open [http://localhost:3002](http://localhost:3002) (Grafana) in your browser. You will see the throughput, latency, and model status panels update in real-time as the traffic flows in.
+> **Tip:** Run this script in one terminal, then open [http://localhost:3002](http://localhost:3002) (Grafana) in your browser. You will see the latency, and model status panels update in real-time as the traffic flows in.
 
 ---
 

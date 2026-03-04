@@ -115,9 +115,10 @@ php artisan migrate:fresh --seed
 iDorm uses the Google Maps JavaScript API. You need to generate your own API key to enable map features.
 
 1. Go to the [Google Cloud Console](https://console.cloud.google.com/) and create a new project (or select an existing one).
-2. Navigate to **APIs & Services > Credentials** 
-3. Click **"+ Create Credentials"** and select **"API key"**.
-4. Once the key is generated, click on it to configure restrictions:
+2. Open the **Navigation Menu** (☰) on the top-left corner, scroll down and click **Google Maps Platform**.
+3. In the left sidebar, click **Keys & Credentials**.
+4. Click **"+ Create Credentials"** and select **"API key"**.
+5. Once the key is generated, click on it to configure restrictions:
    - Under **Application restrictions**, select **"Websites"**.
    - Under **Website restrictions**, add the following URLs:
      ```
@@ -125,7 +126,7 @@ iDorm uses the Google Maps JavaScript API. You need to generate your own API key
      http://iDorm.test
      ```
    - Click **Save**.
-5. Copy the API key and paste it into your `.env` file:
+6. Copy the API key and paste it into your `.env` file:
 ```env
 GOOGLE_MAPS_API_KEY="your_api_key_here"
 ```
