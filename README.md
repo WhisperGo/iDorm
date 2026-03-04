@@ -136,7 +136,7 @@ iDorm integrates two Machine Learning, each fully containerized with Docker. Mak
 | Module | Description | Port | Documentation |
 | :---: | :--- | :---: | :---: |
 | **ML Price Prediction (Primary_ML)** | MLOps pipeline for predicting boarding house rental prices across Indonesian regions. Features MLflow model registry, FastAPI serving, and Prometheus + Grafana observability. | `8002` | [📖 README](ml-predictionPrice(primary_ml)/README.md) |
-| **ML Chatbot (Extension_ML_Only)** | NLP-powered intent classification chatbot for facility booking assistance. Supports entity extraction (room, date, time) and slot-filling dialogue. | `8001` | [📖 README](ml-chatbot(extension_ml)/README.md) |
+| **ML Chatbot (Extension_ML_Only)** | NLP-powered intent classification chatbot for facility booking assistance. Supports entity extraction (room, date, time) and slot-filling dialogue. *(Optional — if not installed, only the chatbot feature will be unavailable; the rest of the system is unaffected.)* | `8001` | [📖 README](ml-chatbot(extension_ml)/README.md) |
 
 > **Note:** Each module operates on its own dedicated port to avoid conflicts with the main Laravel application.
 
